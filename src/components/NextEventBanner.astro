@@ -1,0 +1,99 @@
+---
+import type { EventItem } from "../data/cms";
+
+export interface Props {
+  event?: EventItem;
+  ctaHref?: string;
+}
+
+const { event, ctaHref = "/termine" } = Astro.props as Props;
+
+const hasEvent = Boolean(event);
+let formattedDate = "";
+let locationLine = "";
+let timeLabel = "";
+
+const pad = (num: number) => String(num).padStart(2, "0");
+const parseTime = (value?: string) => {
+  if (!value) return null;
+  const match = value.trim().match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  return Number.isNaN(hours) || Number.isNaN(minutes) ? null : { hours, minutes };
+};
+
+const formatTime = (time: { hours: number; minutes: number }) => `${pad(time.hours)}:${pad(time.minutes)}`;
+
+if (event) {
+  const date = new Date(`${event.date}T12:00:00`);
+  formattedDate = new Intl.DateTimeFormat("de-DE", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  }).format(date);
+
+  const start = parseTime(event.startTime);
+  const end = parseTime(event.endTime);
+
+  if (start && end) {
+    timeLabel = `${formatTime(start)} – ${formatTime(end)} Uhr`;
+  } else if (start) {
+    timeLabel = `ab ${formatTime(start)} Uhr`;
+  } else if (end) {
+    timeLabel = `bis ${formatTime(end)} Uhr`;
+  }
+
+  locationLine = [
+    event.location,
+    event.streetAddress,
+    [event.postalCode, event.city].filter(Boolean).join(" ")
+  ]
+    .filter((part) => part && part.length > 0)
+    .join(" · ");
+}
+---
+
+{hasEvent && (
+  <section class="bg-slate-100 dark:bg-slate-950">
+    <div class="container pt-2 pb-1 md:pt-3 md:pb-2">
+      <div class="flex flex-col gap-4 rounded-2xl bg-brand-600 px-6 py-5 text-white md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
+        <div class="flex flex-1 items-start gap-4 md:items-center">
+          <div class="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-white/15 text-white">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M7 3v3" />
+              <path d="M17 3v3" />
+              <rect x="4" y="5" width="16" height="16" rx="2" />
+              <path d="M4 11h16" />
+              <path d="M9 16h2" />
+            </svg>
+          </div>
+          <div class="space-y-1">
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
+              <span class="h-1.5 w-1.5 rounded-full bg-white/70"></span>
+              Nächster Termin
+            </span>
+            <p class="font-display text-lg font-semibold leading-snug md:text-xl">
+              {formattedDate}
+              {timeLabel ? ` · ${timeLabel}` : ""}
+            </p>
+            {locationLine && (
+              <p class="text-sm text-white/80 md:text-sm">
+                {locationLine}
+              </p>
+            )}
+          </div>
+        </div>
+        <div class="flex flex-none flex-col items-center gap-2 md:flex-row md:items-center md:gap-3">
+          <a
+            href={ctaHref}
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-wide text-brand-700 shadow-sm transition hover:bg-slate-100"
+          >
+            Alle Termine
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+)}

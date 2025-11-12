@@ -1,0 +1,224 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import CTA from '../components/CTA.astro';
+import { getGuestbookEntries } from '../data/cms';
+
+const pageTitle = 'Gästebuch – Repair Café Leonberg';
+const pageDescription = 'Unser Gästebuch: Teilen Sie Ihre Eindrücke vom Repair Café Leonberg mit der Community.';
+
+const entries = (await getGuestbookEntries()).map((entry) => {
+  let formattedDate: string | undefined;
+  if (entry._createdAt) {
+    const date = new Date(entry._createdAt);
+    if (!Number.isNaN(date.getTime())) {
+      formattedDate = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(date);
+    }
+  }
+  return {
+    ...entry,
+    formattedDate
+  };
+});
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section>
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+            Gästebuch
+          </span>
+          <h1 class="mt-5 heading-hero">
+            Erzählen Sie Ihre Repair Café Geschichte
+          </h1>
+          <p class="mt-3 text-base text-slate-600">
+            Was hat Sie begeistert? Welche Reparatur hat Ihr Herz erobert? Teilen Sie Ihren Eindruck und sprechen Sie eine Empfehlung aus.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-12">
+      <div class="container">
+        <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          <div class="glass rounded-3xl p-8 md:p-10">
+            <h2 class="heading-sub">Eigene Nachricht verfassen</h2>
+            <p class="mt-3 text-sm text-slate-600">
+              Nach dem Absenden prüfen wir Ihren Eintrag kurz, bevor er online sichtbar wird. Pflichtfelder sind mit <span class="text-red-500">*</span> markiert.
+            </p>
+            <form id="guestbook-form" class="mt-8 space-y-6" autocomplete="off">
+              <div>
+                <label for="guestbook-name" class="block text-sm font-medium text-slate-700">Name oder Pseudonym<span class="text-red-500">*</span></label>
+                <input
+                  id="guestbook-name"
+                  name="name"
+                  type="text"
+                  required
+                  minlength="2"
+                  maxlength="80"
+                  class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+              <div>
+                <label for="guestbook-city" class="block text-sm font-medium text-slate-700">Ort (optional)</label>
+                <input
+                  id="guestbook-city"
+                  name="city"
+                  type="text"
+                  maxlength="80"
+                  class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+              <div>
+                <label for="guestbook-message" class="block text-sm font-medium text-slate-700">Ihre Nachricht<span class="text-red-500">*</span></label>
+                <textarea
+                  id="guestbook-message"
+                  name="message"
+                  rows={6}
+                  required
+                  minlength="10"
+                  maxlength="600"
+                  class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                ></textarea>
+              </div>
+              <div class="flex items-center gap-4">
+                <button
+                  type="submit"
+                  class="inline-flex items-center rounded-full bg-[#DD714D] px-6 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-[#c35a39] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 data-[loading=true]:opacity-60"
+                  data-submit-button
+                >
+                  Nachricht einreichen
+                </button>
+                <p id="guestbook-status" class="text-sm text-slate-500"></p>
+              </div>
+            </form>
+          </div>
+
+          <div class="space-y-6">
+            <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
+              <h3 class="card-title">So veröffentlichen wir Einträge</h3>
+              <p class="mt-3 text-sm text-slate-600">
+                Wir möchten allen Besucher:innen eine wertschätzende Bühne bieten. Deshalb schauen wir jeden Eintrag kurz durch, bevor er frei geschaltet wird.
+              </p>
+              <ul class="mt-6 space-y-3 text-sm text-slate-600">
+                <li>✔️ Bitte bleiben Sie freundlich und respektvoll.</li>
+                <li>✔️ Keine personenbezogenen Daten dritter Personen nennen.</li>
+                <li>✔️ Bei Fragen zur Organisation schreiben Sie uns lieber über das Kontaktformular.</li>
+              </ul>
+              <p class="mt-6 text-sm text-slate-500">
+                Hinweis: Sie erhalten keine automatische E-Mail. Sobald Ihr Beitrag geprüft wurde, erscheint er im Gästebuch.
+              </p>
+            </div>
+            <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
+              <h3 class="card-title">Kontakt für Rückfragen</h3>
+              <p class="mt-3 text-sm text-slate-600">
+                Sie möchten lieber direkt mit uns sprechen? Nutzen Sie gern das Kontaktformular oder schreiben Sie eine E-Mail an <a class="text-brand-700 hover:underline" href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-16">
+      <div class="container">
+        <div class="mx-auto max-w-4xl text-center">
+          <h2 class="heading-sub">Rückmeldungen aus der Community</h2>
+          <p class="mt-3 text-base text-slate-600">
+            Diese Stimmen zeigen, warum Reparieren verbindet. Vielen Dank für jedes Lob und jede Motivation!
+          </p>
+        </div>
+        <div class="mt-10 grid gap-6 md:grid-cols-2">
+          {entries.length > 0 ? (
+            entries.map((entry) => (
+              <article class="h-full rounded-3xl bg-white p-6 text-left shadow-xl shadow-slate-900/5">
+                <p class="text-base leading-relaxed text-slate-700 whitespace-pre-line">{entry.message}</p>
+                <div class="mt-5 text-sm font-semibold text-slate-900">
+                  {entry.name}
+                  {entry.city ? ` · ${entry.city}` : ''}
+                </div>
+                {entry.formattedDate && (
+                  <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
+                    {entry.formattedDate}
+                  </div>
+                )}
+              </article>
+            ))
+          ) : (
+            <div class="col-span-full rounded-3xl bg-white p-10 text-center shadow-xl shadow-slate-900/5">
+              <p class="text-base text-slate-600">
+                Noch keine Einträge vorhanden – seien Sie die erste Person, die ihre Erfahrungen teilt.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+
+  <script>
+    const form = document.getElementById('guestbook-form');
+    const status = document.getElementById('guestbook-status');
+    const submitButton = form?.querySelector('[data-submit-button]');
+
+    const setStatus = (message, variant) => {
+      if (!status) return;
+      status.textContent = message ?? '';
+      status.className = 'text-sm ' + (variant === 'error' ? 'text-red-600' : variant === 'success' ? 'text-emerald-600' : 'text-slate-500');
+    };
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form) return;
+
+      const formData = new FormData(form);
+      const name = (formData.get('name') ?? '').toString().trim();
+      const city = (formData.get('city') ?? '').toString().trim();
+      const message = (formData.get('message') ?? '').toString().trim();
+
+      if (name.length < 2) {
+        setStatus('Bitte geben Sie einen Namen mit mindestens 2 Zeichen ein.', 'error');
+        return;
+      }
+      if (message.length < 10) {
+        setStatus('Bitte schreiben Sie eine Nachricht mit mindestens 10 Zeichen.', 'error');
+        return;
+      }
+
+      try {
+        submitButton?.setAttribute('data-loading', 'true');
+        submitButton?.setAttribute('disabled', 'disabled');
+        setStatus('Ihr Eintrag wird gesendet …', 'info');
+
+        const response = await fetch('/api/guestbook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, city, message })
+        });
+
+        const payload = await response.json().catch(() => ({ success: false }));
+
+        if (response.ok && payload?.success) {
+          setStatus('Vielen Dank! Ihr Beitrag wird nach Prüfung veröffentlicht.', 'success');
+          form.reset();
+        } else {
+          setStatus(payload?.message ?? 'Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
+        }
+      } catch (error) {
+        console.error('Guestbook submission error:', error);
+        setStatus('Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
+      } finally {
+        submitButton?.removeAttribute('data-loading');
+        submitButton?.removeAttribute('disabled');
+      }
+    });
+  </script>
+</BaseLayout>

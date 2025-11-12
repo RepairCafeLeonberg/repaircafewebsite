@@ -1,0 +1,392 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import EventCard from "../components/EventCard.astro";
+import CTA from "../components/CTA.astro";
+import { getUpcomingEvents, getAllEvents } from "../data/cms";
+
+export const prerender = false;
+
+const [upcoming, allEvents] = await Promise.all([
+  getUpcomingEvents(),
+  getAllEvents()
+]);
+
+const parseEventDate = (eventDate?: string) => {
+  if (!eventDate) return null;
+  const [year, month, day] = eventDate.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+};
+
+const now = new Date();
+
+const filterUpcoming = (items: typeof upcoming) =>
+  [...items]
+    .filter((event) => {
+      const eventDate = parseEventDate(event?.date);
+      return eventDate ? eventDate.getTime() >= now.getTime() : true;
+    })
+    .sort((a, b) => {
+      const dateA = parseEventDate(a.date)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+      const dateB = parseEventDate(b.date)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+      return dateA - dateB;
+    });
+
+const events = filterUpcoming(upcoming.length ? upcoming : allEvents);
+---
+
+<BaseLayout title="Termine – Repair Café Leonberg" description="Alle anstehenden Repair Café Termine in Leonberg auf einen Blick.">
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section id="alle-termine">
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Überblick
+          </span>
+          <h1 class="mt-5 heading-hero">Alle Termine</h1>
+          <p class="mt-3 text-base text-slate-600">
+            Entdecken Sie alle anstehenden Repair Café Termine in der Übersicht.
+          </p>
+          <p class="mt-2 text-base text-slate-600">
+            Wir freuen uns auf Ihren Besuch – jeden zweiten Samstag im Monat von 10:00 bis 13:00 Uhr öffnen wir unsere Werkbänke.
+          </p>
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm">
+            <a
+              href="/ort-und-anfahrt"
+              class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
+            >
+              Ort &amp; Anfahrt anzeigen
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+            </a>
+            <span class="text-slate-500">Treffpunkt: Bürgerzentrum Stadtmitte, Neuköllner Straße 5, Leonberg</span>
+          </div>
+        </div>
+
+        {events.length > 0 ? (
+          <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {events.map((event) => (
+              <EventCard event={event} />
+            ))}
+          </div>
+        ) : (
+          <div class="mt-10 rounded-3xl bg-white p-8 text-center shadow-lg shadow-slate-900/5">
+          <h2 class="heading-sub">Gerade keine Termine geplant</h2>
+            <p class="mt-3 text-sm text-slate-600">
+              Schauen Sie bald wieder vorbei – neue Repair Café Termine kündigen wir hier und auf unseren Kanälen an.
+            </p>
+          </div>
+        )}
+
+        <div class="mt-16 rounded-3xl bg-white p-8 text-center shadow-lg shadow-slate-900/5">
+        <h2 class="heading-sub">Partner-Netzwerk in der Umgebung</h2>
+          <p class="mt-3 text-sm text-slate-600">
+            Neben unseren eigenen Terminen bieten viele Initiativen im Umkreis Reparaturhilfen an.
+            Werfen Sie einen Blick in unser
+            <a
+              href="/umgebung"
+              class="font-semibold text-slate-900 underline decoration-slate-400 decoration-2 underline-offset-4 transition hover:text-slate-700"
+            >
+              Partnernetzwerk
+            </a>
+            und finden Sie weitere Repair Cafés sowie Ansprechpartner.
+          </p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+</BaseLayout>
+
+<div
+  id="calendar-modal-root"
+  class="calendar-modal hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="calendar-modal-title"
+  data-open="false"
+>
+  <div data-calendar-overlay class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md"></div>
+  <div class="fixed inset-0 z-[110] flex items-center justify-center px-4 py-6">
+    <div tabindex="-1" data-calendar-panel class="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-slate-700/40">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h3 id="calendar-modal-title" class="text-lg font-semibold text-slate-900 dark:text-white">
+            Zum Kalender hinzufügen
+          </h3>
+          <p data-calendar-event-title class="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200"></p>
+        </div>
+        <button
+          type="button"
+          class="control_mb-control__JIjs_ control_mb-control--sm__ZrhZa inline-flex items-center justify-center rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:hover:bg-slate-800"
+          data-calendar-close
+          aria-label="Schließen"
+        >
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" data-testid="close-solid">
+              <path fill="var(--mb-colour-greyscale-london-5, currentColor)" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+        <p data-calendar-row="date" hidden>
+          <strong>Datum:</strong>
+          <span data-calendar-date></span>
+        </p>
+        <p data-calendar-row="time" hidden>
+          <strong>Zeit:</strong>
+          <span data-calendar-time></span>
+        </p>
+        <p data-calendar-row="location" hidden>
+          <strong>Ort:</strong>
+          <span data-calendar-location></span>
+        </p>
+      </div>
+
+      <div class="mt-6 space-y-3">
+        <a
+          data-calendar-link="apple"
+          class="button_mb-button__seg6h button_mb-button--secondary__B_8oH button_mb-button--medium__y9rSt button_mb-button--outline__8HZoJ button_mb-button--platform-icon__TE6iT button_mb-button--text-icon__N_J2S inline-flex w-full items-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          download
+          hidden
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" data-testid="apple">
+            <path fill="#000" d="M20.34 7.5c-.128.1-2.38 1.37-2.38 4.192 0 3.265 2.866 4.42 2.952 4.449-.013.07-.456 1.582-1.512 3.122-.941 1.355-1.925 2.708-3.42 2.708-1.497 0-1.882-.869-3.61-.869-1.682 0-2.28.898-3.65.898-1.368 0-2.323-1.254-3.42-2.794C4.027 17.397 3 14.588 3 11.92c0-4.277 2.781-6.546 5.518-6.546 1.454 0 2.667.955 3.58.955.869 0 2.224-1.012 3.879-1.012.627 0 2.88.057 4.363 2.183ZM15.19 3.508c.685-.812 1.169-1.938 1.169-3.065 0-.156-.014-.314-.042-.442-1.113.042-2.438.741-3.237 1.668-.627.713-1.212 1.84-1.212 2.981 0 .172.029.343.042.398.07.014.185.029.3.029.998 0 2.254-.669 2.98-1.569Z"></path>
+          </svg>
+          <span>Apple Kalender (ICS-Datei)</span>
+        </a>
+        <a
+          data-calendar-link="google"
+          class="button_mb-button__seg6h button_mb-button--secondary__B_8oH button_mb-button--medium__y9rSt button_mb-button--outline__8HZoJ button_mb-button--platform-icon__TE6iT button_mb-button--text-icon__N_J2S inline-flex w-full items-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          target="_blank"
+          rel="noopener"
+          hidden
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" data-testid="google">
+            <path fill="#4285F4" d="M21.6 12.227c0-.709-.064-1.39-.182-2.045H12v3.873h5.382a4.61 4.61 0 0 1-2.01 3.009v2.518h3.246c1.891-1.746 2.982-4.31 2.982-7.355Z"></path>
+            <path fill="#34A853" d="M12 22c2.7 0 4.964-.89 6.618-2.418l-3.245-2.518c-.891.6-2.027.963-3.373.963-2.6 0-4.81-1.754-5.6-4.118H3.073v2.582C4.718 19.755 8.09 22 12 22Z"></path>
+            <path fill="#FBBC05" d="M6.4 13.9c-.2-.6-.318-1.236-.318-1.9 0-.664.118-1.3.318-1.9V7.518H3.073A9.877 9.877 0 0 0 2 12c0 1.618.39 3.136 1.073 4.482l2.59-2.018.737-.564Z"></path>
+            <path fill="#EA4335" d="M12 5.982c1.473 0 2.782.509 3.827 1.49l2.864-2.863C16.955 2.991 14.7 2 12 2 8.09 2 4.718 4.245 3.073 7.518L6.4 10.1c.79-2.364 3-4.118 5.6-4.118Z"></path>
+          </svg>
+          <span>Google Kalender öffnen</span>
+        </a>
+        <a
+          data-calendar-link="outlook"
+          class="button_mb-button__seg6h button_mb-button--secondary__B_8oH button_mb-button--medium__y9rSt button_mb-button--outline__8HZoJ button_mb-button--platform-icon__TE6iT button_mb-button--text-icon__N_J2S inline-flex w-full items-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          target="_blank"
+          rel="noopener"
+          hidden
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" data-testid="microsoft">
+            <path fill="#F3F3F3" d="M2 2h20v20H2V2Z"></path>
+            <path fill="#F35325" d="M2.87 2.87h8.695v8.695H2.87V2.87Z"></path>
+            <path fill="#81BC06" d="M12.435 2.87h8.696v8.695h-8.696V2.87Z"></path>
+            <path fill="#05A6F0" d="M2.87 12.435h8.695v8.695H2.87v-8.695Z"></path>
+            <path fill="#FFBA08" d="M12.435 12.435h8.696v8.695h-8.696v-8.695Z"></path>
+          </svg>
+          <span>Microsoft Outlook öffnen</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  if (typeof window !== 'undefined') {
+    const initCalendarModal = () => {
+      const globalWindow = window;
+      if (globalWindow.__repairCafeCalendarModalInitialized) return;
+      const modal = document.getElementById('calendar-modal-root');
+      if (!modal) return;
+
+      globalWindow.__repairCafeCalendarModalInitialized = true;
+
+      if (modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+      }
+
+      modal.classList.add('hidden');
+
+      const overlay = modal.querySelector('[data-calendar-overlay]');
+      const dialogPanel = modal.querySelector('[data-calendar-panel]');
+      const closeButtons = modal.querySelectorAll('[data-calendar-close]');
+      const eventTitleEl = modal.querySelector('[data-calendar-event-title]');
+      const dateRow = modal.querySelector('[data-calendar-row="date"]');
+      const timeRow = modal.querySelector('[data-calendar-row="time"]');
+      const locationRow = modal.querySelector('[data-calendar-row="location"]');
+      const dateValue = modal.querySelector('[data-calendar-date]');
+      const timeValue = modal.querySelector('[data-calendar-time]');
+      const locationValue = modal.querySelector('[data-calendar-location]');
+      const appleLink = modal.querySelector('[data-calendar-link="apple"]');
+      const googleLink = modal.querySelector('[data-calendar-link="google"]');
+      const outlookLink = modal.querySelector('[data-calendar-link="outlook"]');
+
+      const focusableSelector = 'a[href], area[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+      let activeTriggerId = '';
+      let lastFocusedElement = null;
+
+      const collectFocusable = () =>
+        Array.from(modal.querySelectorAll(focusableSelector)).filter(
+          (el) => el instanceof HTMLElement && !el.hasAttribute('disabled') && !el.hidden && el.offsetParent !== null
+        );
+
+      const updateRow = (row, target, value) => {
+        if (!(row instanceof HTMLElement) || !(target instanceof HTMLElement)) return;
+        if (value) {
+          target.textContent = value;
+          row.hidden = false;
+        } else {
+          target.textContent = '';
+          row.hidden = true;
+        }
+      };
+
+      const setLink = (link, href) => {
+        if (!(link instanceof HTMLAnchorElement)) return;
+        if (href) {
+          link.href = href;
+          link.hidden = false;
+        } else {
+          link.removeAttribute('href');
+          link.hidden = true;
+        }
+      };
+
+      const closeModal = () => {
+        if (modal.dataset.open !== 'true') return;
+        modal.classList.add('hidden');
+        modal.dataset.open = 'false';
+        modal.removeAttribute('data-active-trigger');
+        document.body.classList.remove('calendar-modal-open');
+
+        const trigger = activeTriggerId ? document.getElementById(activeTriggerId) : null;
+        if (trigger instanceof HTMLElement) {
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus({ preventScroll: true });
+        } else if (lastFocusedElement instanceof HTMLElement) {
+          lastFocusedElement.focus({ preventScroll: true });
+        }
+
+        activeTriggerId = '';
+        lastFocusedElement = null;
+      };
+
+      const openModal = (trigger) => {
+        if (!(trigger instanceof HTMLElement)) return;
+        if (!trigger.id) {
+          trigger.id = `calendar-trigger-${Math.random().toString(36).slice(2, 9)}`;
+        }
+        activeTriggerId = trigger.id;
+
+        trigger.setAttribute('aria-expanded', 'true');
+        modal.classList.remove('hidden');
+        modal.dataset.open = 'true';
+        modal.setAttribute('data-active-trigger', activeTriggerId);
+        document.body.classList.add('calendar-modal-open');
+
+        const focusable = collectFocusable();
+        const fallbackTarget = dialogPanel instanceof HTMLElement ? dialogPanel : modal;
+        (focusable[0] ?? fallbackTarget).focus({ preventScroll: true });
+      };
+
+      overlay?.addEventListener('click', (event) => {
+        event.preventDefault();
+        closeModal();
+      });
+
+      closeButtons.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          closeModal();
+        });
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (modal.dataset.open !== 'true') return;
+
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeModal();
+          return;
+        }
+
+        if (event.key !== 'Tab') return;
+
+        const focusable = collectFocusable();
+        if (focusable.length === 0) {
+          event.preventDefault();
+          return;
+        }
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const activeElement = document.activeElement;
+
+        if (event.shiftKey) {
+          if (activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else if (activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+
+        const trigger = target.closest('[data-calendar-button]');
+        if (!(trigger instanceof HTMLElement)) return;
+
+        event.preventDefault();
+
+        lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+        const eventTitle = trigger.getAttribute('data-calendar-title') ?? 'Repair Café Leonberg Termin';
+        if (eventTitleEl instanceof HTMLElement) {
+          eventTitleEl.textContent = eventTitle;
+        }
+
+        updateRow(dateRow, dateValue, trigger.getAttribute('data-calendar-date'));
+        updateRow(timeRow, timeValue, trigger.getAttribute('data-calendar-time'));
+        updateRow(locationRow, locationValue, trigger.getAttribute('data-calendar-location'));
+
+        const ics = trigger.getAttribute('data-calendar-ics') ?? '';
+        const icsFile = trigger.getAttribute('data-calendar-ics-file') ?? 'repair-cafe-termin.ics';
+        if (appleLink instanceof HTMLAnchorElement) {
+          if (ics) {
+            appleLink.href = ics;
+            appleLink.download = icsFile;
+            appleLink.hidden = false;
+          } else {
+            appleLink.hidden = true;
+            appleLink.removeAttribute('href');
+            appleLink.removeAttribute('download');
+          }
+        }
+
+        setLink(googleLink, trigger.getAttribute('data-calendar-gcal') ?? '');
+        setLink(outlookLink, trigger.getAttribute('data-calendar-outlook') ?? '');
+
+        openModal(trigger);
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCalendarModal, { once: true });
+    } else {
+      initCalendarModal();
+    }
+  }
+</script>

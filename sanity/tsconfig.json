@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    "strict": false,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "sanity.config.ts",
+    "schemaTypes/**/*.ts",
+    "schemaTypes/**/*.tsx"
+  ]
+}

@@ -1,0 +1,73 @@
+@font-face {
+  font-family: 'Curlz MT';
+  src: url('/fonts/curlzmt.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { @apply antialiased scroll-smooth; }
+  body { @apply bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100; }
+  ::selection { @apply bg-brand-500/30; }
+}
+
+@layer components {
+  .heading-hero {
+    @apply font-display text-4xl font-extrabold text-slate-900 md:text-5xl dark:text-white;
+  }
+
+  .heading-section {
+    @apply font-display text-3xl font-bold text-slate-900 md:text-4xl dark:text-white;
+  }
+
+  .heading-sub {
+    @apply font-display text-2xl font-semibold text-slate-900 dark:text-white;
+  }
+
+  .card-title {
+    @apply font-display text-xl font-semibold text-slate-900 dark:text-white;
+  }
+
+  .card-title-sm {
+    @apply font-display text-lg font-semibold text-slate-900 dark:text-white;
+  }
+
+  .lead-text {
+    @apply text-lg text-slate-600 dark:text-slate-300/80;
+  }
+
+  .body-text {
+    @apply text-sm text-slate-600 dark:text-slate-300/80;
+  }
+
+  .caption-text {
+    @apply text-xs uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md shadow-xl ring-1 ring-slate-900/5 dark:bg-slate-900/60 dark:ring-white/10;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+body.calendar-modal-open {
+  overflow: hidden;
+}
+
+body.calendar-modal-open > :not(#calendar-modal-root) {
+  filter: blur(4px);
+  transition: filter 150ms ease;
+}

@@ -1,0 +1,87 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CTA from "../components/CTA.astro";
+---
+
+<BaseLayout title="Reparaturen – Repair Café Leonberg" description="Überblick, welche Reparaturen wir im Repair Café Leonberg unterstützen und was nicht möglich ist.">
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section class="pb-12">
+      <div class="container">
+        <div class="mx-auto max-w-4xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Reparaturen
+          </span>
+          <h1 class="mt-5 heading-hero">
+            Von Toaster bis Textil – wir packen’s gemeinsam an
+          </h1>
+          <p class="mt-3 text-base text-slate-600">
+            Bringen Sie Ihr Lieblingsstück mit: Unser Team unterstützt Sie bei kleinen Alltagsgeräten, Elektronik, Fahrrädern, Textilien und vielem mehr.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="pb-12">
+      <div class="container">
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {[
+            {
+              title: 'Elektronik & Kleingeräte',
+              desc: 'Toaster, Mixer, Lampen, Kopfhörer, Lautsprecher, Radios und Kabel – wir finden den Fehler gemeinsam.',
+            },
+            {
+              title: 'Haushalt & Mechanik',
+              desc: 'Kaffeemaschinen, Staubsauger, kleinere Möbel oder Spielzeug mit einfachen Mechaniken.',
+            },
+            {
+              title: 'Textil & Nähen',
+              desc: 'Nähte schließen, Reißverschlüsse tauschen, Knöpfe ersetzen oder Kleidung anpassen.',
+            },
+            {
+              title: 'Fahrräder',
+              desc: 'Bremsen nachziehen, Schaltungen einstellen, Schläuche wechseln und alle Basics für die nächste Tour.',
+            },
+            {
+              title: 'Computer & Software',
+              desc: 'Einrichtung, Updates, einfache Fehlerbehebung und Tipps zur Datensicherung.',
+            },
+            {
+              title: 'Kreativ & Upcycling',
+              desc: 'Wir geben Inspiration, wie Sie kaputten Dingen ein zweites Leben schenken – mit Upcycling-Ideen und DIY-Hacks.',
+            },
+          ].map((item) => (
+            <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
+              <h2 class="card-title">{item.title}</h2>
+              <p class="mt-3 text-sm text-slate-600">{item.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5">
+          <h2 class="heading-sub">Was wir (noch) nicht reparieren</h2>
+          <div class="mt-4 space-y-3 text-sm text-slate-600">
+            <p>Sehr große Geräte (z. B. Waschmaschinen) sowie Hochvolt-Elektronik können wir vor Ort nicht bearbeiten. Auch Smartphones mit komplexen Glasbrüchen oder Spezialteile außerhalb unseres Vorrats sind schwierig.</p>
+            <p>
+              Sind Sie unsicher, ob Ihr Gerät passt? Schreiben Sie uns vorab an
+              <a class="ml-1 text-brand-700 underline-offset-2 hover:underline" href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a>
+              oder nutzen Sie unser
+              <a class="ml-1 text-brand-700 underline-offset-2 hover:underline" href="/kontakt">Kontaktformular</a>.
+              Den Link finden Sie auch in der Beschreibung auf unserer Kontakt-Seite.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+</BaseLayout>

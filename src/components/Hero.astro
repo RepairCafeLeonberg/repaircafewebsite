@@ -1,0 +1,174 @@
+---
+export interface HeroSlide {
+  image?: string;
+  alt?: string;
+}
+
+export interface Props {
+  ctaHref?: string;
+  heroImages?: HeroSlide[];
+}
+
+const {
+  ctaHref = '/termine',
+  heroImages = []
+} = Astro.props as Props;
+
+const fallbackSlides: HeroSlide[] = [
+  {
+    image: 'https://images.unsplash.com/photo-1517433456452-f9633a875f6f?auto=format&fit=crop&w=960&q=80',
+    alt: 'Reparatur an einer Werkbank'
+  }
+];
+
+const slides = (heroImages.length ? heroImages : fallbackSlides)
+  .filter((slide) => slide?.image)
+  .map((slide) => ({
+    image: slide.image!,
+    alt: slide.alt || 'Im Repair Café wird gemeinsam repariert'
+  }));
+
+---
+
+<section class="relative overflow-hidden bg-slate-100 dark:bg-slate-950">
+  <div class="container relative pt-6 pb-12 md:pt-10 md:pb-16 lg:pt-14 lg:pb-20">
+    <div class="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+      <div class="text-center lg:text-left">
+        <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700 shadow dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+          <span class="h-2 w-2 rounded-full bg-accent-500"></span>
+          Wegwerfen? Denkste.
+        </span>
+        <h1 class="mt-5 heading-hero leading-tight tracking-tight lg:text-6xl">
+          Reparieren statt Wegwerfen.
+        </h1>
+        <p class="mt-5 text-lg text-slate-700 dark:text-slate-300 lg:max-w-xl">
+          Im Repair Café Leonberg bringen wir defekte Dinge wieder zum Leben –
+          zusammen mit Ihnen, bei Kaffee und guter Laune.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+          <a href={ctaHref} class="inline-flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-white shadow-lg shadow-brand-600/30 transition hover:-translate-y-0.5 hover:bg-brand-700">
+            Nächste Termine ansehen
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#mitmachen" class="inline-flex items-center rounded-full border border-slate-300 bg-white px-6 py-3 text-slate-800 transition hover:-translate-y-0.5 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+            Mitmachen
+          </a>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="pointer-events-none absolute -right-5 -top-8 hidden h-28 w-28 rounded-full bg-brand-200/60 blur-3xl lg:block"></div>
+        <div class="hero-slider-root relative h-full w-full">
+          <div class="hero-slider relative aspect-[8/7] overflow-hidden rounded-3xl border border-white/60 shadow-2xl shadow-slate-900/10 dark:border-white/10">
+            {slides.map((slide, index) => (
+              <picture
+                class="hero-slide absolute inset-0 transition-opacity duration-700 ease-out"
+                data-index={index}
+                style={`opacity: ${index === 0 ? '1' : '0'}; z-index: ${index === 0 ? '1' : '0'};`}
+              >
+                <img src={slide.image} alt={slide.alt} loading="lazy" class="h-full w-full object-cover" />
+              </picture>
+            ))}
+            <a
+              href="/galerie"
+              class="absolute bottom-4 left-4 z-20 inline-flex items-center gap-2 rounded-full bg-slate-900/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-slate-900/40 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-900/80"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="6" width="18" height="13" rx="2" />
+                <path d="M3 10h18" />
+                <circle cx="9" cy="13" r="1.5" />
+                <path d="M21 9l-4 3-4-3" />
+              </svg>
+              Impressionen
+            </a>
+          </div>
+          {slides.length > 1 && (
+            <div class="hero-dots absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2">
+              {slides.map((_, index) => (
+                <button
+                  type="button"
+                  class={`h-2.5 w-2.5 rounded-full border border-white/60 transition ${index === 0 ? 'bg-white/90' : 'bg-white/30'}`}
+                  data-slide={index}
+                  aria-label={`Bild ${index + 1}`}
+                ></button>
+              ))}
+            </div>
+          )}
+        </div>
+        {slides.length > 1 && (
+          <script is:inline>
+            (() => {
+              const initSlider = (root) => {
+                if (!root || root.dataset.sliderReady === 'true') return;
+
+                const slides = Array.from(root.querySelectorAll('.hero-slide'));
+                if (slides.length <= 1) return;
+
+                const dots = Array.from(root.querySelectorAll('[data-slide]'));
+                let current = 0;
+                let timer;
+
+                root.dataset.sliderReady = 'true';
+
+                const activate = (index) => {
+                  slides.forEach((slide, i) => {
+                    const isActive = i === index;
+                    slide.style.opacity = isActive ? '1' : '0';
+                    slide.style.zIndex = isActive ? '1' : '0';
+                  });
+
+                  dots.forEach((dot, i) => {
+                    const isActive = i === index;
+                    dot.classList.toggle('bg-white/90', isActive);
+                    dot.classList.toggle('bg-white/30', !isActive);
+                  });
+
+                  current = index;
+                };
+
+                const next = () => {
+                  const nextIndex = (current + 1) % slides.length;
+                  activate(nextIndex);
+                };
+
+                const stop = () => {
+                  if (typeof timer === 'number') {
+                    window.clearInterval(timer);
+                    timer = undefined;
+                  }
+                };
+
+                const start = () => {
+                  stop();
+                  timer = window.setInterval(next, 5000);
+                };
+
+                dots.forEach((dot) => {
+                  const handleClick = () => {
+                    const idx = Number(dot.getAttribute('data-slide')) || 0;
+                    activate(idx);
+                    start();
+                  };
+
+                  dot.addEventListener('click', handleClick);
+                });
+
+                root.addEventListener('mouseenter', stop);
+                root.addEventListener('mouseleave', start);
+                root.addEventListener('touchstart', stop, { passive: true });
+                root.addEventListener('touchend', start, { passive: true });
+
+                window.requestAnimationFrame(() => {
+                  activate(current);
+                  start();
+                });
+              };
+
+              const roots = Array.from(document.querySelectorAll('.hero-slider-root'));
+              roots.forEach((root) => initSlider(root));
+            })();
+          </script>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

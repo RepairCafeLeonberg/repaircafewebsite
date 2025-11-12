@@ -1,0 +1,86 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CTA from "../components/CTA.astro";
+---
+
+<BaseLayout title="Wie läuft das ab? – Repair Café Leonberg" description="Erfahre Schritt für Schritt, wie ein Besuch im Repair Café Leonberg funktioniert.">
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section class="pb-12">
+      <div class="container">
+        <div class="mx-auto max-w-4xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Wie läuft das ab?
+          </span>
+          <h1 class="mt-5 heading-hero">
+            Ihr Weg durchs Repair Café
+          </h1>
+          <p class="mt-3 text-base text-slate-600">
+            Von der Anmeldung vor Ort bis zum frisch reparierten Gerät – so begleiten wir Sie Schritt für Schritt.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="pb-12">
+      <div class="container">
+        <ol class="grid gap-6 list-none md:grid-cols-2 xl:grid-cols-4">
+          {[
+            {
+              step: '1',
+              title: 'Ankommen & anmelden',
+              desc: 'Direkt am Empfang melden Sie sich mit Ihrem Gerät. Wir notieren Kontaktdaten und Fehlerbeschreibung.'
+            },
+            {
+              step: '2',
+              title: 'Matching mit Helfer:innen',
+              desc: 'Wir suchen die passende Station – Elektronik, Textil, Bike oder Software – und erklären, wie es weitergeht.'
+            },
+            {
+              step: '3',
+              title: 'Gemeinsam reparieren',
+              desc: 'Sie schrauben, nähen oder löten mit – unsere Expert:innen zeigen Tipps, Sicherheitsregeln und Tricks.'
+            },
+            {
+              step: '4',
+              title: 'Testen & feiern',
+              desc: 'Funktioniert alles wieder? Super! Wir dokumentieren den Erfolg, Sie gönnen sich Kaffee und Austausch.'
+            }
+          ].map((item) => (
+            <li class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
+              <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-600/15 text-sm font-semibold text-brand-600">
+                {item.step}
+              </div>
+              <h2 class="mt-4 card-title">{item.title}</h2>
+              <p class="mt-3 text-sm text-slate-600">{item.desc}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5">
+          <h2 class="heading-sub">Gut zu wissen</h2>
+          <div class="mt-4 grid gap-6 md:grid-cols-2">
+            <div class="space-y-3 text-sm text-slate-600">
+              <p>Unsere Hilfe ist kostenlos, Spenden helfen uns aber bei Materialbeschaffung und Raumkosten.</p>
+              <p>Bitte bring Zubehör (Netzteile, Kabel, Knöpfe, Schrauben) mit, damit wir direkt loslegen können.</p>
+            </div>
+            <div class="space-y-3 text-sm text-slate-600">
+              <p>Falls wir ein Gerät nicht reparieren können, geben wir Ihnen Tipps für Ersatzteile oder Fachwerkstätten.</p>
+              <p>Möchten Sie selbst mit anpacken? Sprechen Sie uns einfach an – wir freuen uns über neue Teammitglieder.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+</BaseLayout>

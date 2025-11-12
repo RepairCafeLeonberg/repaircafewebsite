@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">Repair Café Platzhalterbild</title>
+  <desc id="desc">Illustration von Werkzeugen, die repariert werden.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f3f4ff" />
+      <stop offset="100%" stop-color="#dee1ff" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)" rx="32" />
+  <g stroke="#0f172a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M120 150l40 40-40 40-40-40z" fill="#c2c6ff" />
+    <path d="M210 120h60" />
+    <path d="M240 120v120" />
+    <path d="M190 210l40 40" />
+    <circle cx="290" cy="200" r="36" fill="#f97316" />
+    <path d="M276 200h28" stroke-width="8" />
+    <path d="M290 186v28" stroke-width="8" />
+    <path d="M130 250l-18 48" />
+    <path d="M100 310h60" />
+  </g>
+</svg>

@@ -1,0 +1,79 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CTA from "../components/CTA.astro";
+---
+
+<BaseLayout title="Impressum – Repair Café Leonberg" description="Rechtliche Angaben und Kontakt zum Repair Café Leonberg.">
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section>
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Rechtliches
+          </span>
+          <h1 class="mt-5 heading-hero">Impressum</h1>
+          <p class="mt-3 text-base text-slate-600">
+            Gesetzlich erforderliche Angaben sowie Hinweise zur Nutzung unseres Onlineangebotes.
+          </p>
+        </div>
+
+        <article class="prose prose-slate mx-auto mt-10 max-w-3xl rounded-3xl bg-white p-8 text-slate-600 shadow-lg shadow-slate-900/5 dark:prose-invert">
+          <h2>Verantwortlich V.i.S.d.P.</h2>
+          <p>
+            Werner Stocker<br />
+            Otto-Kahn-Str. 4<br />
+            D-71229 Leonberg<br />
+            <a class="text-brand-700 underline-offset-2 hover:underline" href="mailto:westocker@online.de">westocker@online.de</a>
+          </p>
+
+          <h2>Nutzungsbedingungen</h2>
+          <h3>Haftung für Verweise und Links</h3>
+          <p>
+            Es wird darauf hingewiesen, dass Links von dieser Seite zu externen Anbietern führen, wobei die Seiten gesondert
+            gekennzeichnet sind. Für die Richtigkeit des Inhalts der externen Seiten übernimmt Werner Stocker keine
+            Verantwortung, vielmehr unterliegen sie der Haftung der jeweiligen Anbieter. Dies gilt auch für die Rechtmäßigkeit
+            oder die Erfüllung von Urheberrechtsbestimmungen der verlinkten Seiten sowie für deren Aktualität. Durch eine
+            Verlinkung auf externe Seiten macht sich Werner Stocker diese nicht zu eigen. Vielmehr dienen die Links und Inhalte
+            dem Informationsaustausch und begründen keine geschäftlichen Beziehungen irgendeiner Art. Werner Stocker distanziert
+            sich ausdrücklich von eventuell rechtswidrigen Inhalten der verlinkten Seiten. Der Inhalt der Seiten wird nur zum
+            Zeitpunkt der Aufnahme geprüft.
+          </p>
+
+          <h3>Haftungsausschluss</h3>
+          <p>
+            Der Inhalt der Webseiten wurde von Werner Stocker sorgfältig geprüft und bearbeitet, erhebt jedoch keinen Anspruch
+            auf Vollständigkeit. Werner Stocker übernimmt keinerlei Gewähr für Aktualität, Korrektheit, Vollständigkeit oder
+            Qualität der bereitgestellten Informationen. Außerdem behält er sich ausdrücklich vor, Teile der Seiten oder das
+            gesamte Angebot ohne gesonderte Ankündigung zu verändern, zu ergänzen, zu löschen oder die Veröffentlichung
+            einzustellen.
+          </p>
+
+          <h2>Urheberrechtshinweise</h2>
+          <p>
+            Diese Webseiten und deren Inhalte unterliegen dem deutschen Leistungsschutz- und Urheberrecht. Jede vom
+            Urheberrecht nicht zugelassene Verwertung bedarf vorheriger schriftlicher Zustimmung der Anbieter. Fotokopien oder
+            Downloads von Webseiten dürfen nur für den persönlichen, privaten und nicht-kommerziellen Gebrauch hergestellt
+            werden.
+          </p>
+
+          <h2>Datenschutzerklärung</h2>
+          <p>
+            Ich freue mich über Ihr Interesse an meiner Website! Der Schutz Ihrer personenbezogenen Daten bei der Erhebung,
+            Verarbeitung und Nutzung anlässlich Ihres Besuchs auf meiner Homepage ist mir ein wichtiges Anliegen. Ihre Daten
+            werden im Rahmen der gesetzlichen Vorschriften geschützt.
+          </p>
+          <p>
+            <a class="text-brand-700 underline-offset-2 hover:underline" href="/datenschutz">Hier finden Sie die ausführliche Datenschutzerklärung</a>
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <CTA />
+  <Footer />
+</BaseLayout>

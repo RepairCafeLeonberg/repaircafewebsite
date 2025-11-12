@@ -1,0 +1,99 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+const pageTitle = 'Mitgliederbereich – Repair Café Leonberg';
+const pageDescription = 'Interner Bereich für Mitglieder des Repair Café Leonberg.';
+
+const resourceLinks = [
+  { title: 'Expertenliste', description: 'Kontaktdaten und Schwerpunkte aller Reparatur-Teams.', href: 'https://drive.google.com/placeholder-expertenliste' },
+  { title: 'Dienstplan', description: 'Einsatzübersicht für die nächsten Termine.', href: 'https://drive.google.com/placeholder-dienstplan' },
+  { title: 'Mailservice', description: 'Vorlagen und Verteiler für die Kommunikation.', href: 'https://drive.google.com/placeholder-mailservice' },
+  { title: 'Statistik aktuell', description: 'Aktuelle Kennzahlen und Besucherzahlen.', href: 'https://drive.google.com/placeholder-statistik-aktuell' },
+  { title: 'Hinweise für Administratoren', description: 'Dokumentation zu Abläufen und Tools.', href: 'https://drive.google.com/placeholder-admin-hinweise' }
+];
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <Header />
+
+  <main class="bg-slate-100 py-12 md:py-16">
+    <section>
+      <div class="container">
+        <div class="mx-auto max-w-3xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+            Interner Bereich
+          </span>
+          <h1 class="mt-5 heading-hero">Mitgliederbereich</h1>
+          <p class="mt-3 text-base text-slate-600">
+            Dieser Bereich steht ausschließlich aktiven Mitgliedern des Repair Café Leonberg zur Verfügung.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-12">
+      <div class="container">
+        <div class="mx-auto max-w-4xl rounded-3xl bg-white p-10 shadow-xl shadow-slate-900/5">
+          <div class="text-center">
+            <p class="text-lg font-semibold uppercase tracking-[0.25em] text-slate-400">Interne Unterlagen</p>
+            <p class="mt-6 text-sm text-slate-600">
+              Über die folgenden Links gelangen Sie zu den aktuellen Google-Drive-Dokumenten. Alle Links sind zunächst Platzhalter und können später durch die finalen URLs ersetzt werden.
+            </p>
+          </div>
+          <div class="mt-10 grid gap-5 md:grid-cols-2">
+            {resourceLinks.map((resource) => (
+              <a
+                href={resource.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex h-full flex-col justify-between rounded-2xl border border-slate-200 p-5 text-left shadow-sm transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-lg"
+              >
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Google Drive</p>
+                  <h3 class="mt-3 text-lg font-semibold text-slate-900 group-hover:text-brand-700">{resource.title}</h3>
+                  <p class="mt-2 text-sm text-slate-600">{resource.description}</p>
+                </div>
+                <span class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700">
+                  Öffnen
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                </span>
+              </a>
+            ))}
+          </div>
+          <div class="mt-10 text-center">
+            <button
+              id="logout-button"
+              type="button"
+              class="inline-flex items-center justify-center rounded-full border border-slate-200 px-6 py-3 text-sm font-medium text-slate-600 transition hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              Abmelden
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+  <script>
+    const AUTH_KEY = 'repaircafe.members.authenticated';
+    const redirectToLogin = () => {
+      window.location.replace('/login');
+    };
+
+    if (sessionStorage.getItem(AUTH_KEY) !== 'true') {
+      redirectToLogin();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const logoutButton = document.getElementById('logout-button');
+      logoutButton?.addEventListener('click', () => {
+        sessionStorage.removeItem(AUTH_KEY);
+        redirectToLogin();
+      });
+    });
+  </script>
+</BaseLayout>

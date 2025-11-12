@@ -1,0 +1,40 @@
+---
+const faqs = [
+  {
+    q: 'Kostet das etwas?',
+    a: 'Nein. Das Repair Café ist ehrenamtlich und kostenlos. Über freiwillige Spenden für Material freuen wir uns.'
+  },
+  {
+    q: 'Muss ich mich anmelden?',
+    a: 'In der Regel nicht. Sie können spontan vorbeikommen. Bei großem Andrang kann es zu Wartezeiten kommen.'
+  },
+  {
+    q: 'Welche Dinge werden repariert?',
+    a: 'Kleingeräte, Elektronik, Textilien, Fahrräder, Möbel/Kleinteile und Spielzeug – abhängig von den anwesenden Helferinnen und Helfern.'
+  },
+  {
+    q: 'Gibt es eine Garantie?',
+    a: 'Nein. Wir geben keine Garantie und übernehmen keine Haftung. Die Reparatur geschieht gemeinsam und auf eigene Verantwortung.'
+  },
+  {
+    q: 'Was ist, wenn Ersatzteile nötig sind?',
+    a: 'Wir beraten Sie und helfen beim Beschaffen von Teilen. Den Einbau versuchen wir dann beim nächsten Termin gemeinsam.'
+  },
+];
+---
+
+<div class="grid gap-6 md:grid-cols-2">
+  {faqs.map((f) => (
+    <div class="glass rounded-2xl p-6">
+      <h3 class="font-semibold text-slate-900 dark:text-white">{f.q}</h3>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{f.a}</p>
+    </div>
+  ))}
+  <div class="glass rounded-2xl p-6">
+    <h3 class="font-semibold text-slate-900 dark:text-white">Noch Fragen?</h3>
+    <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+      Schreiben Sie uns einfach: <a class="text-brand-700 hover:underline dark:text-brand-300" href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a>
+    </p>
+  </div>
+  
+</div>

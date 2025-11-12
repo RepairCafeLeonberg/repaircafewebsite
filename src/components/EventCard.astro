@@ -1,0 +1,228 @@
+---
+import type { EventItem } from "../data/cms";
+
+const { event } = Astro.props as { event: EventItem };
+const hasDate = Boolean(event.date);
+const dateObj = hasDate ? new Date(event.date + "T12:00:00") : null;
+const dateFormatter = new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+
+const pad = (num: number) => String(num).padStart(2, '0');
+
+const formatTime = (value?: string) => {
+  if (!value) return null;
+  const match = value.match(/^(\d{1,2})(?::(\d{2}))?$/);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2] ?? '0');
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+  return `${pad(hours)}:${pad(minutes)}`;
+};
+
+const startTime = formatTime(event.startTime);
+const endTime = formatTime(event.endTime);
+
+const timeRange = startTime && endTime
+  ? `${startTime} – ${endTime} Uhr`
+  : startTime
+  ? `ab ${startTime} Uhr`
+  : endTime
+  ? `bis ${endTime} Uhr`
+  : 'Zeit wird abgestimmt';
+
+const calendarTimeLabel = timeRange;
+
+const locationHeadline = event.location ?? event.streetAddress ?? 'Ort wird noch bekanntgegeben';
+const streetLine = event.streetAddress ?? '';
+const cityLine = [event.postalCode, event.city].filter(Boolean).join(' ');
+
+const dateLabel = hasDate && dateObj ? dateFormatter.format(dateObj) : 'Datum folgt';
+const formattedDate = dateLabel;
+const badgeWeekday = dateObj ? dateObj.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '').toUpperCase() : '';
+const badgeDay = dateObj ? dateObj.toLocaleDateString('de-DE', { day: '2-digit' }) : '';
+const badgeMonth = dateObj ? dateObj.toLocaleDateString('de-DE', { month: 'short' }).replace('.', '').toUpperCase() : '';
+
+const calendarLocation = [event.location, event.streetAddress, cityLine].filter(Boolean).join(', ');
+const formatDateForICS = (date: Date) => `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}`;
+const formatDateTimeForICS = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+const escapeICS = (text: string) => text.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '').replace(/,/g, '\\,').replace(/;/g, '\\;');
+
+let calendarDownload: { icsHref: string; gcalHref: string; outlookHref: string } | undefined;
+let eventStart: Date | null = null;
+let eventEnd: Date | null = null;
+const icsFileName = `repair-cafe-${event.date ?? 'termin'}.ics`;
+
+if (event.date) {
+  const baseDate = new Date(`${event.date}T00:00:00`);
+  let isAllDay = true;
+  let startUTC = '';
+  let endUTC = '';
+  let startDateValue = '';
+  let endDateValue = '';
+
+  if (startTime) {
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const start = new Date(baseDate);
+    start.setHours(startHours, startMinutes, 0, 0);
+
+    const end = new Date(baseDate);
+    if (endTime) {
+      const [endHours, endMinutes] = endTime.split(':').map(Number);
+      end.setHours(endHours, endMinutes, 0, 0);
+      if (end <= start) {
+        end.setHours(end.getHours() + 1);
+      }
+    } else {
+      end.setHours(startHours + 2, startMinutes, 0, 0);
+    }
+
+    startUTC = formatDateTimeForICS(start);
+    endUTC = formatDateTimeForICS(end);
+    isAllDay = false;
+    eventStart = start;
+    eventEnd = end;
+  } else {
+    const start = new Date(baseDate);
+    const end = new Date(baseDate);
+    end.setDate(end.getDate() + 1);
+    startDateValue = formatDateForICS(start);
+    endDateValue = formatDateForICS(end);
+    eventStart = start;
+    eventEnd = end;
+  }
+
+  const summary = escapeICS(event.title ?? 'Repair Café Leonberg Termin');
+  const description = escapeICS('Repair Café Leonberg – gemeinsam reparieren, Ressourcen schonen.');
+
+  const icsLines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Repair Café Leonberg//DE',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    `UID:${escapeICS(`${event._id}@repair-leonberg.de`)}`,
+    `DTSTAMP:${formatDateTimeForICS(new Date())}`
+  ];
+
+  if (isAllDay) {
+    icsLines.push(`DTSTART;VALUE=DATE:${startDateValue}`);
+    icsLines.push(`DTEND;VALUE=DATE:${endDateValue}`);
+  } else {
+    icsLines.push(`DTSTART:${startUTC}`);
+    icsLines.push(`DTEND:${endUTC}`);
+  }
+
+  icsLines.push(`SUMMARY:${summary}`);
+  if (calendarLocation) {
+    icsLines.push(`LOCATION:${escapeICS(calendarLocation)}`);
+  }
+  icsLines.push(`DESCRIPTION:${description}`);
+  icsLines.push('END:VEVENT', 'END:VCALENDAR');
+
+  const icsHref = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsLines.join('\r\n'))}`;
+
+  let gcalDates = '';
+  if (isAllDay) {
+    gcalDates = `${startDateValue}/${endDateValue}`;
+  } else {
+    gcalDates = `${startUTC}/${endUTC}`;
+  }
+
+  const gcalParams = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: event.title ?? 'Repair Café Leonberg Termin',
+    dates: gcalDates,
+    details: 'Repair Café Leonberg – gemeinsam reparieren, Ressourcen schonen.',
+    location: calendarLocation,
+    ctz: 'Europe/Berlin'
+  });
+
+  const outlookParams = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    subject: event.title ?? 'Repair Café Leonberg Termin',
+    body: 'Repair Café Leonberg – gemeinsam reparieren, Ressourcen schonen.',
+    location: calendarLocation
+  });
+
+  if (eventStart) {
+    if (isAllDay) {
+      outlookParams.set('startdt', eventStart.toISOString().split('T')[0]);
+    } else {
+      outlookParams.set('startdt', eventStart.toISOString());
+    }
+  }
+  if (eventEnd) {
+    if (isAllDay) {
+      outlookParams.set('enddt', eventEnd.toISOString().split('T')[0]);
+    } else {
+      outlookParams.set('enddt', eventEnd.toISOString());
+    }
+  }
+
+  const gcalHref = `https://calendar.google.com/calendar/render?${gcalParams.toString()}`;
+  const outlookHref = `https://outlook.live.com/calendar/0/deeplink/compose?${outlookParams.toString()}`;
+
+  calendarDownload = { icsHref, gcalHref, outlookHref };
+}
+---
+
+<article class="flex h-full flex-col gap-6 rounded-3xl border border-slate-200 bg-white/95 p-6 text-slate-900 shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:shadow-xl dark:border-slate-700/60 dark:bg-slate-900/90 dark:text-white md:p-7">
+  <header class="flex items-start gap-4">
+    <div class="flex h-18 w-18 flex-none flex-col items-center justify-center rounded-2xl bg-brand-600 text-white shadow-inner shadow-brand-900/25 md:h-20 md:w-20">
+      <span class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/80">{badgeMonth || '--'}</span>
+      <span class="text-3xl font-black leading-none md:text-[36px]">{badgeDay || '--'}</span>
+      <span class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/70">{badgeWeekday || ''}</span>
+    </div>
+    <div class="flex-1 space-y-2">
+      <h3 class="font-display text-xl font-semibold leading-tight md:text-[24px]">{event.title}</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-300/80">{dateLabel}</p>
+    </div>
+  </header>
+
+  <section class="space-y-3 text-sm text-slate-600 dark:text-slate-300/80">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-200">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="16" height="18" x="4" y="4" rx="2"/><path d="M4 10h16"/></svg>
+      </span>
+      <p class="font-semibold text-slate-900 dark:text-white">{timeRange}</p>
+    </div>
+    <div class="flex items-start gap-2">
+      <span class="inline-flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-200">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      </span>
+      <div>
+        <p class="font-semibold text-slate-900 dark:text-white">{locationHeadline}</p>
+        {streetLine && <p class="text-sm text-slate-500 dark:text-slate-300/80">{streetLine}</p>}
+        {cityLine && <p class="text-sm text-slate-500 dark:text-slate-300/80">{cityLine}</p>}
+      </div>
+    </div>
+  </section>
+
+  <section class="space-y-2 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 text-sm text-slate-600 dark:border-slate-700/60 dark:bg-slate-800/70 dark:text-slate-300/80">
+    <p>• Teilnahme ohne Anmeldung – einfach vorbeikommen.</p>
+    <p>• Kostenfrei, Spenden für Material willkommen.</p>
+  </section>
+
+  {calendarDownload && (
+    <footer class="mt-auto">
+      <button
+        type="button"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-brand-500/60 bg-white px-5 py-2.5 text-sm font-semibold text-brand-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-brand-300/50 dark:bg-transparent dark:text-brand-200"
+        data-calendar-button
+        data-calendar-title={event.title ?? 'Repair Café Leonberg Termin'}
+        data-calendar-date={formattedDate || undefined}
+        data-calendar-time={calendarTimeLabel || undefined}
+        data-calendar-location={calendarLocation || undefined}
+        data-calendar-ics={calendarDownload.icsHref}
+        data-calendar-ics-file={icsFileName}
+        data-calendar-gcal={calendarDownload.gcalHref}
+        data-calendar-outlook={calendarDownload.outlookHref}
+        aria-haspopup="dialog"
+        aria-expanded="false"
+      >
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="16" height="18" x="4" y="4" rx="2"/><path d="M4 10h16"/><path d="m9 16 2 2 4-4"/></svg>
+        <span>Kalendereintrag erstellen</span>
+      </button>
+    </footer>
+  )}
+</article>
