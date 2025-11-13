@@ -1,15 +1,15 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
 
-const projectId = import.meta.env.SANITY_PROJECT_ID ?? '2t9p8f1y';
-const dataset = import.meta.env.SANITY_DATASET ?? 'production';
+const projectId = import.meta.env.SANITY_PROJECT_ID;
+const dataset = import.meta.env.SANITY_DATASET;
 const apiVersion = import.meta.env.SANITY_API_VERSION ?? '2023-05-26';
 const token = import.meta.env.SANITY_WRITE_TOKEN;
 
-const writeClient = token
+const writeClient = projectId && dataset && token
   ? createClient({
-      projectId,
-      dataset,
+      projectId: projectId!,
+      dataset: dataset!,
       apiVersion,
       token,
       useCdn: false
