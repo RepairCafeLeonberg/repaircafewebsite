@@ -8,7 +8,7 @@ import FAQ from "../components/FAQ.astro";
 import CTA from "../components/CTA.astro";
 import { getUpcomingEvents, getAllEvents, getPosts, getGalleryImages, getHeroSlides } from "../data/cms";
 
-export const prerender = false;
+export const prerender = true;
 
 const [upcomingEvents, allEvents, latestPosts, galleryImages, heroSlides] = await Promise.all([
   getUpcomingEvents(),
@@ -511,20 +511,30 @@ const testimonials = [
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const frontItems = Array.from(document.querySelectorAll<HTMLElement>('.front-gallery-item'));
+  <script type="module">
+    const initFrontGallery = () => {
+      const frontItems = Array.from(document.querySelectorAll('.front-gallery-item'));
       const lightbox = document.getElementById('front-gallery-lightbox');
-      const lightboxImage = document.getElementById('front-lightbox-image') as HTMLImageElement | null;
+      const lightboxImage = document.getElementById('front-lightbox-image');
       const lightboxTitle = document.getElementById('front-lightbox-title');
       const lightboxDescription = document.getElementById('front-lightbox-description');
       const lightboxClose = document.getElementById('front-gallery-lightbox-close');
       const lightboxPrev = document.getElementById('front-gallery-lightbox-prev');
       const lightboxNext = document.getElementById('front-gallery-lightbox-next');
+
+      if (
+        !frontItems.length ||
+        !lightbox ||
+        !lightboxImage ||
+        !lightboxTitle ||
+        !lightboxDescription
+      ) {
+        return;
+      }
+
       let currentIndex = -1;
 
-      function showItem(index) {
-        if (!lightboxImage || !lightboxTitle || !lightboxDescription) return;
+      const showItem = (index) => {
         const item = frontItems[index];
         if (!item) return;
         const imageSrc = item.dataset.image ?? '';
@@ -534,16 +544,16 @@ const testimonials = [
         const title = item.dataset.title?.trim();
         const description = item.dataset.description?.trim();
         lightboxTitle.textContent = title && title.length ? title : 'Impression aus dem Repair Café';
-        lightboxDescription.textContent = description && description.length ? description : 'Gemeinsam reparieren macht den Unterschied.';
+        lightboxDescription.textContent =
+          description && description.length ? description : 'Gemeinsam reparieren macht den Unterschied.';
         requestAnimationFrame(() => {
           lightboxImage.classList.remove('scale-95', 'opacity-0');
           lightboxImage.classList.add('scale-100', 'opacity-100');
         });
-      }
+      };
 
-      function openLightbox(index) {
-        if (!lightbox || !lightboxImage) return;
-        if (!frontItems.length) return;
+      const openLightbox = (index) => {
+        if (!frontItems[index]) return;
         currentIndex = index;
         lightboxImage.classList.remove('scale-100', 'opacity-100');
         lightboxImage.classList.add('scale-95', 'opacity-0');
@@ -551,10 +561,9 @@ const testimonials = [
         lightbox.classList.add('opacity-100');
         showItem(currentIndex);
         document.body.classList.add('overflow-hidden');
-      }
+      };
 
-      function closeLightbox() {
-        if (!lightbox || !lightboxImage) return;
+      const closeLightbox = () => {
         lightbox.classList.add('pointer-events-none');
         lightbox.classList.remove('opacity-100');
         lightbox.classList.add('opacity-0');
@@ -563,18 +572,16 @@ const testimonials = [
         lightboxImage.src = '';
         document.body.classList.remove('overflow-hidden');
         currentIndex = -1;
-      }
+      };
 
-      function goTo(step) {
-        if (!frontItems.length) return;
+      const goTo = (step) => {
         if (currentIndex === -1) return;
-        if (!lightboxImage) return;
         const total = frontItems.length;
         currentIndex = (currentIndex + step + total) % total;
         lightboxImage.classList.remove('scale-100', 'opacity-100');
         lightboxImage.classList.add('scale-95', 'opacity-0');
         showItem(currentIndex);
-      }
+      };
 
       frontItems.forEach((item, index) => {
         item.addEventListener('click', () => openLightbox(index));
@@ -606,6 +613,21 @@ const testimonials = [
       });
       lightboxPrev?.addEventListener('click', () => goTo(-1));
       lightboxNext?.addEventListener('click', () => goTo(1));
-    });
+    };
+
+    const schedule = (fn) =>
+      'requestIdleCallback' in window ? window.requestIdleCallback(fn) : window.setTimeout(fn, 0);
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      schedule(initFrontGallery);
+    } else {
+      document.addEventListener(
+        'DOMContentLoaded',
+        () => {
+          schedule(initFrontGallery);
+        },
+        { once: true }
+      );
+    }
   </script>
 </BaseLayout>

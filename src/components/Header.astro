@@ -121,11 +121,13 @@ const actions = [
       </div>
     </div>
   </div>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
+  <script type="module">
+    const initMobileMenu = () => {
       const mobileToggle = document.getElementById('mobile-menu-toggle');
       const mobileClose = document.getElementById('mobile-menu-close');
       const mobileMenu = document.getElementById('mobile-menu');
+      if (!mobileToggle || !mobileMenu) return;
+
       let closeAnimationHandler;
 
       function setMobileMenu(open) {
@@ -164,9 +166,9 @@ const actions = [
         setMobileMenu(!isOpen);
       }
 
-      mobileToggle?.addEventListener('click', toggleMobileMenu);
+      mobileToggle.addEventListener('click', toggleMobileMenu);
       mobileClose?.addEventListener('click', () => setMobileMenu(false));
-      mobileMenu?.addEventListener('click', (event) => {
+      mobileMenu.addEventListener('click', (event) => {
         if (event.target === mobileMenu || event.target?.hasAttribute('data-menu-backdrop')) {
           setMobileMenu(false);
         }
@@ -176,9 +178,24 @@ const actions = [
           setMobileMenu(false);
         }
       });
-      mobileMenu?.querySelectorAll('a').forEach((link) => {
+      mobileMenu.querySelectorAll('a').forEach((link) => {
         link.addEventListener('click', () => setMobileMenu(false));
       });
-    });
+    };
+
+    const schedule = (fn) =>
+      'requestIdleCallback' in window ? window.requestIdleCallback(fn) : window.setTimeout(fn, 0);
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      schedule(initMobileMenu);
+    } else {
+      document.addEventListener(
+        'DOMContentLoaded',
+        () => {
+          schedule(initMobileMenu);
+        },
+        { once: true }
+      );
+    }
   </script>
 </header>

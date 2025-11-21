@@ -95,77 +95,93 @@ const slides = (heroImages.length ? heroImages : fallbackSlides)
           )}
         </div>
         {slides.length > 1 && (
-          <script is:inline>
-            (() => {
-              const initSlider = (root) => {
-                if (!root || root.dataset.sliderReady === 'true') return;
+          <script is:inline type="module">
+            const initSlider = (root) => {
+              if (!root || root.dataset.sliderReady === 'true') return;
 
-                const slides = Array.from(root.querySelectorAll('.hero-slide'));
-                if (slides.length <= 1) return;
+              const slides = Array.from(root.querySelectorAll('.hero-slide'));
+              if (slides.length <= 1) return;
 
-                const dots = Array.from(root.querySelectorAll('[data-slide]'));
-                let current = 0;
-                let timer;
+              const dots = Array.from(root.querySelectorAll('[data-slide]'));
+              let current = 0;
+              let timer;
 
-                root.dataset.sliderReady = 'true';
+              root.dataset.sliderReady = 'true';
 
-                const activate = (index) => {
-                  slides.forEach((slide, i) => {
-                    const isActive = i === index;
-                    slide.style.opacity = isActive ? '1' : '0';
-                    slide.style.zIndex = isActive ? '1' : '0';
-                  });
-
-                  dots.forEach((dot, i) => {
-                    const isActive = i === index;
-                    dot.classList.toggle('bg-white/90', isActive);
-                    dot.classList.toggle('bg-white/30', !isActive);
-                  });
-
-                  current = index;
-                };
-
-                const next = () => {
-                  const nextIndex = (current + 1) % slides.length;
-                  activate(nextIndex);
-                };
-
-                const stop = () => {
-                  if (typeof timer === 'number') {
-                    window.clearInterval(timer);
-                    timer = undefined;
-                  }
-                };
-
-                const start = () => {
-                  stop();
-                  timer = window.setInterval(next, 5000);
-                };
-
-                dots.forEach((dot) => {
-                  const handleClick = () => {
-                    const idx = Number(dot.getAttribute('data-slide')) || 0;
-                    activate(idx);
-                    start();
-                  };
-
-                  dot.addEventListener('click', handleClick);
+              const activate = (index) => {
+                slides.forEach((slide, i) => {
+                  const isActive = i === index;
+                  slide.style.opacity = isActive ? '1' : '0';
+                  slide.style.zIndex = isActive ? '1' : '0';
                 });
 
-                root.addEventListener('mouseenter', stop);
-                root.addEventListener('mouseleave', start);
-                root.addEventListener('touchstart', stop, { passive: true });
-                root.addEventListener('touchend', start, { passive: true });
-
-                window.requestAnimationFrame(() => {
-                  activate(current);
-                  start();
+                dots.forEach((dot, i) => {
+                  const isActive = i === index;
+                  dot.classList.toggle('bg-white/90', isActive);
+                  dot.classList.toggle('bg-white/30', !isActive);
                 });
+
+                current = index;
               };
 
+              const next = () => {
+                const nextIndex = (current + 1) % slides.length;
+                activate(nextIndex);
+              };
+
+              const stop = () => {
+                if (typeof timer === 'number') {
+                  window.clearInterval(timer);
+                  timer = undefined;
+                }
+              };
+
+              const start = () => {
+                stop();
+                timer = window.setInterval(next, 5000);
+              };
+
+              dots.forEach((dot) => {
+                const handleClick = () => {
+                  const idx = Number(dot.getAttribute('data-slide')) || 0;
+                  activate(idx);
+                  start();
+                };
+
+                dot.addEventListener('click', handleClick);
+              });
+
+              root.addEventListener('mouseenter', stop);
+              root.addEventListener('mouseleave', start);
+              root.addEventListener('touchstart', stop, { passive: true });
+              root.addEventListener('touchend', start, { passive: true });
+
+              window.requestAnimationFrame(() => {
+                activate(current);
+                start();
+              });
+            };
+
+            const initAllSliders = () => {
               const roots = Array.from(document.querySelectorAll('.hero-slider-root'));
+              if (!roots.length) return;
               roots.forEach((root) => initSlider(root));
-            })();
+            };
+
+            const schedule = (fn) =>
+              'requestIdleCallback' in window ? window.requestIdleCallback(fn) : window.setTimeout(fn, 0);
+
+            if (document.readyState === 'interactive' || document.readyState === 'complete') {
+              schedule(initAllSliders);
+            } else {
+              document.addEventListener(
+                'DOMContentLoaded',
+                () => {
+                  schedule(initAllSliders);
+                },
+                { once: true }
+              );
+            }
           </script>
         )}
       </div>

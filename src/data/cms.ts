@@ -75,6 +75,26 @@ const sortPostsByPublished = (items: PostItem[]): PostItem[] =>
 const sortGuestbookEntries = (items: GuestbookEntry[]): GuestbookEntry[] =>
   [...items].sort((a, b) => parseDateValue(b._createdAt) - parseDateValue(a._createdAt));
 
+const CACHE_TTL_MS = 1000 * 60 * 5; // 5 minutes is enough for infrequent content updates
+type CacheEntry<T> = { data: T; expiresAt: number };
+
+const memoryCache = new Map<string, CacheEntry<unknown>>();
+
+const getCached = async <T>(key: string, fetcher: () => Promise<T>): Promise<T> => {
+  const now = Date.now();
+  const existing = memoryCache.get(key) as CacheEntry<T> | undefined;
+  if (existing && existing.expiresAt > now) {
+    return existing.data;
+  }
+
+  const data = await fetcher();
+  memoryCache.set(key, { data, expiresAt: now + CACHE_TTL_MS });
+  return data;
+};
+
+const cacheKey = (base: string, args: Array<string | number | undefined | null>): string =>
+  [base, ...args.filter((value) => value !== undefined && value !== null)].join(':');
+
 export interface GalleryItem {
   _id: string;
   title?: string;
@@ -304,13 +324,13 @@ export async function getUpcomingEvents(limit?: number): Promise<EventItem[]> {
   if (!isSanityConfigured || !sanityClient) {
     return typeof limit === 'number' ? fallbackEvents.slice(0, limit) : fallbackEvents;
   }
-  const data = await sanityClient.fetch<EventItem[]>(upcomingEventsQuery);
+  const data = await getCached('upcomingEvents', () => sanityClient.fetch<EventItem[]>(upcomingEventsQuery));
   return typeof limit === 'number' ? data.slice(0, limit) : data;
 }
 
 export async function getAllEvents(): Promise<EventItem[]> {
   if (!isSanityConfigured || !sanityClient) return fallbackEvents;
-  return sanityClient.fetch<EventItem[]>(eventsQuery);
+  return getCached('allEvents', () => sanityClient.fetch<EventItem[]>(eventsQuery));
 }
 
 export async function getPosts(limit?: number): Promise<PostItem[]> {
@@ -318,14 +338,16 @@ export async function getPosts(limit?: number): Promise<PostItem[]> {
     const sortedFallback = sortPostsByPublished(fallbackPosts);
     return typeof limit === 'number' ? sortedFallback.slice(0, limit) : sortedFallback;
   }
-  const data = await sanityClient.fetch<PostItem[]>(postsQuery);
-  const sortedData = sortPostsByPublished(data ?? []);
+  const sortedData = await getCached('posts', async () => {
+    const data = await sanityClient.fetch<PostItem[]>(postsQuery);
+    return sortPostsByPublished(data ?? []);
+  });
   return typeof limit === 'number' ? sortedData.slice(0, limit) : sortedData;
 }
 
 export async function getGalleryImages(): Promise<GalleryItem[]> {
   if (!isSanityConfigured || !sanityClient) return fallbackGallery;
-  return sanityClient.fetch<GalleryItem[]>(galleryQuery);
+  return getCached('gallery', () => sanityClient.fetch<GalleryItem[]>(galleryQuery));
 }
 
 export async function getPostBySlug(slug: string): Promise<PostItem | null> {
@@ -333,13 +355,15 @@ export async function getPostBySlug(slug: string): Promise<PostItem | null> {
   if (!isSanityConfigured || !sanityClient) {
     return fallbackPosts.find((post) => post.slug === slug) ?? null;
   }
-  const post = await sanityClient.fetch<PostItem>(postBySlugQuery, { slug });
+  const post = await getCached(cacheKey('postBySlug', [slug]), () =>
+    sanityClient.fetch<PostItem | null>(postBySlugQuery, { slug })
+  );
   return post ?? null;
 }
 
 export async function getTeamVoices(): Promise<TeamVoice[]> {
   if (!isSanityConfigured || !sanityClient) return fallbackTeamVoices;
-  const data = await sanityClient.fetch<TeamVoice[] | null>(teamVoicesQuery);
+  const data = await getCached('teamVoices', () => sanityClient.fetch<TeamVoice[] | null>(teamVoicesQuery));
   if (!data || data.length === 0) return fallbackTeamVoices;
   return data;
 }
@@ -362,10 +386,8 @@ const fallbackHeroSlides: HeroSlide[] = [
 
 export async function getHeroSlides(): Promise<HeroSlide[]> {
   if (!isSanityConfigured || !sanityClient) return fallbackHeroSlides;
-  const data = await sanityClient.fetch<Array<{ slides?: HeroSlide[] }> | null>(heroGalleryQuery);
-  const slides = data
-    ?.flatMap((doc) => doc.slides ?? [])
-    .filter((slide) => slide?.image);
+  const data = await getCached('heroSlides', () => sanityClient.fetch<Array<{ slides?: HeroSlide[] }> | null>(heroGalleryQuery));
+  const slides = data?.flatMap((doc) => doc.slides ?? []).filter((slide) => slide?.image);
   return slides && slides.length ? slides : fallbackHeroSlides;
 }
 
@@ -373,7 +395,7 @@ export async function getGuestbookEntries(): Promise<GuestbookEntry[]> {
   if (!isSanityConfigured || !sanityClient) return sortGuestbookEntries(fallbackGuestbookEntries);
 
   try {
-    const data = await sanityClient.fetch<GuestbookEntry[]>(guestbookEntriesQuery);
+    const data = await getCached('guestbookEntries', () => sanityClient.fetch<GuestbookEntry[]>(guestbookEntriesQuery));
     if (!data || data.length === 0) {
       return sortGuestbookEntries(fallbackGuestbookEntries);
     }
@@ -388,7 +410,7 @@ export async function getAboutPageContent(): Promise<AboutPageContent> {
   if (!isSanityConfigured || !sanityClient) return fallbackAboutPage;
 
   try {
-    const data = await sanityClient.fetch<AboutPageContent | null>(aboutPageQuery);
+    const data = await getCached('aboutPage', () => sanityClient.fetch<AboutPageContent | null>(aboutPageQuery));
     return {
       teamImage: data?.teamImage ?? fallbackAboutPage.teamImage,
       teamImageAlt: data?.teamImageAlt ?? fallbackAboutPage.teamImageAlt,

@@ -7,5 +7,5 @@ export default defineConfig({
   adapter: vercel(),
   integrations: [tailwind({ applyBaseStyles: false })],
   prefetch: true,
-  output: 'server'
+  output: 'hybrid'
 });
