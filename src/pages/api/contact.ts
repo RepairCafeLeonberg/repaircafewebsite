@@ -17,6 +17,13 @@ export const POST: APIRoute = async ({request}) => {
   const hasConfig = SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && Number.isFinite(smtpPort);
 
   if (!hasConfig) {
+    console.warn('[contact] Missing or invalid SMTP config', {
+      hasHost: Boolean(SMTP_HOST),
+      hasPort: Boolean(SMTP_PORT),
+      hasUser: Boolean(SMTP_USER),
+      hasPass: Boolean(SMTP_PASS),
+      portParsed: smtpPort
+    });
     return new Response(
       JSON.stringify({error: 'E-Mail Versand ist aktuell nicht verfügbar. Bitte versuchen Sie es später erneut.'}),
       {status: 503}
