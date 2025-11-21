@@ -3,6 +3,29 @@ import nodemailer from 'nodemailer';
 
 const emailLooksValid = (value?: string) => !!value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
+const contactRateBuckets = new Map<string, number[]>();
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 3;
+
+const getClientKey = (request: Request) => {
+  const forwardedFor = request.headers.get('x-forwarded-for') || '';
+  const ip = forwardedFor.split(',')[0]?.trim();
+  return ip || request.headers.get('x-real-ip') || request.headers.get('cf-connecting-ip') || 'anonymous';
+};
+
+const isRateLimited = (key: string) => {
+  const now = Date.now();
+  const entries = contactRateBuckets.get(key) || [];
+  const fresh = entries.filter((ts) => now - ts < RATE_WINDOW_MS);
+  if (fresh.length >= RATE_MAX) {
+    contactRateBuckets.set(key, fresh);
+    return true;
+  }
+  fresh.push(now);
+  contactRateBuckets.set(key, fresh);
+  return false;
+};
+
 export const POST: APIRoute = async ({request}) => {
   const {
     SMTP_HOST,
@@ -35,6 +58,8 @@ export const POST: APIRoute = async ({request}) => {
     email?: string;
     message?: string;
     copy?: boolean;
+    company?: string;
+    submittedAt?: number;
   };
 
   try {
@@ -47,6 +72,17 @@ export const POST: APIRoute = async ({request}) => {
   const email = payload?.email?.trim();
   const message = payload?.message?.trim();
   const copy = Boolean(payload?.copy);
+  const honeypot = payload?.company?.trim();
+  const submittedAt = Number(payload?.submittedAt);
+
+  if (honeypot && honeypot.length > 0) {
+    return new Response(JSON.stringify({error: 'Die Nachricht konnte nicht gesendet werden.'}), {status: 400});
+  }
+
+  const ageOk = Number.isFinite(submittedAt) ? Date.now() - submittedAt >= 1200 : true;
+  if (!ageOk) {
+    return new Response(JSON.stringify({error: 'Bitte senden Sie das Formular noch einmal.'}), {status: 400});
+  }
 
   if (!name || !email || !message) {
     return new Response(JSON.stringify({error: 'Bitte alle Pflichtfelder ausfüllen.'}), {status: 400});
@@ -54,6 +90,11 @@ export const POST: APIRoute = async ({request}) => {
 
   if (!emailLooksValid(email)) {
     return new Response(JSON.stringify({error: 'Bitte eine gültige E-Mail-Adresse angeben.'}), {status: 400});
+  }
+
+  const clientKey = getClientKey(request);
+  if (isRateLimited(clientKey)) {
+    return new Response(JSON.stringify({error: 'Bitte warten Sie einen Moment vor der nächsten Nachricht.'}), {status: 429});
   }
 
   const textBody = [
@@ -73,7 +114,8 @@ export const POST: APIRoute = async ({request}) => {
       auth: {
         user: SMTP_USER,
         pass: SMTP_PASS
-      }
+      },
+      tls: smtpPort === 587 ? {rejectUnauthorized: true} : undefined
     });
 
     await transporter.sendMail({

@@ -86,6 +86,16 @@ const entries = (await getGuestbookEntries()).map((entry) => {
                   class="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 ></textarea>
               </div>
+              <div class="hidden" aria-hidden="true">
+                <label for="guestbook-website">Website (bitte leer lassen)</label>
+                <input
+                  id="guestbook-website"
+                  name="website"
+                  type="text"
+                  tabindex="-1"
+                  autocomplete="off"
+                />
+              </div>
               <div class="flex items-center gap-4">
                 <button
                   type="submit"
@@ -168,6 +178,7 @@ const entries = (await getGuestbookEntries()).map((entry) => {
     const form = document.getElementById('guestbook-form');
     const status = document.getElementById('guestbook-status');
     const submitButton = form?.querySelector('[data-submit-button]');
+    const formLoadedAt = Date.now();
 
     const setStatus = (message, variant) => {
       if (!status) return;
@@ -183,6 +194,7 @@ const entries = (await getGuestbookEntries()).map((entry) => {
       const name = (formData.get('name') ?? '').toString().trim();
       const city = (formData.get('city') ?? '').toString().trim();
       const message = (formData.get('message') ?? '').toString().trim();
+      const website = (formData.get('website') ?? '').toString().trim();
 
       if (name.length < 2) {
         setStatus('Bitte geben Sie einen Namen mit mindestens 2 Zeichen ein.', 'error');
@@ -190,6 +202,15 @@ const entries = (await getGuestbookEntries()).map((entry) => {
       }
       if (message.length < 10) {
         setStatus('Bitte schreiben Sie eine Nachricht mit mindestens 10 Zeichen.', 'error');
+        return;
+      }
+      if (website) {
+        setStatus('Der Eintrag konnte nicht gesendet werden. Bitte versuchen Sie es erneut.', 'error');
+        return;
+      }
+
+      if (Date.now() - formLoadedAt < 1200) {
+        setStatus('Bitte senden Sie das Formular noch einmal.', 'error');
         return;
       }
 
@@ -201,7 +222,7 @@ const entries = (await getGuestbookEntries()).map((entry) => {
         const response = await fetch('/api/guestbook', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, city, message })
+          body: JSON.stringify({ name, city, message, honeypot: website, submittedAt: formLoadedAt })
         });
 
         const payload = await response.json().catch(() => ({ success: false }));

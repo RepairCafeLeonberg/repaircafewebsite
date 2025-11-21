@@ -26,6 +26,29 @@ const toPlainString = (value: unknown): string => {
 
 const sanitizeInput = (value: string, maxLength: number) => value.trim().slice(0, maxLength);
 
+const guestbookRateBuckets = new Map<string, number[]>();
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 3;
+
+const getClientKey = (request: Request) => {
+  const forwardedFor = request.headers.get('x-forwarded-for') || '';
+  const ip = forwardedFor.split(',')[0]?.trim();
+  return ip || request.headers.get('x-real-ip') || request.headers.get('cf-connecting-ip') || 'anonymous';
+};
+
+const isRateLimited = (key: string) => {
+  const now = Date.now();
+  const entries = guestbookRateBuckets.get(key) || [];
+  const fresh = entries.filter((ts) => now - ts < RATE_WINDOW_MS);
+  if (fresh.length >= RATE_MAX) {
+    guestbookRateBuckets.set(key, fresh);
+    return true;
+  }
+  fresh.push(now);
+  guestbookRateBuckets.set(key, fresh);
+  return false;
+};
+
 export const POST: APIRoute = async ({ request }) => {
   if (!isConfigured) {
     return new Response(
@@ -56,6 +79,28 @@ export const POST: APIRoute = async ({ request }) => {
   const name = sanitizeInput(toPlainString(payload.name), 80);
   const message = sanitizeInput(toPlainString(payload.message), 600);
   const city = sanitizeInput(toPlainString(payload.city), 80);
+  const honeypot = sanitizeInput(toPlainString(payload.honeypot), 120);
+  const submittedAt = Number(payload.submittedAt);
+
+  if (honeypot) {
+    return new Response(
+      JSON.stringify({ success: false, message: 'Der Eintrag konnte nicht gespeichert werden.' }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  if (Number.isFinite(submittedAt) && Date.now() - submittedAt < 1200) {
+    return new Response(
+      JSON.stringify({ success: false, message: 'Bitte senden Sie das Formular noch einmal.' }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
 
   if (!name || name.length < 2) {
     return new Response(
@@ -72,6 +117,20 @@ export const POST: APIRoute = async ({ request }) => {
       JSON.stringify({ success: false, message: 'Bitte eine Nachricht mit mindestens 10 Zeichen schreiben.' }),
       {
         status: 422,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  const clientKey = getClientKey(request);
+  if (isRateLimited(clientKey)) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: 'Bitte warten Sie einen Moment, bevor Sie den nächsten Eintrag senden.'
+      }),
+      {
+        status: 429,
         headers: { 'Content-Type': 'application/json' }
       }
     );

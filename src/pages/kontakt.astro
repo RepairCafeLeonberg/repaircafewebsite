@@ -199,6 +199,7 @@ const contactPhoneLink = 'tel:071529904977';
       const message = getTextValue('contact-message');
       const company = getTextValue('contact-company');
       const copy = getCheckboxValue('contact-copy');
+      const submittedAt = formLoadedAt;
 
       if (!name || !email || !message) {
         setStatus('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
@@ -228,7 +229,7 @@ const contactPhoneLink = 'tel:071529904977';
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ name, email, message, copy })
+          body: JSON.stringify({ name, email, message, copy, company, submittedAt })
         });
 
         const data = await response.json().catch(() => ({}));
