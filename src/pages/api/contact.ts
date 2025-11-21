@@ -1,37 +1,28 @@
 import type {APIRoute} from 'astro';
 import nodemailer from 'nodemailer';
 
-const {
-  SMTP_HOST,
-  SMTP_PORT,
-  SMTP_USER,
-  SMTP_PASS,
-  CONTACT_RECIPIENT = 'info@repair-leonberg.de',
-  SMTP_FROM
-} = import.meta.env;
-
-const ensureTransporter = () => {
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
-    throw new Error('SMTP configuration is incomplete. Please set SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS.');
-  }
-
-  const port = Number(SMTP_PORT);
-  const secure = port === 465;
-
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port,
-    secure,
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS
-    }
-  });
-};
-
-const transporter = ensureTransporter();
+const emailLooksValid = (value?: string) => !!value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 export const POST: APIRoute = async ({request}) => {
+  const {
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USER,
+    SMTP_PASS,
+    CONTACT_RECIPIENT = 'info@repair-leonberg.de',
+    SMTP_FROM
+  } = import.meta.env;
+
+  const smtpPort = Number(SMTP_PORT);
+  const hasConfig = SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && Number.isFinite(smtpPort);
+
+  if (!hasConfig) {
+    return new Response(
+      JSON.stringify({error: 'E-Mail Versand ist aktuell nicht verfügbar. Bitte versuchen Sie es später erneut.'}),
+      {status: 503}
+    );
+  }
+
   let payload: {
     name?: string;
     email?: string;
@@ -54,6 +45,10 @@ export const POST: APIRoute = async ({request}) => {
     return new Response(JSON.stringify({error: 'Bitte alle Pflichtfelder ausfüllen.'}), {status: 400});
   }
 
+  if (!emailLooksValid(email)) {
+    return new Response(JSON.stringify({error: 'Bitte eine gültige E-Mail-Adresse angeben.'}), {status: 400});
+  }
+
   const textBody = [
     `Name: ${name}`,
     `Mail: ${email}`,
@@ -64,6 +59,16 @@ export const POST: APIRoute = async ({request}) => {
   ].join('\n');
 
   try {
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS
+      }
+    });
+
     await transporter.sendMail({
       from: SMTP_FROM || `Repair Café Leonberg <${SMTP_USER}>`,
       to: CONTACT_RECIPIENT,
