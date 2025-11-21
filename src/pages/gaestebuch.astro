@@ -143,7 +143,7 @@ const entries = (await getGuestbookEntries()).map((entry) => {
             Diese Stimmen zeigen, warum Reparieren verbindet. Vielen Dank für jedes Lob und jede Motivation!
           </p>
         </div>
-        <div class="mt-10 grid gap-6 md:grid-cols-2">
+        <div id="guestbook-entries" class="mt-10 grid gap-6 md:grid-cols-2">
           {entries.length > 0 ? (
             entries.map((entry) => (
               <article class="h-full rounded-3xl bg-white p-6 text-left shadow-xl shadow-slate-900/5">
@@ -160,7 +160,7 @@ const entries = (await getGuestbookEntries()).map((entry) => {
               </article>
             ))
           ) : (
-            <div class="col-span-full rounded-3xl bg-white p-10 text-center shadow-xl shadow-slate-900/5">
+            <div id="guestbook-empty" class="col-span-full rounded-3xl bg-white p-10 text-center shadow-xl shadow-slate-900/5">
               <p class="text-base text-slate-600">
                 Noch keine Einträge vorhanden – seien Sie die erste Person, die ihre Erfahrungen teilt.
               </p>
@@ -174,11 +174,14 @@ const entries = (await getGuestbookEntries()).map((entry) => {
   <CTA />
   <Footer />
 
-  <script>
+  <script type="module">
     const form = document.getElementById('guestbook-form');
     const status = document.getElementById('guestbook-status');
     const submitButton = form?.querySelector('[data-submit-button]');
+    const entriesContainer = document.getElementById('guestbook-entries');
+    const emptyState = document.getElementById('guestbook-empty');
     const formLoadedAt = Date.now();
+    let nonceBundle = null;
 
     const setStatus = (message, variant) => {
       if (!status) return;
@@ -186,14 +189,79 @@ const entries = (await getGuestbookEntries()).map((entry) => {
       status.className = 'text-sm ' + (variant === 'error' ? 'text-red-600' : variant === 'success' ? 'text-emerald-600' : 'text-slate-500');
     };
 
+    const toggleSubmitting = (loading) => {
+      if (!submitButton) return;
+      if (loading) {
+        submitButton.setAttribute('data-loading', 'true');
+        submitButton.setAttribute('disabled', 'disabled');
+      } else {
+        submitButton.removeAttribute('data-loading');
+        submitButton.removeAttribute('disabled');
+      }
+    };
+
+    const removeEmptyState = () => {
+      if (!emptyState) return;
+      emptyState.remove();
+    };
+
+    const appendOptimisticEntry = ({ name, city, message }) => {
+      if (!entriesContainer) return;
+      const article = document.createElement('article');
+      article.className = 'h-full rounded-3xl bg-white p-6 text-left shadow-xl shadow-slate-900/5 border border-dashed border-emerald-200';
+      article.innerHTML = `
+        <p class="text-base leading-relaxed text-slate-700 whitespace-pre-line">${message}</p>
+        <div class="mt-5 text-sm font-semibold text-slate-900">
+          ${name}${city ? ` · ${city}` : ''}
+        </div>
+        <div class="mt-1 text-xs uppercase tracking-[0.2em] text-emerald-600">
+          Wird nach Prüfung veröffentlicht
+        </div>
+      `;
+      entriesContainer.prepend(article);
+      removeEmptyState();
+    };
+
+    const fetchNonce = async () => {
+      try {
+        const response = await fetch('/api/guestbook', { method: 'GET', headers: { Accept: 'application/json' } });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok && payload?.success && payload.nonce && payload.signature) {
+          nonceBundle = {
+            nonce: payload.nonce,
+            issuedAt: payload.issuedAt,
+            signature: payload.signature,
+            ttlMs: payload.ttlMs ?? 0
+          };
+          return true;
+        }
+        throw new Error(payload?.message || 'Kein Token erhalten');
+      } catch (error) {
+        console.error('Guestbook nonce fetch failed:', error);
+        setStatus('Sicherheits-Token konnte nicht geladen werden. Bitte laden Sie die Seite neu.', 'error');
+        return false;
+      }
+    };
+
+    const ensureNonce = async () => {
+      if (!nonceBundle) return fetchNonce();
+      const maxAge = typeof nonceBundle.ttlMs === 'number' && nonceBundle.ttlMs > 0 ? nonceBundle.ttlMs : 8 * 60_000;
+      if (Date.now() - nonceBundle.issuedAt > maxAge * 0.9) {
+        return fetchNonce();
+      }
+      return true;
+    };
+
+    const safeText = (value) => value.replace(/[<>&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[char] || char));
+
     form?.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!form) return;
 
       const formData = new FormData(form);
-      const name = (formData.get('name') ?? '').toString().trim();
-      const city = (formData.get('city') ?? '').toString().trim();
-      const message = (formData.get('message') ?? '').toString().trim();
+      const name = safeText((formData.get('name') ?? '').toString().trim());
+      const city = safeText((formData.get('city') ?? '').toString().trim());
+      const message = safeText((formData.get('message') ?? '').toString().trim());
       const website = (formData.get('website') ?? '').toString().trim();
 
       if (name.length < 2) {
@@ -208,28 +276,40 @@ const entries = (await getGuestbookEntries()).map((entry) => {
         setStatus('Der Eintrag konnte nicht gesendet werden. Bitte versuchen Sie es erneut.', 'error');
         return;
       }
-
       if (Date.now() - formLoadedAt < 1200) {
         setStatus('Bitte senden Sie das Formular noch einmal.', 'error');
         return;
       }
+      if (!(await ensureNonce())) {
+        return;
+      }
 
       try {
-        submitButton?.setAttribute('data-loading', 'true');
-        submitButton?.setAttribute('disabled', 'disabled');
+        toggleSubmitting(true);
         setStatus('Ihr Eintrag wird gesendet …', 'info');
 
         const response = await fetch('/api/guestbook', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, city, message, honeypot: website, submittedAt: formLoadedAt })
+          body: JSON.stringify({
+            name,
+            city,
+            message,
+            honeypot: website,
+            submittedAt: formLoadedAt,
+            nonce: nonceBundle?.nonce,
+            issuedAt: nonceBundle?.issuedAt,
+            signature: nonceBundle?.signature
+          })
         });
 
         const payload = await response.json().catch(() => ({ success: false }));
 
         if (response.ok && payload?.success) {
-          setStatus('Vielen Dank! Ihr Beitrag wird nach Prüfung veröffentlicht.', 'success');
+          setStatus('Vielen Dank! Ihr Beitrag ist eingegangen und wird nach Prüfung veröffentlicht.', 'success');
           form.reset();
+          appendOptimisticEntry({ name, city, message });
+          await fetchNonce();
         } else {
           setStatus(payload?.message ?? 'Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
         }
@@ -237,9 +317,13 @@ const entries = (await getGuestbookEntries()).map((entry) => {
         console.error('Guestbook submission error:', error);
         setStatus('Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
       } finally {
-        submitButton?.removeAttribute('data-loading');
-        submitButton?.removeAttribute('disabled');
+        toggleSubmitting(false);
       }
+    });
+
+    // Preload nonce shortly after page load to keep render path clean
+    window.addEventListener('load', () => {
+      window.requestIdleCallback ? window.requestIdleCallback(fetchNonce) : setTimeout(fetchNonce, 150);
     });
   </script>
 </BaseLayout>

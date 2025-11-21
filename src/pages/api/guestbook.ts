@@ -1,10 +1,13 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 const projectId = import.meta.env.SANITY_PROJECT_ID;
 const dataset = import.meta.env.SANITY_DATASET;
 const apiVersion = import.meta.env.SANITY_API_VERSION ?? '2023-05-26';
 const token = import.meta.env.SANITY_WRITE_TOKEN;
+const nonceSecret = import.meta.env.GUESTBOOK_NONCE_SECRET;
+const runtimeNonceSecret = nonceSecret || randomBytes(32).toString('hex');
 
 const writeClient = projectId && dataset && token
   ? createClient({
@@ -29,6 +32,36 @@ const sanitizeInput = (value: string, maxLength: number) => value.trim().slice(0
 const guestbookRateBuckets = new Map<string, number[]>();
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX = 3;
+const NONCE_MAX_AGE_MS = 10 * 60_000; // 10 minutes
+
+type NoncePayload = {
+  nonce: string;
+  issuedAt: number;
+  signature: string;
+};
+
+const hashBase = (nonce: string, issuedAt: number, ua: string) => `${nonce}:${issuedAt}:${ua}`;
+
+const signNonce = (nonce: string, issuedAt: number, ua: string) =>
+  createHmac('sha256', runtimeNonceSecret).update(hashBase(nonce, issuedAt, ua)).digest('hex');
+
+const isValidSignature = (provided: string, expected: string) => {
+  try {
+    const a = Buffer.from(provided, 'hex');
+    const b = Buffer.from(expected, 'hex');
+    return a.length === b.length && timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+};
+
+const getNoncePayload = (request: Request): NoncePayload | null => {
+  const ua = request.headers.get('user-agent') ?? 'unknown';
+  const nonce = randomBytes(16).toString('hex');
+  const issuedAt = Date.now();
+  const signature = signNonce(nonce, issuedAt, ua);
+  return { nonce, issuedAt, signature };
+};
 
 const getClientKey = (request: Request) => {
   const forwardedFor = request.headers.get('x-forwarded-for') || '';
@@ -47,6 +80,42 @@ const isRateLimited = (key: string) => {
   fresh.push(now);
   guestbookRateBuckets.set(key, fresh);
   return false;
+};
+
+const respondJson = (body: Record<string, unknown>, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+const validateNonce = (incoming: Partial<NoncePayload>, request: Request) => {
+  if (!incoming.nonce || !incoming.signature || typeof incoming.issuedAt !== 'number') {
+    return { ok: false, reason: 'Ungültiger Sicherheitsnachweis.' };
+  }
+  const ua = request.headers.get('user-agent') ?? 'unknown';
+  const expectedSignature = signNonce(incoming.nonce, incoming.issuedAt, ua);
+  if (!isValidSignature(incoming.signature, expectedSignature)) {
+    return { ok: false, reason: 'Die Sitzung konnte nicht verifiziert werden.' };
+  }
+  const age = Date.now() - incoming.issuedAt;
+  if (age < 0 || age > NONCE_MAX_AGE_MS) {
+    return { ok: false, reason: 'Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu.' };
+  }
+  return { ok: true };
+};
+
+export const GET: APIRoute = async ({ request }) => {
+  const payload = getNoncePayload(request);
+  if (!payload) {
+    return respondJson({ success: false, message: 'Sicherheits-Token konnte nicht erstellt werden.' }, 500);
+  }
+  return respondJson({
+    success: true,
+    nonce: payload.nonce,
+    issuedAt: payload.issuedAt,
+    signature: payload.signature,
+    ttlMs: NONCE_MAX_AGE_MS
+  });
 };
 
 export const POST: APIRoute = async ({ request }) => {
@@ -75,6 +144,12 @@ export const POST: APIRoute = async ({ request }) => {
       }
     );
   }
+
+  const noncePayload: Partial<NoncePayload> = {
+    nonce: payload.nonce as string,
+    issuedAt: Number(payload.issuedAt),
+    signature: payload.signature as string
+  };
 
   const name = sanitizeInput(toPlainString(payload.name), 80);
   const message = sanitizeInput(toPlainString(payload.message), 600);
@@ -120,6 +195,11 @@ export const POST: APIRoute = async ({ request }) => {
         headers: { 'Content-Type': 'application/json' }
       }
     );
+  }
+
+  const nonceValidation = validateNonce(noncePayload, request);
+  if (!nonceValidation.ok) {
+    return respondJson({ success: false, message: nonceValidation.reason }, 400);
   }
 
   const clientKey = getClientKey(request);
@@ -175,8 +255,8 @@ export const OPTIONS: APIRoute = async () =>
   new Response(null, {
     status: 204,
     headers: {
-      Allow: 'POST, OPTIONS',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      Allow: 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type'
     }
   });
