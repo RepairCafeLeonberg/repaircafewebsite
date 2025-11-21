@@ -89,7 +89,7 @@ const respondJson = (body: Record<string, unknown>, status = 200) =>
     headers: { 'Content-Type': 'application/json' }
   });
 
-const respondError = (message: string, status = 400, debugInfo?: string, logAsError = false) => {
+const respondError = (message: string, status = 400, debugInfo?: string, logAsError = false, debugEnabled = DEBUG_ENABLED) => {
   if (logAsError) {
     console.error('[guestbook]', message, debugInfo ? { debug: debugInfo } : undefined);
   } else if (DEBUG_ENABLED && debugInfo) {
@@ -99,7 +99,7 @@ const respondError = (message: string, status = 400, debugInfo?: string, logAsEr
     {
       success: false,
       message,
-      ...(DEBUG_ENABLED && debugInfo ? { debug: debugInfo } : {})
+      ...(debugEnabled && debugInfo ? { debug: debugInfo } : {})
     },
     status
   );
@@ -122,25 +122,30 @@ const validateNonce = (incoming: Partial<NoncePayload>, request: Request) => {
 };
 
 export const GET: APIRoute = async ({ request }) => {
+  const isDebug = DEBUG_ENABLED || new URL(request.url).searchParams.get('debug') === '1';
   const payload = getNoncePayload(request);
   if (!payload) {
-    return respondError('Sicherheits-Token konnte nicht erstellt werden.', 500, 'nonce-payload-null');
+    return respondError('Sicherheits-Token konnte nicht erstellt werden.', 500, 'nonce-payload-null', false, isDebug);
   }
   return respondJson({
     success: true,
     nonce: payload.nonce,
     issuedAt: payload.issuedAt,
     signature: payload.signature,
-    ttlMs: NONCE_MAX_AGE_MS
+    ttlMs: NONCE_MAX_AGE_MS,
+    ...(isDebug ? { debug: 'nonce-issued' } : {})
   });
 };
 
 export const POST: APIRoute = async ({ request }) => {
+  const isDebug = DEBUG_ENABLED || new URL(request.url).searchParams.get('debug') === '1';
   if (!isConfigured) {
     return respondError(
       'Der Gästebuch-Service ist derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.',
       503,
-      'sanity-not-configured'
+      'sanity-not-configured',
+      false,
+      isDebug
     );
   }
 
@@ -148,7 +153,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     payload = await request.json();
   } catch {
-    return respondError('Ungültige Eingabe. Bitte verwenden Sie das Formular auf der Website.', 400, 'json-parse-error');
+    return respondError('Ungültige Eingabe. Bitte verwenden Sie das Formular auf der Website.', 400, 'json-parse-error', false, isDebug);
   }
 
   const noncePayload: Partial<NoncePayload> = {
@@ -164,28 +169,30 @@ export const POST: APIRoute = async ({ request }) => {
   const submittedAt = Number(payload.submittedAt);
 
   if (honeypot) {
-    return respondError('Der Eintrag konnte nicht gespeichert werden.', 400, 'honeypot-filled');
+    return respondError('Der Eintrag konnte nicht gespeichert werden.', 400, 'honeypot-filled', false, isDebug);
   }
 
   if (Number.isFinite(submittedAt) && Date.now() - submittedAt < 1200) {
-    return respondError('Bitte senden Sie das Formular noch einmal.', 400, 'too-fast');
+    return respondError('Bitte senden Sie das Formular noch einmal.', 400, 'too-fast', false, isDebug);
   }
 
   if (!name || name.length < 2) {
     return respondError(
       'Bitte einen Namen oder ein Pseudonym mit mindestens 2 Zeichen angeben.',
       422,
-      'name-too-short'
+      'name-too-short',
+      false,
+      isDebug
     );
   }
 
   if (!message || message.length < 10) {
-    return respondError('Bitte eine Nachricht mit mindestens 10 Zeichen schreiben.', 422, 'message-too-short');
+    return respondError('Bitte eine Nachricht mit mindestens 10 Zeichen schreiben.', 422, 'message-too-short', false, isDebug);
   }
 
   const nonceValidation = validateNonce(noncePayload, request);
   if (!nonceValidation.ok) {
-    return respondError(nonceValidation.reason, 400, nonceValidation.debug);
+    return respondError(nonceValidation.reason, 400, nonceValidation.debug, false, isDebug);
   }
 
   const clientKey = getClientKey(request);
@@ -193,7 +200,9 @@ export const POST: APIRoute = async ({ request }) => {
     return respondError(
       'Bitte warten Sie einen Moment, bevor Sie den nächsten Eintrag senden.',
       429,
-      'rate-limited'
+      'rate-limited',
+      false,
+      isDebug
     );
   }
 
@@ -222,7 +231,7 @@ export const POST: APIRoute = async ({ request }) => {
     return respondError(
       'Beim Speichern ist ein Fehler passiert. Bitte versuchen Sie es später noch einmal.',
       500,
-      DEBUG_ENABLED ? (error instanceof Error ? error.message : 'unknown-error') : undefined,
+      isDebug ? (error instanceof Error ? error.message : 'unknown-error') : undefined,
       true
     );
   }

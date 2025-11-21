@@ -222,9 +222,11 @@ const entries = (await getGuestbookEntries()).map((entry) => {
       removeEmptyState();
     };
 
+    const debugFlag = new URLSearchParams(window.location.search).get('debug') === '1';
+
     const fetchNonce = async () => {
       try {
-        const response = await fetch('/api/guestbook', { method: 'GET', headers: { Accept: 'application/json' } });
+        const response = await fetch(`/api/guestbook${debugFlag ? '?debug=1' : ''}`, { method: 'GET', headers: { Accept: 'application/json' } });
         const payload = await response.json().catch(() => ({}));
         if (response.ok && payload?.success && payload.nonce && payload.signature) {
           nonceBundle = {
@@ -288,7 +290,7 @@ const entries = (await getGuestbookEntries()).map((entry) => {
         toggleSubmitting(true);
         setStatus('Ihr Eintrag wird gesendet …', 'info');
 
-        const response = await fetch('/api/guestbook', {
+        const response = await fetch(`/api/guestbook${debugFlag ? '?debug=1' : ''}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
