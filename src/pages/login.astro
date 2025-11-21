@@ -21,7 +21,7 @@ const pageDescription = 'Anmeldung für den internen Mitgliederbereich des Repai
             Anmeldung für Vereinsmitglieder
           </h1>
           <p class="mt-3 text-base text-slate-600">
-            Bitte melden Sie sich mit Ihren Zugangsdaten an, um in den internen Bereich zu gelangen.
+            Der Zugang ist jetzt per Browser-Anmeldung (Basic Auth) geschützt. Ihr Browser fragt Sie automatisch nach Benutzername und Passwort – die Daten erhalten Sie vom Orga-Team.
           </p>
         </div>
       </div>
@@ -31,41 +31,18 @@ const pageDescription = 'Anmeldung für den internen Mitgliederbereich des Repai
       <div class="container">
         <div class="grid gap-6">
           <div class="mx-auto w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-xl shadow-slate-900/5">
-            <h2 class="heading-sub">Mitglieder Login</h2>
-            <p class="mt-3 text-sm text-slate-600">Nutzen Sie die zentralen Zugangsdaten, die Sie vom Verein erhalten haben.</p>
-            <form id="members-login-form" class="mt-6 space-y-6" autocomplete="off">
-              <div class="flex flex-col items-center gap-2">
-                <label for="username" class="text-sm font-medium text-slate-700">Benutzername</label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  autocomplete="off"
-                  class="w-full max-w-xs rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-              </div>
-              <div class="flex flex-col items-center gap-2">
-                <label for="password" class="text-sm font-medium text-slate-700">Passwort</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  autocomplete="off"
-                  class="w-full max-w-xs rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-              </div>
-              <p id="login-error" class="mx-auto hidden max-w-xs rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                Das hat noch nicht geklappt. Bitte prüfen Sie Benutzername und Passwort oder melden Sie sich beim Orga-Team für Unterstützung.
-              </p>
-              <button
-                type="submit"
-                class="mt-4 inline-flex w-full max-w-xs justify-center rounded-full bg-[#DD714D] px-6 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-[#c35a39] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              >
-                Anmelden
-              </button>
-            </form>
+            <h2 class="heading-sub">So funktioniert der Zugang</h2>
+            <p class="mt-3 text-sm text-slate-600">
+              Öffnen Sie <strong>/members</strong> oder diese Login-Seite. Der Browser blendet ein kleines Dialogfenster für Benutzername und Passwort ein. Nach erfolgreicher Eingabe wird der Mitgliederbereich angezeigt.
+            </p>
+            <p class="mt-4 text-sm text-slate-600">
+              Falls die Abfrage nicht erscheint, laden Sie die Seite neu oder probieren Sie einen anderen Browser. Zugangsdaten gibt es ausschließlich über das Orga-Team.
+            </p>
+            <div class="mt-6 text-sm text-slate-600">
+              <a class="text-brand-700 hover:underline" href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a>
+              &nbsp;|&nbsp;
+              Info-Telefon: <a class="text-brand-700 hover:underline" href="tel:071529904977">07152 990 4977</a>
+            </div>
           </div>
         </div>
       </div>
@@ -73,44 +50,4 @@ const pageDescription = 'Anmeldung für den internen Mitgliederbereich des Repai
   </main>
 
   <Footer />
-
-  <script>
-    const AUTH_KEY = 'repaircafe.members.authenticated';
-    const USERNAME = 'admin';
-    const PASSWORD = 'repair25!1';
-
-    const redirectToMembers = () => {
-      window.location.href = '/members';
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      if (sessionStorage.getItem(AUTH_KEY) === 'true') {
-        redirectToMembers();
-        return;
-      }
-
-      const form = document.getElementById('members-login-form');
-      const errorNode = document.getElementById('login-error');
-
-      form?.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const username = (document.getElementById('username')?.value || '').trim();
-        const password = document.getElementById('password')?.value || '';
-
-        if (errorNode) {
-          errorNode.classList.add('hidden');
-        }
-
-        if (username === USERNAME && password === PASSWORD) {
-          sessionStorage.setItem(AUTH_KEY, 'true');
-          redirectToMembers();
-          return;
-        }
-
-        if (errorNode) {
-          errorNode.classList.remove('hidden');
-        }
-      });
-    });
-  </script>
 </BaseLayout>
