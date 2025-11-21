@@ -7,6 +7,7 @@ const dataset = import.meta.env.SANITY_DATASET;
 const apiVersion = import.meta.env.SANITY_API_VERSION ?? '2023-05-26';
 const token = import.meta.env.SANITY_WRITE_TOKEN;
 const nonceSecret = import.meta.env.GUESTBOOK_NONCE_SECRET;
+const DEBUG_ENABLED = import.meta.env.GUESTBOOK_DEBUG === 'true';
 const runtimeNonceSecret = nonceSecret || randomBytes(32).toString('hex');
 
 const writeClient = projectId && dataset && token
@@ -88,18 +89,34 @@ const respondJson = (body: Record<string, unknown>, status = 200) =>
     headers: { 'Content-Type': 'application/json' }
   });
 
+const respondError = (message: string, status = 400, debugInfo?: string, logAsError = false) => {
+  if (logAsError) {
+    console.error('[guestbook]', message, debugInfo ? { debug: debugInfo } : undefined);
+  } else if (DEBUG_ENABLED && debugInfo) {
+    console.warn('[guestbook]', message, { debug: debugInfo });
+  }
+  return respondJson(
+    {
+      success: false,
+      message,
+      ...(DEBUG_ENABLED && debugInfo ? { debug: debugInfo } : {})
+    },
+    status
+  );
+};
+
 const validateNonce = (incoming: Partial<NoncePayload>, request: Request) => {
   if (!incoming.nonce || !incoming.signature || typeof incoming.issuedAt !== 'number') {
-    return { ok: false, reason: 'Ungültiger Sicherheitsnachweis.' };
+    return { ok: false, reason: 'Ungültiger Sicherheitsnachweis.', debug: 'missing-nonce-fields' };
   }
   const ua = request.headers.get('user-agent') ?? 'unknown';
   const expectedSignature = signNonce(incoming.nonce, incoming.issuedAt, ua);
   if (!isValidSignature(incoming.signature, expectedSignature)) {
-    return { ok: false, reason: 'Die Sitzung konnte nicht verifiziert werden.' };
+    return { ok: false, reason: 'Die Sitzung konnte nicht verifiziert werden.', debug: 'invalid-signature' };
   }
   const age = Date.now() - incoming.issuedAt;
   if (age < 0 || age > NONCE_MAX_AGE_MS) {
-    return { ok: false, reason: 'Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu.' };
+    return { ok: false, reason: 'Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu.', debug: 'nonce-expired' };
   }
   return { ok: true };
 };
@@ -107,7 +124,7 @@ const validateNonce = (incoming: Partial<NoncePayload>, request: Request) => {
 export const GET: APIRoute = async ({ request }) => {
   const payload = getNoncePayload(request);
   if (!payload) {
-    return respondJson({ success: false, message: 'Sicherheits-Token konnte nicht erstellt werden.' }, 500);
+    return respondError('Sicherheits-Token konnte nicht erstellt werden.', 500, 'nonce-payload-null');
   }
   return respondJson({
     success: true,
@@ -120,15 +137,10 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const POST: APIRoute = async ({ request }) => {
   if (!isConfigured) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: 'Der Gästebuch-Service ist derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.'
-      }),
-      {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
-      }
+    return respondError(
+      'Der Gästebuch-Service ist derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.',
+      503,
+      'sanity-not-configured'
     );
   }
 
@@ -136,13 +148,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     payload = await request.json();
   } catch {
-    return new Response(
-      JSON.stringify({ success: false, message: 'Ungültige Eingabe. Bitte verwenden Sie das Formular auf der Website.' }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return respondError('Ungültige Eingabe. Bitte verwenden Sie das Formular auf der Website.', 400, 'json-parse-error');
   }
 
   const noncePayload: Partial<NoncePayload> = {
@@ -158,61 +164,36 @@ export const POST: APIRoute = async ({ request }) => {
   const submittedAt = Number(payload.submittedAt);
 
   if (honeypot) {
-    return new Response(
-      JSON.stringify({ success: false, message: 'Der Eintrag konnte nicht gespeichert werden.' }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return respondError('Der Eintrag konnte nicht gespeichert werden.', 400, 'honeypot-filled');
   }
 
   if (Number.isFinite(submittedAt) && Date.now() - submittedAt < 1200) {
-    return new Response(
-      JSON.stringify({ success: false, message: 'Bitte senden Sie das Formular noch einmal.' }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return respondError('Bitte senden Sie das Formular noch einmal.', 400, 'too-fast');
   }
 
   if (!name || name.length < 2) {
-    return new Response(
-      JSON.stringify({ success: false, message: 'Bitte einen Namen oder ein Pseudonym mit mindestens 2 Zeichen angeben.' }),
-      {
-        status: 422,
-        headers: { 'Content-Type': 'application/json' }
-      }
+    return respondError(
+      'Bitte einen Namen oder ein Pseudonym mit mindestens 2 Zeichen angeben.',
+      422,
+      'name-too-short'
     );
   }
 
   if (!message || message.length < 10) {
-    return new Response(
-      JSON.stringify({ success: false, message: 'Bitte eine Nachricht mit mindestens 10 Zeichen schreiben.' }),
-      {
-        status: 422,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return respondError('Bitte eine Nachricht mit mindestens 10 Zeichen schreiben.', 422, 'message-too-short');
   }
 
   const nonceValidation = validateNonce(noncePayload, request);
   if (!nonceValidation.ok) {
-    return respondJson({ success: false, message: nonceValidation.reason }, 400);
+    return respondError(nonceValidation.reason, 400, nonceValidation.debug);
   }
 
   const clientKey = getClientKey(request);
   if (isRateLimited(clientKey)) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: 'Bitte warten Sie einen Moment, bevor Sie den nächsten Eintrag senden.'
-      }),
-      {
-        status: 429,
-        headers: { 'Content-Type': 'application/json' }
-      }
+    return respondError(
+      'Bitte warten Sie einen Moment, bevor Sie den nächsten Eintrag senden.',
+      429,
+      'rate-limited'
     );
   }
 
@@ -238,15 +219,11 @@ export const POST: APIRoute = async ({ request }) => {
     );
   } catch (error) {
     console.error('Guestbook submission failed:', error);
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: 'Beim Speichern ist ein Fehler passiert. Bitte versuchen Sie es später noch einmal.'
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
+    return respondError(
+      'Beim Speichern ist ein Fehler passiert. Bitte versuchen Sie es später noch einmal.',
+      500,
+      DEBUG_ENABLED ? (error instanceof Error ? error.message : 'unknown-error') : undefined,
+      true
     );
   }
 };

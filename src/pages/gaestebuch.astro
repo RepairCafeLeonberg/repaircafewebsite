@@ -311,7 +311,15 @@ const entries = (await getGuestbookEntries()).map((entry) => {
           appendOptimisticEntry({ name, city, message });
           await fetchNonce();
         } else {
-          setStatus(payload?.message ?? 'Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
+          if (payload?.debug) {
+            console.info('Guestbook debug info:', payload.debug);
+          }
+          setStatus(
+            payload?.message
+              ? `${payload.message}${payload.debug ? ` (Debug: ${payload.debug})` : ''}`
+              : 'Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
+            'error'
+          );
         }
       } catch (error) {
         console.error('Guestbook submission error:', error);
