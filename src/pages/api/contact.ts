@@ -3,8 +3,6 @@ import nodemailer from 'nodemailer';
 
 const emailLooksValid = (value?: string) => !!value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
-const CONTACT_DEBUG = import.meta.env.CONTACT_DEBUG === 'true';
-
 const contactRateBuckets = new Map<string, number[]>();
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX = 3;
@@ -40,17 +38,20 @@ export const POST: APIRoute = async ({request}) => {
 
   const smtpPort = Number(SMTP_PORT);
   const hasConfig = SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && Number.isFinite(smtpPort);
+  const configDebug = {
+    host: SMTP_HOST,
+    port: smtpPort,
+    user: SMTP_USER,
+    hasPass: Boolean(SMTP_PASS)
+  };
 
   if (!hasConfig) {
-    console.error('[contact] Missing or invalid SMTP config', {
-      hasHost: Boolean(SMTP_HOST),
-      hasPort: Boolean(SMTP_PORT),
-      hasUser: Boolean(SMTP_USER),
-      hasPass: Boolean(SMTP_PASS),
-      portParsed: smtpPort
-    });
+    console.error('[contact] Missing or invalid SMTP config', configDebug);
     return new Response(
-      JSON.stringify({error: 'E-Mail Versand ist aktuell nicht verfügbar. Bitte versuchen Sie es später erneut.'}),
+      JSON.stringify({
+        error: 'E-Mail Versand ist aktuell nicht verfügbar. Bitte versuchen Sie es später erneut.',
+        debug: { reason: 'smtp-config', ...configDebug }
+      }),
       {status: 503}
     );
   }
@@ -132,8 +133,23 @@ export const POST: APIRoute = async ({request}) => {
     return new Response(JSON.stringify({success: true}), {status: 200});
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
+    const code = err && typeof err === 'object' && 'code' in err ? String((err as any).code) : undefined;
+    const responseCode = err && typeof err === 'object' && 'responseCode' in err ? Number((err as any).responseCode) : undefined;
+    const hint =
+      code === 'EAUTH' || responseCode === 535
+        ? 'SMTP Login fehlgeschlagen. Bitte Benutzer/Passwort/Absender prüfen.'
+        : code === 'ENOTFOUND'
+        ? 'SMTP Host nicht erreichbar. Hostname prüfen.'
+        : code === 'ECONNECTION' || code === 'ETIMEDOUT'
+        ? 'Verbindung zum SMTP-Server fehlgeschlagen. Port/Firewall prüfen.'
+        : code === 'DEPTH_ZERO_SELF_SIGNED_CERT' || code === 'SELF_SIGNED_CERT_IN_CHAIN'
+        ? 'Zertifikat wird abgelehnt. TLS-Einstellungen prüfen.'
+        : undefined;
+
     console.error('Failed to send contact mail', {
       error: message,
+      code,
+      responseCode,
       host: SMTP_HOST,
       port: smtpPort,
       secure: smtpPort === 465
@@ -141,7 +157,15 @@ export const POST: APIRoute = async ({request}) => {
     return new Response(
       JSON.stringify({
         error: 'Die Nachricht konnte nicht versendet werden. Bitte versuchen Sie es später erneut.',
-        ...(CONTACT_DEBUG ? {debug: message} : {})
+        debug: {
+          message,
+          code,
+          responseCode,
+          hint,
+          host: SMTP_HOST,
+          port: smtpPort,
+          secure: smtpPort === 465
+        }
       }),
       {status: 500}
     );

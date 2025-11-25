@@ -5,6 +5,22 @@ import { z } from 'zod';
 
 const MAILSERVICE_DEBUG = import.meta.env.MAILSERVICE_DEBUG === 'true';
 
+const mapErrorHint = (code?: string, responseCode?: number) => {
+  if (code === 'EAUTH' || responseCode === 535) {
+    return 'SMTP Login fehlgeschlagen. Bitte Benutzer/Passwort/Absender prüfen.';
+  }
+  if (code === 'ENOTFOUND') {
+    return 'SMTP Host nicht erreichbar. Hostname prüfen.';
+  }
+  if (code === 'ECONNECTION' || code === 'ETIMEDOUT') {
+    return 'Verbindung zum SMTP-Server fehlgeschlagen. Port/Firewall prüfen.';
+  }
+  if (code === 'DEPTH_ZERO_SELF_SIGNED_CERT' || code === 'SELF_SIGNED_CERT_IN_CHAIN') {
+    return 'Zertifikat wird abgelehnt. TLS-Einstellungen prüfen.';
+  }
+  return undefined;
+};
+
 const payloadSchema = z.object({
   fromName: z.string().min(1),
   fromEmail: z.string().email(),
@@ -65,7 +81,8 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(
         JSON.stringify({
           error:
-            'SMTP ist nicht konfiguriert. Bitte setze SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS und MAIL_FROM.'
+            'SMTP ist nicht konfiguriert. Bitte setze SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS und MAIL_FROM.',
+          debug: { reason: 'smtp-config-missing', host: smtpHost }
         }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
@@ -127,8 +144,13 @@ export const POST: APIRoute = async ({ request }) => {
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
+    const code = error && typeof error === 'object' && 'code' in error ? String((error as any).code) : undefined;
+    const responseCode = error && typeof error === 'object' && 'responseCode' in error ? Number((error as any).responseCode) : undefined;
+    const hint = mapErrorHint(code, responseCode);
     console.error('[mailservice] Versand fehlgeschlagen', {
       error: message,
+      code,
+      responseCode,
       host: import.meta.env.SMTP_HOST,
       port: import.meta.env.SMTP_PORT,
       secure: import.meta.env.SMTP_SECURE,
@@ -137,7 +159,16 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(
       JSON.stringify({
         error: message,
-        ...(MAILSERVICE_DEBUG ? { debug: message } : {})
+        debug: {
+          message,
+          code,
+          responseCode,
+          hint,
+          host: import.meta.env.SMTP_HOST,
+          port: import.meta.env.SMTP_PORT,
+          secure: import.meta.env.SMTP_SECURE,
+          from: import.meta.env.MAIL_FROM || import.meta.env.SMTP_FROM || import.meta.env.SMTP_USER
+        }
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
