@@ -3,6 +3,8 @@ import nodemailer from 'nodemailer';
 import type { TransportOptions } from 'nodemailer';
 import { z } from 'zod';
 
+const MAILSERVICE_DEBUG = import.meta.env.MAILSERVICE_DEBUG === 'true';
+
 const payloadSchema = z.object({
   fromName: z.string().min(1),
   fromEmail: z.string().email(),
@@ -59,6 +61,7 @@ export const POST: APIRoute = async ({ request }) => {
     const secure = import.meta.env.SMTP_SECURE === 'true' || smtpPort === 465;
 
     if (!smtpHost) {
+      console.error('[mailservice] Missing SMTP_HOST');
       return new Response(
         JSON.stringify({
           error:
@@ -90,21 +93,23 @@ export const POST: APIRoute = async ({ request }) => {
       })) || [];
 
     for (const recipient of recipients) {
-      const info = await transporter.sendMail({
-        from: `"Repair Café Leonberg" <${mailFrom}>`,
-        to: `"${recipient.name}" <${recipient.email}>`,
-        subject,
-        text: recipient.messageText,
-        html: recipient.messageHtml || recipient.messageText,
-        replyTo,
-        bcc: bccCopy,
-        attachments: mailAttachments,
-        headers: {
-          'X-RepairCafe-Mailer': 'astro-mailversand',
-          'X-Reply-To': replyTo,
-          'X-Mailer-From': fromName
+      const info = await transporter.sendMail(
+        {
+          from: `"Repair Café Leonberg" <${mailFrom}>`,
+          to: `"${recipient.name}" <${recipient.email}>`,
+          subject,
+          text: recipient.messageText,
+          html: recipient.messageHtml || recipient.messageText,
+          replyTo,
+          bcc: bccCopy,
+          attachments: mailAttachments,
+          headers: {
+            'X-RepairCafe-Mailer': 'astro-mailversand',
+            'X-Reply-To': replyTo,
+            'X-Mailer-From': fromName
+          }
         }
-      });
+      );
 
       results.push({
         id: recipient.id,
@@ -121,9 +126,18 @@ export const POST: APIRoute = async ({ request }) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
+    console.error('[mailservice] Versand fehlgeschlagen', {
+      error: message,
+      host: import.meta.env.SMTP_HOST,
+      port: import.meta.env.SMTP_PORT,
+      secure: import.meta.env.SMTP_SECURE,
+      from: import.meta.env.MAIL_FROM || import.meta.env.SMTP_FROM || import.meta.env.SMTP_USER
+    });
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unbekannter Fehler'
+        error: message,
+        ...(MAILSERVICE_DEBUG ? { debug: message } : {})
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );

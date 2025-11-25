@@ -19,6 +19,8 @@ interface ImportMetaEnv {
   readonly BASIC_AUTH_USER?: string;
   readonly BASIC_AUTH_PASS?: string;
   readonly CONTACT_RECIPIENT?: string;
+  readonly CONTACT_DEBUG?: string;
+  readonly MAILSERVICE_DEBUG?: string;
 }
 
 interface ImportMeta {

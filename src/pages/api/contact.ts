@@ -3,6 +3,8 @@ import nodemailer from 'nodemailer';
 
 const emailLooksValid = (value?: string) => !!value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
+const CONTACT_DEBUG = import.meta.env.CONTACT_DEBUG === 'true';
+
 const contactRateBuckets = new Map<string, number[]>();
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX = 3;
@@ -40,7 +42,7 @@ export const POST: APIRoute = async ({request}) => {
   const hasConfig = SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && Number.isFinite(smtpPort);
 
   if (!hasConfig) {
-    console.warn('[contact] Missing or invalid SMTP config', {
+    console.error('[contact] Missing or invalid SMTP config', {
       hasHost: Boolean(SMTP_HOST),
       hasPort: Boolean(SMTP_PORT),
       hasUser: Boolean(SMTP_USER),
@@ -129,9 +131,18 @@ export const POST: APIRoute = async ({request}) => {
 
     return new Response(JSON.stringify({success: true}), {status: 200});
   } catch (err) {
-    console.error('Failed to send contact mail', err);
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('Failed to send contact mail', {
+      error: message,
+      host: SMTP_HOST,
+      port: smtpPort,
+      secure: smtpPort === 465
+    });
     return new Response(
-      JSON.stringify({error: 'Die Nachricht konnte nicht versendet werden. Bitte versuchen Sie es später erneut.'}),
+      JSON.stringify({
+        error: 'Die Nachricht konnte nicht versendet werden. Bitte versuchen Sie es später erneut.',
+        ...(CONTACT_DEBUG ? {debug: message} : {})
+      }),
       {status: 500}
     );
   }
