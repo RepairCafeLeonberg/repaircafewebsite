@@ -5,13 +5,15 @@ import Footer from "../components/Footer.astro";
 
 const pageTitle = 'Mitgliederbereich – Repair Café Leonberg';
 const pageDescription = 'Interner Bereich für Mitglieder des Repair Café Leonberg.';
+export const prerender = false;
 
 const resourceLinks = [
-  { title: 'Expertenliste', description: 'Kontaktdaten und Schwerpunkte aller Reparatur-Teams.', href: 'https://drive.google.com/placeholder-expertenliste' },
-  { title: 'Dienstplan', description: 'Einsatzübersicht für die nächsten Termine.', href: 'https://drive.google.com/placeholder-dienstplan' },
-  { title: 'Mailservice', description: 'Vorlagen und Verteiler für die Kommunikation.', href: 'https://drive.google.com/placeholder-mailservice' },
-  { title: 'Statistik aktuell', description: 'Aktuelle Kennzahlen und Besucherzahlen.', href: 'https://drive.google.com/placeholder-statistik-aktuell' },
-  { title: 'Hinweise für Administratoren', description: 'Dokumentation zu Abläufen und Tools.', href: 'https://drive.google.com/placeholder-admin-hinweise' }
+  { title: 'Mail-Service im Browser', description: 'Personalisierte Mails nach Tags filtern, Anhänge mitschicken, XLSX-Export.', href: '/members/mailservice', external: false, badge: 'Neu' },
+  { title: 'Expertenliste', description: 'Kontaktdaten und Schwerpunkte aller Reparatur-Teams.', href: 'https://drive.google.com/placeholder-expertenliste', external: true },
+  { title: 'Dienstplan', description: 'Einsatzübersicht für die nächsten Termine.', href: 'https://drive.google.com/placeholder-dienstplan', external: true },
+  { title: 'Mailservice-Vorlagen', description: 'Bestehende Textbausteine und Verteiler in der Cloud.', href: 'https://drive.google.com/placeholder-mailservice', external: true },
+  { title: 'Statistik aktuell', description: 'Aktuelle Kennzahlen und Besucherzahlen.', href: 'https://drive.google.com/placeholder-statistik-aktuell', external: true },
+  { title: 'Hinweise für Administratoren', description: 'Dokumentation zu Abläufen und Tools.', href: 'https://drive.google.com/placeholder-admin-hinweise', external: true }
 ];
 ---
 
@@ -29,6 +31,18 @@ const resourceLinks = [
           <p class="mt-3 text-base text-slate-600">
             Dieser Bereich steht ausschließlich aktiven Mitgliedern des Repair Café Leonberg zur Verfügung. Der Zugang ist per Browser-Login (Basic Auth) passwortgeschützt.
           </p>
+          <div class="mt-6 flex flex-wrap justify-center gap-3 text-xs font-semibold">
+            <a
+              href="/members/mailservice"
+              class="inline-flex items-center gap-2 rounded-full bg-[#DD714D] px-4 py-2 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#c35a39]"
+            >
+              Mail-Service öffnen
+              <span class="rounded-full bg-white/20 px-2 py-1 text-[10px] uppercase tracking-[0.2em]">Neu</span>
+            </a>
+            <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600 shadow-sm ring-1 ring-slate-200">
+              Login-Schutz aktiv
+            </span>
+          </div>
         </div>
       </div>
     </section>
@@ -46,17 +60,26 @@ const resourceLinks = [
             {resourceLinks.map((resource) => (
               <a
                 href={resource.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={resource.external === false ? '_self' : '_blank'}
+                rel={resource.external === false ? undefined : 'noopener noreferrer'}
                 class="group flex h-full flex-col justify-between rounded-2xl border border-slate-200 p-5 text-left shadow-sm transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-lg"
               >
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Google Drive</p>
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+                      {resource.external === false ? 'Internes Tool' : 'Google Drive'}
+                    </p>
+                    {resource.badge && (
+                      <span class="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                        {resource.badge}
+                      </span>
+                    )}
+                  </div>
                   <h3 class="mt-3 text-lg font-semibold text-slate-900 group-hover:text-brand-700">{resource.title}</h3>
                   <p class="mt-2 text-sm text-slate-600">{resource.description}</p>
                 </div>
                 <span class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700">
-                  Öffnen
+                  {resource.external === false ? 'Öffnen' : 'Öffnen (neuer Tab)'}
                   <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
                 </span>
               </a>

@@ -13,6 +13,11 @@ interface ImportMetaEnv {
   readonly SMTP_USER?: string;
   readonly SMTP_PASS?: string;
   readonly SMTP_FROM?: string;
+  readonly MAIL_FROM?: string;
+  readonly MAIL_BCC?: string;
+  readonly SMTP_SECURE?: string;
+  readonly BASIC_AUTH_USER?: string;
+  readonly BASIC_AUTH_PASS?: string;
   readonly CONTACT_RECIPIENT?: string;
 }
 
