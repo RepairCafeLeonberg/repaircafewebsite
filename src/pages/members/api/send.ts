@@ -3,6 +3,8 @@ import nodemailer from 'nodemailer';
 import type { TransportOptions } from 'nodemailer';
 import { z } from 'zod';
 
+export const prerender = false;
+
 const MAILSERVICE_DEBUG = import.meta.env.MAILSERVICE_DEBUG === 'true';
 
 const mapErrorHint = (code?: string, responseCode?: number) => {

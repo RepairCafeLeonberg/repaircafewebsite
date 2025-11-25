@@ -3,6 +3,8 @@ import nodemailer from 'nodemailer';
 
 const emailLooksValid = (value?: string) => !!value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
+export const prerender = false;
+
 const contactRateBuckets = new Map<string, number[]>();
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX = 3;
