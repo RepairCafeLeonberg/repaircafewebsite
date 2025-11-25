@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/_render" },
+    { "source": "/members/api/(.*)", "destination": "/_render" }
+  ]
+}
