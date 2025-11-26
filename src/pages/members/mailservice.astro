@@ -7,6 +7,9 @@ import MailServiceApp from "../../components/MailServiceApp";
 const pageTitle = 'Mail-Service – Mitgliederbereich | Repair Café Leonberg';
 const pageDescription = 'E-Mails an Teams und Verteiler direkt aus dem Mitgliederbereich versenden.';
 export const prerender = false;
+
+const memberApiToken = import.meta.env.MEMBER_API_TOKEN ?? '';
+const memberApiUrl = '/members/api/contacts';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
@@ -31,7 +34,7 @@ export const prerender = false;
     <section class="mt-12">
       <div class="container">
         <div class="rounded-3xl bg-white/90 p-4 shadow-2xl shadow-brand-900/5 ring-1 ring-slate-200/60 backdrop-blur md:p-8">
-          <MailServiceApp client:load />
+          <MailServiceApp client:load apiUrl={memberApiUrl} apiToken={memberApiToken} />
         </div>
       </div>
     </section>

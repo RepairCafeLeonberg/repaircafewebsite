@@ -4,9 +4,15 @@ const BASIC_USER = import.meta.env.BASIC_AUTH_USER;
 const BASIC_PASS = import.meta.env.BASIC_AUTH_PASS;
 
 const PROTECTED_PREFIXES = ['/members', '/login'];
+const EXEMPT_PATH_PREFIXES = ['/members/api/'];
 
-const requiresAuth = (pathname: string) =>
-  PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+const requiresAuth = (pathname: string) => {
+  // API-Routen unter /members/api sollen ohne Browser-Basic-Auth erreichbar sein (schützen sich selbst per Token)
+  if (EXEMPT_PATH_PREFIXES.some((prefix) => pathname === prefix.slice(0, -1) || pathname.startsWith(prefix))) {
+    return false;
+  }
+  return PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+};
 
 const unauthorizedResponse = () =>
   new Response('Authentication required.', {

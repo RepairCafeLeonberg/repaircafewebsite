@@ -44,7 +44,35 @@ const chipColors = [
 
 const STORAGE_KEY = 'mailservice_members_v1';
 
-const MailServiceApp = () => {
+type Props = {
+  apiUrl?: string;
+  apiToken?: string;
+};
+
+type ApiMemberRow = {
+  id?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string | null;
+  is_member?: boolean | null;
+  tags?: string[] | null;
+  greeting?: string | null;
+  closing?: string | null;
+};
+
+const normalizeMember = (row: ApiMemberRow): Member => ({
+  id: row.id ?? Math.random().toString(36).slice(2),
+  firstName: row.first_name ?? '',
+  lastName: row.last_name ?? '',
+  email: row.email ?? undefined,
+  isMember: row.is_member ?? true,
+  tags: Array.isArray(row.tags) ? row.tags.filter(Boolean) : [],
+  greeting: row.greeting ?? '',
+  closing: row.closing ?? '',
+  personalNote: ''
+});
+
+const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) => {
   const [members, setMembers] = useState<Member[]>(memberData);
   const [search, setSearch] = useState('');
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
@@ -81,21 +109,6 @@ const MailServiceApp = () => {
   const isEditorEmpty = (html: string) =>
     html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim().length === 0;
 
-  // Load persisted members (adds/removes) from localStorage
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        setMembers(parsed);
-      }
-    } catch (error) {
-      console.warn('Konnte Mitgliederliste nicht aus localStorage laden', error);
-    }
-  }, []);
-
   // Persist members after changes
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -105,6 +118,52 @@ const MailServiceApp = () => {
       console.warn('Konnte Mitgliederliste nicht speichern', error);
     }
   }, [members]);
+
+  // Load members from Supabase API (fallback: localStorage -> bundled data)
+  useEffect(() => {
+    const loadMembers = async () => {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (apiToken) headers.Authorization = `Bearer ${apiToken}`;
+
+      // Try cached local copy first
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              setMembers(parsed);
+            }
+          }
+        } catch (error) {
+          console.warn('Konnte Mitgliederliste nicht aus localStorage laden', error);
+        }
+      }
+
+      setStatus({ state: 'sending', message: 'Lade Mitglieder…' });
+      try {
+        const res = await fetch(apiUrl, { headers });
+        if (!res.ok) {
+          throw new Error(`Request failed: ${res.status}`);
+        }
+        const data: ApiMemberRow[] = await res.json();
+        const normalized = data.map((row) => normalizeMember(row));
+        setMembers(normalized);
+        setStatus({ state: 'idle', message: undefined });
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+        }
+      } catch (error) {
+        console.error('Mitglieder konnten nicht geladen werden', error);
+        setStatus({
+          state: 'error',
+          message: 'Konnte Mitglieder nicht laden. Zeige lokale Daten.'
+        });
+      }
+    };
+
+    loadMembers();
+  }, [apiUrl, apiToken]);
 
   useEffect(() => {
     const html = marked.parse(defaultBody);
@@ -315,33 +374,59 @@ const MailServiceApp = () => {
     }
   };
 
-  const handleAddMember = () => {
-    if (!newMember.firstName || !newMember.lastName) return;
-    const id = `${(newMember.firstName || '').toLowerCase().replace(/\s+/g, '-')}-${(newMember.lastName || '')
-      .toLowerCase()
-      .replace(/\s+/g, '-')}-${Date.now()}`;
-    const memberToAdd: Member = {
-      id,
+  const handleAddMember = async () => {
+    if (!newMember.firstName || !newMember.lastName) {
+      setStatus({ state: 'error', message: 'Bitte Vor- und Nachname ausfüllen.' });
+      return;
+    }
+
+    const payload = {
       firstName: newMember.firstName.trim(),
       lastName: newMember.lastName.trim(),
       email: newMember.email?.trim() || undefined,
-      isMember: true,
       tags: (newMember.tags || []).filter(Boolean),
       greeting: newMember.greeting || `Hallo ${newMember.firstName}`,
       closing: newMember.closing || 'Viele Grüße',
-      personalNote: ''
-    };
-    setMembers((prev) => [...prev, memberToAdd]);
-    setNewMember({
-      firstName: '',
-      lastName: '',
-      email: '',
-      tags: [],
-      greeting: '',
-      closing: '',
       isMember: true
-    });
-    setShowAddForm(false);
+    };
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (apiToken) headers.Authorization = `Bearer ${apiToken}`;
+
+    setStatus({ state: 'sending', message: 'Mitglied wird gespeichert…' });
+
+    try {
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        throw new Error(`API antwortet mit ${res.status}`);
+      }
+      const data: ApiMemberRow = await res.json();
+      const added = normalizeMember(data);
+      setMembers((prev) => [...prev, added]);
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.add(added.id);
+        return next;
+      });
+      setStatus({ state: 'success', message: 'Mitglied gespeichert.' });
+      setNewMember({
+        firstName: '',
+        lastName: '',
+        email: '',
+        tags: [],
+        greeting: '',
+        closing: '',
+        isMember: true
+      });
+      setShowAddForm(false);
+    } catch (error) {
+      console.error('Mitglied konnte nicht gespeichert werden', error);
+      setStatus({ state: 'error', message: 'Speichern fehlgeschlagen. Bitte erneut versuchen.' });
+    }
   };
 
   const handleSend = async () => {
