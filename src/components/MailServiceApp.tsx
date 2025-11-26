@@ -53,6 +53,8 @@ type ApiMemberRow = {
   id?: string;
   first_name?: string;
   last_name?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string | null;
   is_member?: boolean | null;
   tags?: string[] | null;
@@ -62,8 +64,8 @@ type ApiMemberRow = {
 
 const normalizeMember = (row: ApiMemberRow): Member => ({
   id: row.id ?? Math.random().toString(36).slice(2),
-  firstName: row.first_name ?? '',
-  lastName: row.last_name ?? '',
+  firstName: row.first_name ?? row.firstName ?? '',
+  lastName: row.last_name ?? row.lastName ?? '',
   email: row.email ?? undefined,
   isMember: row.is_member ?? true,
   tags: Array.isArray(row.tags) ? row.tags.filter(Boolean) : [],
@@ -89,8 +91,8 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
         })),
     [members]
   );
-  const [senderChoice, setSenderChoice] = useState<string>(() => senderOptions[0]?.value ?? 'custom');
-  const [customEmail, setCustomEmail] = useState(senderOptions[0]?.email ?? '');
+  const [senderChoice, setSenderChoice] = useState<string>('custom');
+  const [customEmail, setCustomEmail] = useState('');
   const [subject, setSubject] = useState('Neuigkeiten aus dem Repair Café Leonberg');
   const [editorHtml, setEditorHtml] = useState<string>(() => marked.parse(defaultBody));
   const [status, setStatus] = useState<SendStatus>({ state: 'idle' });
@@ -727,22 +729,42 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
                         </div>
                       </td>
                       <td className="px-3 py-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const confirmed = window.confirm(
-                                `Soll ${member.firstName} ${member.lastName} wirklich entfernt werden?`
-                              );
-                              if (!confirmed) return;
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const confirmed = window.confirm(
+                              `Soll ${member.firstName} ${member.lastName} wirklich entfernt werden?`
+                            );
+                            if (!confirmed) return;
+
+                            const headers: Record<string, string> = {};
+                            if (apiToken) headers.Authorization = `Bearer ${apiToken}`;
+
+                            try {
+                              const res = await fetch(`${apiUrl}?id=${encodeURIComponent(member.id)}`, {
+                                method: 'DELETE',
+                                headers
+                              });
+                              if (!res.ok) {
+                                throw new Error(`API ${res.status}`);
+                              }
                               setMembers((prev) => prev.filter((m) => m.id !== member.id));
                               if (senderChoice === member.id) {
                                 setSenderChoice('custom');
                               }
                               setSelectedIds((prev) => {
                                 const next = new Set(prev);
-                              next.delete(member.id);
-                              return next;
-                            });
+                                next.delete(member.id);
+                                return next;
+                              });
+                              setStatus({ state: 'success', message: 'Mitglied entfernt.' });
+                            } catch (error) {
+                              console.error('Mitglied konnte nicht gelöscht werden', error);
+                              setStatus({
+                                state: 'error',
+                                message: 'Löschen fehlgeschlagen. Bitte erneut versuchen.'
+                              });
+                            }
                           }}
                           className="text-xs font-semibold text-rose-600 hover:text-rose-500"
                         >

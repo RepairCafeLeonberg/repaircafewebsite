@@ -8,12 +8,12 @@ const pageDescription = 'Interner Bereich für Mitglieder des Repair Café Leonb
 export const prerender = false;
 
 const resourceLinks = [
-  { title: 'Mail-Service im Browser', description: 'Personalisierte Mails nach Tags filtern, Anhänge mitschicken, XLSX-Export.', href: '/members/mailservice', external: false, badge: 'Neu' },
-  { title: 'Expertenliste', description: 'Kontaktdaten und Schwerpunkte aller Reparatur-Teams.', href: 'https://drive.google.com/placeholder-expertenliste', external: true },
-  { title: 'Dienstplan', description: 'Einsatzübersicht für die nächsten Termine.', href: 'https://drive.google.com/placeholder-dienstplan', external: true },
-  { title: 'Mailservice-Vorlagen', description: 'Bestehende Textbausteine und Verteiler in der Cloud.', href: 'https://drive.google.com/placeholder-mailservice', external: true },
-  { title: 'Statistik aktuell', description: 'Aktuelle Kennzahlen und Besucherzahlen.', href: 'https://drive.google.com/placeholder-statistik-aktuell', external: true },
-  { title: 'Hinweise für Administratoren', description: 'Dokumentation zu Abläufen und Tools.', href: 'https://drive.google.com/placeholder-admin-hinweise', external: true }
+  { title: 'Mail-Service im Browser', description: 'Personalisierte Mails nach Tags filtern, Anhänge mitschicken, XLSX-Export.', href: '/members/mailservice', external: false },
+  { title: 'Google Drive (alle Unterlagen)', description: 'Zentrale Ablage aller Dokumente im Drive.', href: 'https://drive.google.com/drive/u/2/home', external: true },
+  { title: 'Dienstplan', description: 'Einsatzübersicht für die nächsten Termine.', href: 'https://docs.google.com/spreadsheets/d/1CUYP-AT9NLqx8E8tE7M7DDfJfvGjCUW-/edit?usp=sharing&ouid=112698322874253366185&rtpof=true&sd=true', external: true },
+  { title: 'Expertenliste', description: 'Kontaktdaten und Schwerpunkte aller Reparatur-Teams.', href: 'https://docs.google.com/spreadsheets/d/1PmrnsAJVbHDJI6215Yg8bpU3S66TqkZ4obMGa3OQnsQ/edit?usp=sharing', external: true },
+  { title: 'Statistik', description: 'Aktuelle Kennzahlen und Besucherzahlen.', href: '#', external: true },
+  { title: 'Dokumentation / Hinweise für Administratoren', description: 'Abläufe, Rollen und Hinweise für den Admin-Bereich.', href: 'https://docs.google.com/document/d/1DZ1Rvc59yI8h4d7kfRuDDcOBc520j4txUD70dNA2Eh0/edit?usp=sharing', external: true }
 ];
 ---
 
@@ -36,12 +36,17 @@ const resourceLinks = [
               href="/members/mailservice"
               class="inline-flex items-center gap-2 rounded-full bg-[#DD714D] px-4 py-2 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#c35a39]"
             >
-              Mail-Service öffnen
-              <span class="rounded-full bg-white/20 px-2 py-1 text-[10px] uppercase tracking-[0.2em]">Neu</span>
+              Mail-Service
             </a>
-            <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-600 shadow-sm ring-1 ring-slate-200">
-              Login-Schutz aktiv
-            </span>
+            <a
+              href="https://drive.google.com/drive/u/2/home"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-50"
+            >
+              Google Drive
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+            </a>
           </div>
         </div>
       </div>
@@ -53,7 +58,7 @@ const resourceLinks = [
           <div class="text-center">
             <p class="text-lg font-semibold uppercase tracking-[0.25em] text-slate-400">Interne Unterlagen</p>
             <p class="mt-6 text-sm text-slate-600">
-              Über die folgenden Links gelangen Sie zu den aktuellen Google-Drive-Dokumenten. Alle Links sind zunächst Platzhalter und können später durch die finalen URLs ersetzt werden.
+              Über die folgenden Links gelangen Sie zu den aktuellen Google-Drive-Dokumenten.
             </p>
           </div>
           <div class="mt-10 grid gap-5 md:grid-cols-2">

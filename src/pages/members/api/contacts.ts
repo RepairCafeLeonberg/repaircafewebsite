@@ -121,3 +121,37 @@ export const POST: APIRoute = async ({ request }) => {
     headers: { 'Content-Type': 'application/json' }
   });
 };
+
+export const DELETE: APIRoute = async ({ request }) => {
+  if (!requireToken(request)) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) {
+    return new Response('Supabase not configured', { status: 500 });
+  }
+
+  const url = new URL(request.url);
+  const id = url.searchParams.get('id')?.trim();
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'Missing id' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const { error } = await supabase.from('members').delete().eq('id', id);
+  if (error) {
+    console.error('[members/api] DELETE failed', error);
+    return new Response(JSON.stringify({ error: 'Failed to delete member' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  return new Response(JSON.stringify({ success: true, id }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+};
