@@ -199,25 +199,19 @@ const values = [
                   aria-hidden={index === 0 ? 'false' : 'true'}
                 >
                   <div class="grid gap-8 md:grid-cols-[minmax(0,230px)_1fr] md:items-center">
-                    <div class="relative mx-auto flex h-52 w-52 items-center justify-center overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-500 via-brand-600 to-sky-500 text-white shadow-xl shadow-brand-900/20">
+                    <div class="relative mx-auto flex h-52 w-52 items-center justify-center overflow-hidden rounded-[28px] bg-slate-200 text-white shadow-xl shadow-slate-900/10">
                       {voice.portrait ? (
-                        <>
-                          <img
-                            src={voice.portrait}
-                            alt={voice.portraitAlt ?? `${voice.name} Portrait`}
-                            class="absolute inset-0 h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-slate-900/10 to-transparent"></div>
-                        </>
+                        <img
+                          src={voice.portrait}
+                          alt={voice.portraitAlt ?? `${voice.name} Portrait`}
+                          class="absolute inset-0 h-full w-full object-cover"
+                          loading="lazy"
+                        />
                       ) : (
-                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]"></div>
+                        <div class="flex h-full w-full items-center justify-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                          {voice.name}
+                        </div>
                       )}
-                      <span class="relative text-center text-sm font-semibold leading-snug uppercase tracking-[0.24em] text-white/85">
-                        {voice.name}
-                        <br />
-                        {voice.badge}
-                      </span>
                     </div>
                     <div class="space-y-4">
                       <h3 class="heading-sub">{voice.name} – {voice.role}</h3>
@@ -226,7 +220,6 @@ const values = [
                         <blockquote class="relative z-[1] text-base italic leading-relaxed text-slate-700">{voice.quote}</blockquote>
                         <span class="absolute -right-4 bottom-0 text-5xl font-black text-brand-500/30">”</span>
                       </div>
-                      <p class="text-sm text-slate-500">{voice.description}</p>
                     </div>
                   </div>
                 </li>

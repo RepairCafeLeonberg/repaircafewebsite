@@ -6,16 +6,17 @@ import Footer from "../components/Footer.astro";
 import Hero from "../components/Hero.astro";
 import FAQ from "../components/FAQ.astro";
 import CTA from "../components/CTA.astro";
-import { getUpcomingEvents, getAllEvents, getPosts, getGalleryImages, getHeroSlides } from "../data/cms";
+import { getUpcomingEvents, getAllEvents, getPosts, getGalleryImages, getHeroSlides, getGuestbookEntries } from "../data/cms";
 
 export const prerender = true;
 
-const [upcomingEvents, allEvents, latestPosts, galleryImages, heroSlides] = await Promise.all([
+const [upcomingEvents, allEvents, latestPosts, galleryImages, heroSlides, guestbookEntries] = await Promise.all([
   getUpcomingEvents(),
   getAllEvents(),
   getPosts(),
   getGalleryImages(),
-  getHeroSlides()
+  getHeroSlides(),
+  getGuestbookEntries()
 ]);
 
 const parseEventDate = (eventDate?: string) => {
@@ -122,23 +123,7 @@ const highlightGallery = galleryImages
   .filter((item) => item.layout !== 'wide')
   .slice(0, 8);
 
-const testimonials = [
-  {
-    name: 'Svenja, 34',
-    role: 'Leonbergerin seit 10 Jahren',
-    quote: 'Ich war total überrascht, wie viel ich selbst reparieren kann – mit Unterstützung und guter Laune macht Technik plötzlich wieder Spaß.'
-  },
-  {
-    name: 'Thomas, 61',
-    role: 'Stammgast im Repair Café',
-    quote: 'Die Reparatur meines alten Plattenspielers hat geklappt und ich habe noch neue Leute kennengelernt. Das ist echte Nachbarschaftshilfe.'
-  },
-  {
-    name: 'Mira, 22',
-    role: 'Studentin & Ehrenamtliche',
-    quote: 'Wir lernen voneinander, retten Dinge vor dem Müll und haben dabei noch eine gute Zeit – genau so stelle ich mir Nachhaltigkeit vor.'
-  }
-];
+const guestbookHighlights = guestbookEntries.slice(0, 8);
 ---
 
 <BaseLayout title="Repair Café Leonberg – Reparieren statt Wegwerfen" description="Reparieren statt Wegwerfen – gemeinsam nachhaltiger in Leonberg. Kostenlos, ehrenamtlich und offen für alle.">
@@ -287,10 +272,10 @@ const testimonials = [
       </div>
       <ol class="mt-10 grid gap-5 list-none md:grid-cols-4">
         {[
-          { step: '1', title: 'Vorbeikommen', desc: 'Anmeldung ist meist nicht nötig. Bringen Sie Ihr Gerät und ggf. Zubehör mit.' },
-          { step: '2', title: 'Check-in', desc: 'Kurz beschreiben, was kaputt ist. Wir finden passende Helfer:innen.' },
-          { step: '3', title: 'Gemeinsam reparieren', desc: 'Wir zeigen Ihnen Tricks und gehen Schritt für Schritt vor.' },
-          { step: '4', title: 'Teilen & Kaffee', desc: 'Erfolg feiern, Erfahrungen teilen – gerne auch bei Kuchen.' },
+          { step: '1', title: 'Ankommen', desc: 'Am Empfang anmelden, wir schauen, welcher Experte passt.' },
+          { step: '2', title: 'Warten & genießen', desc: 'Ist alles belegt, warten Sie entspannt mit Kaffee und Kuchen.' },
+          { step: '3', title: 'Reparieren', desc: 'Mit unseren Profis zusammen reparieren – wir zeigen, wie Ihr Gerät funktioniert.' },
+          { step: '4', title: 'Abschluss', desc: 'Meist klappt die Reparatur. Alles ehrenamtlich; Spenden für Werkzeug & Verpflegung helfen.' },
         ].map((s) => (
           <li class="glass rounded-2xl p-6">
             <div class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-600/10 font-semibold text-brand-700 dark:text-brand-300">{s.step}</div>
@@ -306,23 +291,50 @@ const testimonials = [
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="heading-section">Das sagen Besucher:innen</h2>
-        <p class="mt-3 text-slate-700 dark:text-slate-300">Feedback aus dem Repair Café – echte Stimmen, die Mut machen.</p>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Feedback aus dem Gästebuch – echte Stimmen, die Mut machen.</p>
       </div>
-      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {testimonials.map((testimonial) => (
-          <figure class="glass flex h-full flex-col rounded-2xl p-6 text-left">
-            <blockquote class="text-slate-700 dark:text-slate-300">
-              <svg class="mb-3 h-8 w-8 text-brand-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M7.17 6A5 5 0 0 0 2 11v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1H6.74a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.08-1.01A5 5 0 0 0 7.17 6Zm12 0a5 5 0 0 0-5.17 5v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-2.26a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.07-1.01A5 5 0 0 0 19.17 6Z" />
-              </svg>
-              <p class="text-base leading-relaxed">{testimonial.quote}</p>
-            </blockquote>
-            <figcaption class="mt-6 border-t border-white/40 pt-4 text-sm text-slate-600 dark:text-slate-400">
-              <div class="font-semibold text-slate-900 dark:text-white">{testimonial.name}</div>
-              <div>{testimonial.role}</div>
-            </figcaption>
-          </figure>
-        ))}
+      <div class="mt-8">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2 text-sm text-slate-600">
+            {guestbookHighlights.length} Einträge
+          </div>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              aria-label="Vorheriger Eintrag"
+              data-guestbook-prev
+              class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Nächster Eintrag"
+              data-guestbook-next
+              class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+            </button>
+          </div>
+        </div>
+        <div class="mt-6" data-guestbook-viewport>
+          <div class="grid gap-4 md:grid-cols-2" data-guestbook-track>
+            {guestbookHighlights.map((entry) => (
+              <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-900/8 transition hover:-translate-y-1 hover:shadow-xl">
+                <blockquote class="text-slate-700 dark:text-slate-300">
+                  <svg class="mb-3 h-6 w-6 text-brand-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M7.17 6A5 5 0 0 0 2 11v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1H6.74a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.08-1.01A5 5 0 0 0 7.17 6Zm12 0a5 5 0 0 0-5.17 5v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-2.26a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.07-1.01A5 5 0 0 0 19.17 6Z" />
+                  </svg>
+                  <p class="text-base leading-relaxed">{entry.message}</p>
+                </blockquote>
+                <div class="mt-4 border-t border-slate-200 pt-3 text-sm text-slate-600">
+                  <div class="font-semibold text-slate-900 dark:text-white">{entry.name}</div>
+                  <div>{entry.city}</div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   </section>
