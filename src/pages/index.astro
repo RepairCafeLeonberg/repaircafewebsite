@@ -202,6 +202,60 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
     </div>
   </section>
 
+  <script is:inline>
+    (() => {
+      const slider = document.querySelector('[data-guestbook-slider]');
+      const track = slider?.querySelector('[data-guestbook-track]');
+      const prev = document.querySelector('[data-guestbook-prev]');
+      const next = document.querySelector('[data-guestbook-next]');
+      if (!slider || !track) return;
+
+      let index = 0;
+      const cards = Array.from(track.querySelectorAll('article'));
+      if (!cards.length) return;
+
+      const getGap = () => {
+        const styles = getComputedStyle(track);
+        const gapVal = styles.gap || '0';
+        const parsed = parseFloat(gapVal);
+        return Number.isFinite(parsed) ? parsed : 0;
+      };
+
+      const cardWidth = () => cards[0].getBoundingClientRect().width + getGap();
+      const visibleCount = () => {
+        const width = slider.getBoundingClientRect().width;
+        const cw = cardWidth();
+        return Math.max(1, Math.round((width + getGap()) / cw));
+      };
+
+      const clampIndex = () => {
+        const max = Math.max(0, cards.length - visibleCount());
+        index = Math.min(Math.max(0, index), max);
+      };
+
+      const update = () => {
+        clampIndex();
+        const offset = -index * cardWidth();
+        track.setAttribute('style', `transform: translateX(${offset}px);`);
+      };
+
+      prev?.addEventListener('click', () => {
+        index -= 1;
+        update();
+      });
+      next?.addEventListener('click', () => {
+        index += 1;
+        update();
+      });
+
+      window.addEventListener('resize', () => {
+        update();
+      });
+
+      update();
+    })();
+  </script>
+
   <section id="aktuelles" class="mt-16 md:mt-24">
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
@@ -293,34 +347,29 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
         <h2 class="heading-section">Das sagen Besucher:innen</h2>
         <p class="mt-3 text-slate-700 dark:text-slate-300">Feedback aus dem Gästebuch – echte Stimmen, die Mut machen.</p>
       </div>
-      <div class="mt-8">
-        <div class="flex items-center justify-between gap-4">
-          <div class="flex items-center gap-2 text-sm text-slate-600">
-            {guestbookHighlights.length} Einträge
-          </div>
-          <div class="flex gap-2">
-            <button
-              type="button"
-              aria-label="Vorheriger Eintrag"
-              data-guestbook-prev
-              class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            >
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
-            </button>
-            <button
-              type="button"
-              aria-label="Nächster Eintrag"
-              data-guestbook-next
-              class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            >
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
-            </button>
-          </div>
+      <div class="mt-8 space-y-4">
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            aria-label="Vorheriger Eintrag"
+            data-guestbook-prev
+            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <button
+            type="button"
+            aria-label="Nächster Eintrag"
+            data-guestbook-next
+            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
         </div>
-        <div class="mt-6" data-guestbook-viewport>
-          <div class="grid gap-4 md:grid-cols-2" data-guestbook-track>
+        <div class="relative overflow-hidden" data-guestbook-slider>
+          <div class="flex gap-4 transition-transform duration-500 ease-out" data-guestbook-track>
             {guestbookHighlights.map((entry) => (
-              <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-900/8 transition hover:-translate-y-1 hover:shadow-xl">
+              <article class="min-w-0 snap-start shrink-0 grow-0 basis-full rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-900/8 transition hover:-translate-y-1 hover:shadow-xl md:basis-1/2 xl:basis-1/3">
                 <blockquote class="text-slate-700 dark:text-slate-300">
                   <svg class="mb-3 h-6 w-6 text-brand-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M7.17 6A5 5 0 0 0 2 11v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1H6.74a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.08-1.01A5 5 0 0 0 7.17 6Zm12 0a5 5 0 0 0-5.17 5v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-2.26a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.07-1.01A5 5 0 0 0 19.17 6Z" />

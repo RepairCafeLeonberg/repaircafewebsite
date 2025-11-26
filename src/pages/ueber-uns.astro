@@ -201,17 +201,21 @@ const values = [
                   <div class="grid gap-8 md:grid-cols-[minmax(0,230px)_1fr] md:items-center">
                     <div class="relative mx-auto flex h-52 w-52 items-center justify-center overflow-hidden rounded-[28px] bg-slate-200 text-white shadow-xl shadow-slate-900/10">
                       {voice.portrait ? (
-                        <img
-                          src={voice.portrait}
-                          alt={voice.portraitAlt ?? `${voice.name} Portrait`}
-                          class="absolute inset-0 h-full w-full object-cover"
-                          loading="lazy"
-                        />
+                        <>
+                          <img
+                            src={voice.portrait}
+                            alt={voice.portraitAlt ?? `${voice.name} Portrait`}
+                            class="absolute inset-0 h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-slate-900/10 to-transparent"></div>
+                        </>
                       ) : (
-                        <div class="flex h-full w-full items-center justify-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                          {voice.name}
-                        </div>
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]"></div>
                       )}
+                      <span class="relative text-center text-sm font-semibold leading-snug uppercase tracking-[0.24em] text-white/85">
+                        {voice.name}
+                      </span>
                     </div>
                     <div class="space-y-4">
                       <h3 class="heading-sub">{voice.name} – {voice.role}</h3>

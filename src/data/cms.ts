@@ -37,10 +37,8 @@ export interface PostItem {
 export interface TeamVoice {
   _id: string;
   name: string;
-  badge?: string;
   role?: string;
   quote?: string;
-  description?: string;
   order?: number;
   portrait?: string;
   portraitAlt?: string;
@@ -294,29 +292,23 @@ const fallbackTeamVoices: TeamVoice[] = [
   {
     _id: 'fallback-voice-1',
     name: 'Alexander',
-    badge: 'Elektrotechnik',
     role: 'Elektrotechniker & Ehrenamtlicher',
     quote:
-      'Ich liebe es, wenn ein scheinbar verlorenes Gerät plötzlich wieder läuft. Im Repair Café kann ich mein Wissen teilen und gleichzeitig neue Tricks lernen – das motiviert mich jedes Mal aufs Neue.',
-    description: 'Alexander engagiert sich seit 2023 im Elektronik-Team und unterstützt besonders bei kniffligen Fehlersuchen.'
+      'Ich liebe es, wenn ein scheinbar verlorenes Gerät plötzlich wieder läuft. Im Repair Café kann ich mein Wissen teilen und gleichzeitig neue Tricks lernen – das motiviert mich jedes Mal aufs Neue.'
   },
   {
     _id: 'fallback-voice-2',
     name: 'Sabine',
-    badge: 'Textil & Nähen',
     role: 'Textilcoach & Gastgeberin',
     quote:
-      'Für mich ist das Repair Café ein Ort, an dem aus Stoffresten neue Lieblingsstücke werden. Wir zeigen, dass Reparieren kreativ und unkompliziert sein kann.',
-    description: 'Sabine betreut die Nähstation und kümmert sich um die herzliche Begrüßung der Gäste.'
+      'Für mich ist das Repair Café ein Ort, an dem aus Stoffresten neue Lieblingsstücke werden. Wir zeigen, dass Reparieren kreativ und unkompliziert sein kann.'
   },
   {
     _id: 'fallback-voice-3',
     name: 'Jens',
-    badge: 'Fahrrad-Werkstatt',
     role: 'Fahrradschrauber & Tüftler',
     quote:
-      'Jedes reparierte Rad bedeutet mehr Mobilität im Alltag. Gemeinsam zu schrauben macht Spaß und schafft Bewusstsein für nachhaltige Fortbewegung.',
-    description: 'Jens sorgt dafür, dass Bremsen greifen, Schaltungen schalten und Tipps zum Selbermachen mitgegeben werden.'
+      'Jedes reparierte Rad bedeutet mehr Mobilität im Alltag. Gemeinsam zu schrauben macht Spaß und schafft Bewusstsein für nachhaltige Fortbewegung.'
   }
 ];
 

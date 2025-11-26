@@ -12,12 +12,6 @@ export default defineType({
       validation: (rule) => rule.required()
     }),
     defineField({
-      name: 'badge',
-      title: 'Kurzlabel (z. B. Team oder Fachgebiet)',
-      type: 'string',
-      validation: (rule) => rule.required()
-    }),
-    defineField({
       name: 'role',
       title: 'Rolle/Position',
       type: 'string',
@@ -26,13 +20,6 @@ export default defineType({
     defineField({
       name: 'quote',
       title: 'Zitat',
-      type: 'text',
-      rows: 3,
-      validation: (rule) => rule.required()
-    }),
-    defineField({
-      name: 'description',
-      title: 'Beschreibung',
       type: 'text',
       rows: 3,
       validation: (rule) => rule.required()

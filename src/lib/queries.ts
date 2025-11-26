@@ -86,10 +86,8 @@ export const teamVoicesQuery = groq`
   *[_type == "teamVoice"] | order(order asc, _createdAt asc) {
     _id,
     name,
-    badge,
     role,
     quote,
-    description,
     order,
     "portrait": portrait.asset->url,
     portraitAlt
