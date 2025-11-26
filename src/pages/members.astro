@@ -12,7 +12,7 @@ const resourceLinks = [
   { title: 'Google Drive (alle Unterlagen)', description: 'Zentrale Ablage aller Dokumente im Drive.', href: 'https://drive.google.com/drive/u/2/home', external: true },
   { title: 'Dienstplan', description: 'Einsatzübersicht für die nächsten Termine.', href: 'https://docs.google.com/spreadsheets/d/1CUYP-AT9NLqx8E8tE7M7DDfJfvGjCUW-/edit?usp=sharing&ouid=112698322874253366185&rtpof=true&sd=true', external: true },
   { title: 'Expertenliste', description: 'Kontaktdaten und Schwerpunkte aller Reparatur-Teams.', href: 'https://docs.google.com/spreadsheets/d/1PmrnsAJVbHDJI6215Yg8bpU3S66TqkZ4obMGa3OQnsQ/edit?usp=sharing', external: true },
-  { title: 'Statistik', description: 'Aktuelle Kennzahlen und Besucherzahlen.', href: '#', external: true },
+  { title: 'Statistik', description: 'Aktuelle Kennzahlen und Besucherzahlen.', href: '#', external: true, badge: 'Bald' },
   { title: 'Dokumentation / Hinweise für Administratoren', description: 'Abläufe, Rollen und Hinweise für den Admin-Bereich.', href: 'https://docs.google.com/document/d/1DZ1Rvc59yI8h4d7kfRuDDcOBc520j4txUD70dNA2Eh0/edit?usp=sharing', external: true }
 ];
 ---
@@ -31,23 +31,6 @@ const resourceLinks = [
           <p class="mt-3 text-base text-slate-600">
             Dieser Bereich steht ausschließlich aktiven Mitgliedern des Repair Café Leonberg zur Verfügung. Der Zugang ist per Browser-Login (Basic Auth) passwortgeschützt.
           </p>
-          <div class="mt-6 flex flex-wrap justify-center gap-3 text-xs font-semibold">
-            <a
-              href="/members/mailservice"
-              class="inline-flex items-center gap-2 rounded-full bg-[#DD714D] px-4 py-2 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#c35a39]"
-            >
-              Mail-Service
-            </a>
-            <a
-              href="https://drive.google.com/drive/u/2/home"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-50"
-            >
-              Google Drive
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
-            </a>
-          </div>
         </div>
       </div>
     </section>

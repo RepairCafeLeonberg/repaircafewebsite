@@ -91,8 +91,10 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
         })),
     [members]
   );
-  const [senderChoice, setSenderChoice] = useState<string>('custom');
-  const [customEmail, setCustomEmail] = useState('');
+  const [senderChoice, setSenderChoice] = useState<string>(() => {
+    const first = memberData.find((m) => m.email);
+    return first ? first.id : '';
+  });
   const [subject, setSubject] = useState('Neuigkeiten aus dem Repair Café Leonberg');
   const [editorHtml, setEditorHtml] = useState<string>(() => marked.parse(defaultBody));
   const [status, setStatus] = useState<SendStatus>({ state: 'idle' });
@@ -176,16 +178,14 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
   }, []);
 
   useEffect(() => {
-    if (senderChoice !== 'custom') {
-      const m = members.find((mem) => mem.id === senderChoice);
-      if (m) {
-        setUser((prev) => ({
-          ...prev,
-          name: `${m.firstName} ${m.lastName}`,
-          email: m.email || ''
-        }));
-        setCustomEmail('');
-      }
+    if (!senderChoice) return;
+    const m = members.find((mem) => mem.id === senderChoice);
+    if (m) {
+      setUser((prev) => ({
+        ...prev,
+        name: `${m.firstName} ${m.lastName}`,
+        email: m.email || ''
+      }));
     }
   }, [senderChoice, members]);
 
@@ -432,7 +432,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
   };
 
   const handleSend = async () => {
-    const senderEmail = senderChoice === 'custom' ? customEmail.trim() : members.find((m) => m.id === senderChoice)?.email;
+  const senderEmail = members.find((m) => m.id === senderChoice)?.email || '';
 
     if (!senderEmail) {
       setStatus({
@@ -514,7 +514,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
     }
   };
 
-  const senderEmail = senderChoice === 'custom' ? customEmail.trim() : members.find((m) => m.id === senderChoice)?.email;
+  const senderEmail = members.find((m) => m.id === senderChoice)?.email || '';
 
   return (
     <div className="space-y-8">
@@ -524,7 +524,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brand-700">Absender</p>
             <h2 className="mt-2 text-xl font-semibold text-slate-900">Wer verschickt die Mail?</h2>
             <p className="text-sm text-slate-600">
-              Wähle dich aus der Liste oder gib eine eigene Adresse ein. Antworten landen bei dir.
+              Wähle dich aus der Liste. Antworten landen bei dir.
             </p>
           </div>
           <div className="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700 ring-1 ring-brand-100">
@@ -554,26 +554,14 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
               }}
               className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
             >
+              <option value="">Bitte wählen</option>
               {senderOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label} ({opt.email})
                 </option>
               ))}
-              <option value="custom">Eigene Adresse eingeben…</option>
             </select>
           </label>
-
-          {senderChoice === 'custom' && (
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">Eigene E-Mail</span>
-              <input
-                value={customEmail}
-                onChange={(e) => setCustomEmail(e.target.value)}
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
-                placeholder="du@beispiel.de"
-              />
-            </label>
-          )}
         </div>
 
         <div className="mt-4 rounded-2xl border border-brand-100 bg-brand-50 px-4 py-3 text-sm text-brand-800">
