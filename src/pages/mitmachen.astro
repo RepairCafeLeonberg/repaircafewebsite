@@ -16,11 +16,10 @@ import CTA from "../components/CTA.astro";
             Engagement
           </span>
           <h1 class="mt-5 heading-hero">
-            Gemeinsam reparieren, gemeinsam wachsen
+            Werden Sie Teil unseres Teams
           </h1>
           <p class="mt-3 text-base text-slate-600">
-            Das Repair Café lebt von Menschen, die Zeit, Wissen und gute Laune einbringen. Ob Technik, Textil, Empfang
-            oder Organisation – wir freuen uns über neue Teammitglieder.
+            Bringen Sie Ihr Talent ein – ob als Reparatur-Experte oder Organisationstalent. Wir suchen Menschen, die Lust haben, ihr Wissen zu teilen oder einfach mit anzupacken.
           </p>
         </div>
       </div>
@@ -28,31 +27,19 @@ import CTA from "../components/CTA.astro";
 
     <section class="pb-12">
       <div class="container">
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {[
             {
-              title: 'Reparatur-Expert:innen',
-              desc: 'Elektronik, Mechanik, Textil oder Fahrrad: Sie unterstützen Besucher:innen direkt an der Werkbank und teilen Ihr Know-how.',
+              title: 'Reparatur-Profis',
+              desc: 'Elektrik, Mechanik, Textil, Holz, Fahrrad oder Computer/IT – Sie finden Fehler und zeigen Gästen, wie Reparaturen gelingen.',
             },
             {
-              title: 'Gastgeber:innen',
-              desc: 'Begrüßung, Anmeldung, Kuchenbuffet und Wohlfühlfaktor – Sie sorgen dafür, dass sich alle willkommen fühlen.',
+              title: 'Organisationstalente',
+              desc: 'Empfang, Laufzettel, Wartezeiten, Social Media oder Materialbeschaffung – Sie halten den Ablauf am Laufen.',
             },
             {
-              title: 'Organisation & Kommunikation',
-              desc: 'Social Media, Pressearbeit, Materialbeschaffung oder Raumplanung: Sie halten im Hintergrund die Fäden zusammen.',
-            },
-            {
-              title: 'Workshops & Wissen',
-              desc: 'Sie möchten selbst Kurse geben oder Wissen vermitteln? Wir planen gemeinsam Formate für Einsteiger:innen.',
-            },
-            {
-              title: 'Nachhaltigkeits-Projekte',
-              desc: 'Begleiten Sie Sonderaktionen, Reparatur-Checks bei Veranstaltungen oder Kooperationen mit Schulen.',
-            },
-            {
-              title: 'Unterstützung bei Kaffee & Kuchen',
-              desc: 'Sie backen gern oder schenken Kaffee aus? Auch das ist ein wertvoller Beitrag zur Reparatur-Atmosphäre.',
+              title: 'Gute Seele (Catering)',
+              desc: 'Kaffee kochen, Kuchen backen oder für das Buffet sorgen – Sie schaffen die gemütliche Atmosphäre fürs Reparieren.',
             },
           ].map((item) => (
             <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
@@ -68,27 +55,29 @@ import CTA from "../components/CTA.astro";
       <div class="container">
         <div class="grid gap-6 md:grid-cols-2">
           <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5">
-            <h2 class="heading-sub">So funktioniert der Einstieg</h2>
-            <ol class="mt-4 space-y-3 text-sm text-slate-600">
-              <li><strong>Kontakt aufnehmen:</strong> Schreiben Sie uns kurz, in welchem Bereich Sie mitmachen möchten.</li>
-              <li><strong>Kennenlerngespräch:</strong> Wir verabreden einen Termin vor Ort oder online und klären Aufgaben sowie Termine.</li>
-              <li><strong>Probeschicht:</strong> Sie begleiten ein Repair Café und entscheiden dann, wie es weitergeht.</li>
-            </ol>
+            <h2 class="heading-sub">Interesse geweckt?</h2>
+            <div class="mt-4 space-y-3 text-sm text-slate-600">
+              <p>Kommen Sie beim nächsten Termin unverbindlich vorbei und schnuppern Sie rein, oder schreiben Sie uns direkt an. Wir freuen uns darauf, Sie kennenzulernen!</p>
+              <ol class="space-y-2 list-decimal pl-4">
+                <li><strong>Kontakt aufnehmen:</strong> Schreiben Sie uns kurz, in welchem Bereich Sie mitmachen möchten.</li>
+                <li><strong>Kennenlernen:</strong> Wir klären Aufgaben und Termine – vor Ort oder online.</li>
+                <li><strong>Probeschicht:</strong> Begleiten Sie ein RepairCafé und entscheiden Sie dann, wie es weitergeht.</li>
+              </ol>
+            </div>
           </div>
           <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5">
             <h2 class="heading-sub">Kontakt zum Team</h2>
             <p class="mt-4 text-sm text-slate-600">
-              Schreiben Sie an <a class="text-brand-700 hover:underline" href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a>
-              und nennen Sie kurz Ihre Motivation sowie mögliche Einsatzbereiche. Wir melden uns schnellstmöglich bei Ihnen.
+              Nutzen Sie unser <a class="text-brand-700 hover:underline" href="/kontakt">Kontaktformular</a> oder schreiben Sie direkt an <a class="text-brand-700 hover:underline" href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a>. Nennen Sie kurz Ihre Motivation sowie mögliche Einsatzbereiche – wir melden uns schnellstmöglich bei Ihnen.
             </p>
             <p class="mt-3 text-sm text-slate-600">
               Alternativ können Sie vor Ort im Repair Café auf uns zukommen – wir nehmen Ihre Kontaktdaten gern persönlich auf.
             </p>
             <a
-              href="mailto:info@repair-leonberg.de?subject=Ich%20m%C3%B6chte%20im%20Repair%20Caf%C3%A9%20Leonberg%20mitmachen"
+              href="/kontakt"
               class="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-brand-700"
             >
-              E-Mail schreiben
+              Kontaktformular öffnen
               <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
             </a>
           </div>

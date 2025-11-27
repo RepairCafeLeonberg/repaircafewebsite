@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import CTA from "../components/CTA.astro";
+import RepairCategoryIcon from "../components/RepairCategoryIcon.tsx";
 ---
 
 <BaseLayout title="Reparaturen – Repair Café Leonberg" description="Überblick, welche Reparaturen wir im Repair Café Leonberg unterstützen und was nicht möglich ist.">
@@ -36,20 +37,20 @@ import CTA from "../components/CTA.astro";
         <div class="mt-8 grid gap-6 md:grid-cols-2">
           {[
             {
-              title: 'Ankommen',
-              desc: 'Sie melden sich am Empfang an und wir schauen gemeinsam, welcher Experte für Ihr Problem zuständig ist.'
+              title: 'Ankommen & Anmelden',
+              desc: 'Herzlich willkommen! Am Empfang füllen wir kurz den Laufzettel aus und schauen, welcher unserer Experten gerade frei ist. Bei uns geht es ohne lange Wartezeiten direkt los.'
             },
             {
-              title: 'Warten & genießen',
-              desc: 'Ist alles belegt, laden wir zu Kaffee, Kuchen und einem Plausch mit anderen Leonbergern ein.'
+              title: 'Der Experten-Check',
+              desc: 'Sie gehen direkt mit Ihrem defekten Gegenstand zum passenden Reparatur-Profi an den Tisch. Gemeinsam werfen wir einen ersten Blick darauf, stellen die Fehler-Diagnose und besprechen das Vorgehen.'
             },
             {
-              title: 'Reparieren',
-              desc: 'Sobald Sie an der Reihe sind, gehen Sie dem Reparatur-Profi zur Hand. Wir reparieren mit Ihnen, nicht für Sie – und erklären, wie Ihr Gerät funktioniert.'
+              title: 'Gemeinsam reparieren',
+              desc: 'Jetzt wird geschraubt, geklebt oder gelötet. Wir leisten Hilfe zur Selbsthilfe: Sie schauen nicht nur zu, sondern legen unter Anleitung selbst Hand an, um Ihrem Lieblingsstück neues Leben einzuhauchen.'
             },
             {
-              title: 'Abschluss',
-              desc: 'Wenn die Reparatur gelingt (meistens!), freuen wir uns. Unsere Arbeit ist ehrenamtlich und kostenlos – Spenden für Werkzeug & Verpflegung helfen sehr.'
+              title: 'Freuen & Spenden',
+              desc: 'Reparatur geglückt? Dann feiern wir das gerne noch mit einem Kaffee! Unser Angebot ist kostenlos, aber unser „Spenden-Schwein“ am Ausgang freut sich über einen Beitrag für Werkzeug und Material.'
             }
           ].map((item, index) => (
             <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
@@ -77,15 +78,22 @@ import CTA from "../components/CTA.astro";
         </div>
         <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {[
-            { title: 'Elektro', desc: 'Mixer, Lampen, Staubsauger, Radios, Toaster…' },
-            { title: 'Textil', desc: 'Kleinere Näharbeiten, Löcher stopfen, Knöpfe annähen…' },
-            { title: 'Fahrrad', desc: 'Bremsen einstellen, Licht reparieren, Reifen flicken…' },
-            { title: 'Holz & Spielzeug', desc: 'Geleimte Stühle, defektes Holzspielzeug…' },
-            { title: 'Computer/Handy', desc: 'Einfache Einrichtung, Updates, kleine Fehleranalyse.' }
+            { title: 'Elektro', desc: 'Mixer, Lampen, Staubsauger, Radios, Toaster…', icon: 'electronics' },
+            { title: 'Textil', desc: 'Kleinere Näharbeiten, Löcher stopfen, Knöpfe annähen…', icon: 'textile' },
+            { title: 'Fahrrad', desc: 'Bremsen einstellen, Licht reparieren, Reifen flicken…', icon: 'bike' },
+            { title: 'Holz & Spielzeug', desc: 'Geleimte Stühle, defektes Holzspielzeug…', icon: 'wood' },
+            { title: 'Computer/Handy', desc: 'Einfache Einrichtung, Updates, kleine Fehleranalyse.', icon: 'software' }
           ].map((item) => (
             <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
-              <h3 class="card-title">{item.title}</h3>
-              <p class="mt-2 text-sm text-slate-600">{item.desc}</p>
+              <div class="flex items-start gap-3">
+                <span class="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-slate-100 text-brand-600">
+                  <RepairCategoryIcon icon={item.icon} className="h-5 w-5" client:load />
+                </span>
+                <div>
+                  <h3 class="card-title">{item.title}</h3>
+                  <p class="mt-2 text-sm text-slate-600">{item.desc}</p>
+                </div>
+              </div>
             </article>
           ))}
         </div>

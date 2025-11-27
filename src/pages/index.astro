@@ -6,6 +6,7 @@ import Footer from "../components/Footer.astro";
 import Hero from "../components/Hero.astro";
 import FAQ from "../components/FAQ.astro";
 import CTA from "../components/CTA.astro";
+import RepairCategoryIcon from "../components/RepairCategoryIcon";
 import { getUpcomingEvents, getAllEvents, getPosts, getGalleryImages, getHeroSlides, getGuestbookEntries } from "../data/cms";
 
 export const prerender = true;
@@ -86,36 +87,12 @@ const posts = latestPosts.map((post) => {
 });
 
 const repairCategories = [
-  {
-    title: 'Elektronik & Kleingeräte',
-    desc: 'Toaster, Mixer, Lampen, Kopfhörer, Radios und Kabel – wir finden den Fehler gemeinsam.',
-    icon: 'electronics'
-  },
-  {
-    title: 'Textilien',
-    desc: 'Nähreparaturen, Knöpfe, Reißverschlüsse und Flicken – damit Lieblingsstücke weiterleben.',
-    icon: 'textile'
-  },
-  {
-    title: 'Fahrräder',
-    desc: 'Kleinigkeiten wie Bremsen einstellen, Schaltung nachziehen oder Schlauch wechseln.',
-    icon: 'bike'
-  },
-  {
-    title: 'Möbel & Holz',
-    desc: 'Stühle leimen, Schubladen richten und kleine Holzarbeiten wieder fit machen.',
-    icon: 'wood'
-  },
-  {
-    title: 'Spielzeug',
-    desc: 'Elektrisches und mechanisches Spielzeug reparieren wir, solange Ersatzteile verfügbar sind.',
-    icon: 'toy'
-  },
-  {
-    title: 'Software/Handy',
-    desc: 'Einrichtung, Updates, Fehleranalyse und praktische Tipps für digitale Alltagshelfer.',
-    icon: 'software'
-  }
+  { title: 'Elektro', desc: 'Mixer, Lampen, Staubsauger, Radios, Toaster…', icon: 'electronics' },
+  { title: 'Textil', desc: 'Kleinere Näharbeiten, Löcher stopfen, Knöpfe annähen…', icon: 'textile' },
+  { title: 'Fahrrad', desc: 'Bremsen einstellen, Licht reparieren, Reifen flicken…', icon: 'bike' },
+  { title: 'Holz & Spielzeug', desc: 'Geleimte Stühle, defektes Holzspielzeug…', icon: 'wood' },
+  { title: 'Computer/Handy', desc: 'Einfache Einrichtung, Updates, kleine Fehleranalyse.', icon: 'software' },
+  { title: 'Unsicher?', desc: 'Schreiben Sie uns kurz, dann prüfen wir, ob Ihr Gerät passt.', icon: 'contact', href: '/kontakt' }
 ];
 
 const highlightGallery = galleryImages
@@ -135,65 +112,27 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="heading-section">Was wir reparieren</h2>
-        <p class="mt-3 text-slate-700 dark:text-slate-300">Wir helfen bei vielen Alltagsgegenständen – je nach Team vor Ort.</p>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Vom Wackelkontakt bis zum kaputten Reißverschluss – unsere Experten helfen Ihnen bei vielfältigen Defekten.</p>
       </div>
       <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {repairCategories.map((item) => (
           <article class="glass rounded-2xl p-6 transition hover:-translate-y-1 hover:shadow-xl">
             <div class="flex items-start gap-4">
               <span class="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-white/80 text-brand-600 shadow-sm shadow-brand-600/20 dark:bg-slate-900/70">
-                {item.icon === 'electronics' && (
-                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <rect x="3" y="7" width="18" height="11" rx="2" />
-                    <path d="M7 7V5h2v2" />
-                    <path d="M15 7V5h2v2" />
-                    <path d="M3 14h18" />
-                    <path d="M8 18h8" />
-                  </svg>
-                )}
-                {item.icon === 'textile' && (
-                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <circle cx="8" cy="12" r="4" />
-                    <circle cx="16" cy="12" r="4" />
-                    <path d="M12 5v14" />
-                    <path d="M14.5 7.5L21 4" />
-                  </svg>
-                )}
-                {item.icon === 'bike' && (
-                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <circle cx="6" cy="16" r="4" />
-                    <circle cx="18" cy="16" r="4" />
-                    <path d="M6 16l4-7h4l4 7" />
-                    <path d="M10 9l2-3 3 3" />
-                  </svg>
-                )}
-                {item.icon === 'wood' && (
-                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M4 5h10l2 3h4" />
-                    <path d="M4 10h6l2 3h8" />
-                    <path d="M4 15h14" />
-                    <path d="M4 20h10" />
-                  </svg>
-                )}
-                {item.icon === 'toy' && (
-                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <circle cx="8" cy="8" r="3" />
-                    <circle cx="16" cy="8" r="3" />
-                    <path d="M5 17h14v3H5z" />
-                    <path d="M7 12h10" />
-                  </svg>
-                )}
-                {item.icon === 'software' && (
-                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <rect x="7" y="2" width="10" height="20" rx="2" />
-                    <path d="M11 18h2" />
-                    <path d="M9 6h6" />
-                  </svg>
-                )}
+                <RepairCategoryIcon icon={item.icon} client:load />
               </span>
               <div>
                 <h3 class="card-title">{item.title}</h3>
                 <p class="mt-2 body-text">{item.desc}</p>
+                {item.href && (
+                  <a
+                    class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline"
+                    href={item.href}
+                  >
+                    Kontakt aufnehmen
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                  </a>
+                )}
               </div>
             </div>
           </article>
@@ -259,8 +198,8 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
   <section id="aktuelles" class="mt-16 md:mt-24">
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
-        <h2 class="heading-section">Aktuelles</h2>
-        <p class="mt-3 text-slate-700 dark:text-slate-300">Neuigkeiten, Workshops und Einblicke aus dem Repair Café.</p>
+        <h2 class="heading-section">Neuigkeiten aus dem RepairCafé</h2>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Erfolgsgeschichten, Termine und Updates rund um unsere Initiative in Leonberg.</p>
       </div>
       <div class="mt-10 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
         {[...posts].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 3).map((post) => (
@@ -322,14 +261,14 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="heading-section">So funktioniert’s</h2>
-        <p class="mt-3 text-slate-700 dark:text-slate-300">Wir reparieren gemeinsam – Sie sind Teil der Lösung.</p>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Schritt für Schritt erklärt: So läuft Ihr Besuch bei uns ab – vom Empfang bis zur erfolgreichen Reparatur.</p>
       </div>
       <ol class="mt-10 grid gap-5 list-none md:grid-cols-4">
         {[
-          { step: '1', title: 'Ankommen', desc: 'Am Empfang anmelden, wir schauen, welcher Experte passt.' },
-          { step: '2', title: 'Warten & genießen', desc: 'Ist alles belegt, warten Sie entspannt mit Kaffee und Kuchen.' },
-          { step: '3', title: 'Reparieren', desc: 'Mit unseren Profis zusammen reparieren – wir zeigen, wie Ihr Gerät funktioniert.' },
-          { step: '4', title: 'Abschluss', desc: 'Meist klappt die Reparatur. Alles ehrenamtlich; Spenden für Werkzeug & Verpflegung helfen.' },
+          { step: '1', title: 'Ankommen & anmelden', desc: 'Kurz am Empfang einchecken, Laufzettel ausfüllen, passenden Experten finden.' },
+          { step: '2', title: 'Experten-Check', desc: 'Direkt zum Fach-Tisch, Diagnose besprechen und Vorgehen planen.' },
+          { step: '3', title: 'Gemeinsam reparieren', desc: 'Unter Anleitung selbst mit anpacken – Hilfe zur Selbsthilfe.' },
+          { step: '4', title: 'Freuen & spenden', desc: 'Bei Erfolg anstoßen, Kaffee genießen, Spende fürs Werkzeug-Schwein da lassen.' },
         ].map((s) => (
           <li class="glass rounded-2xl p-6">
             <div class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-600/10 font-semibold text-brand-700 dark:text-brand-300">{s.step}</div>
@@ -348,28 +287,36 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
         <p class="mt-3 text-slate-700 dark:text-slate-300">Feedback aus dem Gästebuch – echte Stimmen, die Mut machen.</p>
       </div>
       <div class="mt-8 space-y-4">
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            aria-label="Vorheriger Eintrag"
-            data-guestbook-prev
-            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Nächster Eintrag"
-            data-guestbook-next
-            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
-          </button>
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <a href="/gaestebuch" class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 hover:text-brand-700">
+            <span class="h-px w-8 bg-slate-300"></span>
+            Schreiben Sie in unser Gästebuch
+          </a>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="Vorheriger Eintrag"
+                data-guestbook-prev
+                class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+              <button
+                type="button"
+                aria-label="Nächster Eintrag"
+                data-guestbook-next
+                class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="relative overflow-hidden" data-guestbook-slider>
+        <div class="relative" data-guestbook-slider>
           <div class="flex gap-4 transition-transform duration-500 ease-out" data-guestbook-track>
             {guestbookHighlights.map((entry) => (
-              <article class="min-w-0 snap-start shrink-0 grow-0 basis-full rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-900/8 transition hover:-translate-y-1 hover:shadow-xl md:basis-1/2 xl:basis-1/3">
+              <article class="min-w-0 snap-start shrink-0 grow-0 basis-full rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-900/12 transition hover:-translate-y-1 hover:shadow-2xl md:basis-1/2 xl:basis-1/3">
                 <blockquote class="text-slate-700 dark:text-slate-300">
                   <svg class="mb-3 h-6 w-6 text-brand-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M7.17 6A5 5 0 0 0 2 11v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1H6.74a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.08-1.01A5 5 0 0 0 7.17 6Zm12 0a5 5 0 0 0-5.17 5v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-2.26a3.17 3.17 0 0 1 3-3.57 1 1 0 0 0 1-1V4.72a1 1 0 0 0-1.07-1.01A5 5 0 0 0 19.17 6Z" />
@@ -391,8 +338,8 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
   <section id="faq" class="mt-16 md:mt-24">
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
-        <h2 class="heading-section">Häufige Fragen</h2>
-        <p class="mt-3 text-slate-700 dark:text-slate-300">Kurz & knapp beantwortet.</p>
+        <h2 class="heading-section">Häufig gestellte Fragen</h2>
+        <p class="mt-3 text-slate-700 dark:text-slate-300">Alles, was Sie vor Ihrem ersten Besuch wissen müssen, kurz und bündig erklärt.</p>
       </div>
       <div class="mt-10">
         <FAQ />
@@ -405,14 +352,14 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
       <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div class="max-w-2xl">
           <h2 class="heading-section">
-            Eindrücke aus dem Repair Café
+            Einblicke in unsere Arbeit
           </h2>
           <p class="mt-2 text-slate-700 dark:text-slate-300">
-            Wischen Sie durch Momente vom letzten Repair Café – Werkbänke, Workshops und Community in Aktion.
+            Schrauben, löten, nähen und genießen – Impressionen unserer letzten Treffen.
           </p>
         </div>
         <a href="/galerie" class="inline-flex items-center gap-2 self-start rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50">
-          Mehr Impressionen ansehen
+          Bildergalerie ansehen
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
         </a>
       </div>
@@ -455,76 +402,6 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
   </section>
 
   <CTA />
-
-  <section class="mt-24">
-    <div class="container">
-      <div class="grid gap-6 md:grid-cols-2">
-        <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5 dark:bg-slate-900/60">
-          <h2 class="heading-sub">Mitmachen</h2>
-          <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
-            Sie möchten selbst reparieren, Gäste empfangen oder im Hintergrund unterstützen? Auf unserer Mitmachen-Seite finden Sie alle Infos zum Einstieg ins Team.
-          </p>
-          <a
-            href="/mitmachen"
-            class="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-brand-700"
-          >
-            Engagement entdecken
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
-          </a>
-        </div>
-        <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5 dark:bg-slate-900/60">
-          <h2 class="heading-sub">Partner-Netzwerk</h2>
-          <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
-            Reparieren funktioniert am besten gemeinsam. In unserer Übersicht finden Sie Repair Cafés der Umgebung – ideal für Austausch, Termine in Nachbarorten oder gemeinsame Aktionen.
-          </p>
-          <a
-            href="/umgebung"
-            class="mt-5 inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-          >
-            Netzwerk ansehen
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="kontakt" class="mt-24">
-    <div class="container">
-      <div class="glass rounded-3xl p-8 md:p-12">
-        <div class="grid gap-6 md:grid-cols-2">
-          <div>
-            <h2 class="heading-sub">Kontakt</h2>
-            <p class="mt-3 text-slate-700 dark:text-slate-300">Fragen, Ideen oder Kooperationswunsch? Schreiben Sie uns gern.</p>
-            <div class="mt-6 space-y-2 text-sm">
-              <a
-                class="group inline-flex items-baseline text-slate-700 transition hover:text-brand-700 dark:text-slate-300 dark:hover:text-brand-300"
-                href="mailto:info@repair-leonberg.de"
-              >
-                <span class="font-semibold text-slate-900 dark:text-white">E-Mail:</span>
-                <span class="ml-1 text-brand-700 underline-offset-2 group-hover:underline dark:text-brand-300">info@repair-leonberg.de</span>
-              </a>
-              <div>Instagram: <a class="text-brand-700 hover:underline dark:text-brand-300" href="#">@repaircafe.leonberg</a> (optional)</div>
-            </div>
-          </div>
-          <div>
-            <div class="rounded-xl bg-slate-100 p-4 text-sm dark:bg-slate-800">
-              <p class="font-semibold">Unsere Orte in Leonberg</p>
-              <p class="mt-2 text-slate-600 dark:text-slate-300">Die genauen Orte der nächsten Termine geben wir hier und auf Social Media bekannt.</p>
-              <a
-                class="mt-3 inline-flex items-center gap-2 text-brand-700 hover:underline dark:text-brand-300"
-                href="https://www.openstreetmap.org/?mlat=48.7952078&amp;mlon=9.0126756#map=18/48.7952078/9.0126756"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Auf Karte ansehen →
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <Footer />
 

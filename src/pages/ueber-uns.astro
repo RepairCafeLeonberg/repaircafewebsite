@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import CTA from "../components/CTA.astro";
-import { getTeamVoices, getAboutPageContent } from "../data/cms";
+import { getAboutPageContent, getTeamVoices } from "../data/cms";
 
 const [teamVoices, aboutPage] = await Promise.all([getTeamVoices(), getAboutPageContent()]);
 const teamImageUrl = aboutPage?.teamImage;
@@ -12,24 +12,7 @@ const teamImageTitle = aboutPage?.teamImageTitle ?? 'Teamgeist';
 const teamImageDescription =
   aboutPage?.teamImageDescription ?? 'Gemeinsam stark fürs Reparieren – das Team des Repair Café Leonberg.';
 const missionParagraphs = aboutPage?.missionParagraphs ?? [];
-const values = [
-  {
-    title: 'Nachhaltigkeit',
-    description: 'Wir reparieren statt wegzuwerfen und reduzieren so Müll, CO₂ und Neuanschaffungen.'
-  },
-  {
-    title: 'Gemeinschaft',
-    description: 'Alle arbeiten auf Augenhöhe zusammen – Gäste, Helfende und Neugierige.'
-  },
-  {
-    title: 'Wissen teilen',
-    description: 'Wir zeigen Tricks und Handgriffe, damit Reparaturen auch zuhause funktionieren.'
-  },
-  {
-    title: 'Niedrige Hürden',
-    description: 'Die Teilnahme ist kostenlos, Spenden sind willkommen – jede:r darf einfach vorbeikommen.'
-  }
-];
+const hasTeamVoices = teamVoices && teamVoices.length > 0;
 ---
 
 <BaseLayout title="Über uns – Repair Café Leonberg" description="Erfahre mehr über das Team und die Vision hinter dem Repair Café Leonberg.">
@@ -46,7 +29,7 @@ const values = [
             Gemeinsam reparieren, voneinander lernen
           </h1>
           <p class="mt-3 text-base text-slate-600">
-            Wir sind Ehrenamtliche aus Leonberg und Umgebung, die Werkzeuge lieben, Wissen teilen und Geräte vor der Tonne retten.
+            Gemeinsam für Nachhaltigkeit, Nachbarschaft und Müllvermeidung.
           </p>
         </div>
       </div>
@@ -114,196 +97,93 @@ const values = [
             </div>
           </div>
 
-          <div class="space-y-8">
-            <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5">
-              <h2 class="heading-sub">Unsere Mission</h2>
-              <div class="mt-4 space-y-4 text-sm text-slate-600">
-                {missionParagraphs.map((paragraph) => (
-                  <p>{paragraph}</p>
-                ))}
-              </div>
-              <figure class="mt-6 max-h-48 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm shadow-slate-900/10 dark:border-slate-700/60 dark:bg-slate-900/60">
-                <img
-                  src="/lokaleagenda21.jpg"
-                  alt="Logo der Lokalen Agenda 21 Leonberg"
-                  class="h-full w-full object-contain"
-                  loading="lazy"
-                />
-              </figure>
-            </div>
-
+          <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5 space-y-4 text-sm text-slate-600">
+            <p>
+              Unter dem Motto „Wegwerfen? Denkste!“ setzen wir uns gegen die Wegwerfgesellschaft ein. Unser Ziel: Reparieren statt neu kaufen, Müll vermeiden, Ressourcen schonen und CO₂ sparen.
+            </p>
+            <p>
+              Wir sind keine Dienstleister, sondern leben „Hilfe zur Selbsthilfe“: Wir reparieren mit Ihnen, teilen Wissen und stärken die Freude am eigenen Können. Unser Treffpunkt ist offen, tolerant und lädt bei Kaffee und Kuchen zum Austausch ein.
+            </p>
+            <p>
+              Das Repair Café wurde 2015 von Dr. Eckart Matthias gegründet. Aus einer kleinen Tüftlergruppe ist eine feste Institution geworden, die bereits Hunderte Gegenstände vor der Tonne bewahrt und Nachhaltigkeit in Leonberg sichtbar macht. Als Arbeitsgruppe der Lokalen Agenda 21 Leonberg arbeiten wir eng mit weiteren Initiativen für ein lebenswertes Leonberg zusammen.
+            </p>
+            <figure class="mx-auto w-40 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm shadow-slate-900/10 dark:border-slate-700/60 dark:bg-slate-900/60">
+              <img
+                src="/lokaleagenda21.jpg"
+                alt="Logo der Lokalen Agenda 21 Leonberg"
+                class="mx-auto h-full w-full object-contain"
+                loading="lazy"
+              />
+            </figure>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="pb-12">
-      <div class="container">
-        <div class="mx-auto max-w-3xl text-center">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">
-            Unsere Werte
-          </span>
-          <h2 class="mt-4 heading-section">Was uns antreibt</h2>
-          <p class="mt-3 text-sm text-slate-600">
-            Diese Grundsätze begleiten uns bei jedem Reparaturtermin – und wir freuen uns über alle, die sie mittragen.
-          </p>
-        </div>
-        <div class="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {values.map((value) => (
-            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-900/5 dark:border-slate-700/60 dark:bg-slate-900/60">
-              <h3 class="card-title-sm">{value.title}</h3>
-              <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">{value.description}</p>
+    {hasTeamVoices && (
+      <section class="pb-12">
+        <div class="bg-gradient-to-br from-brand-900 via-brand-800 to-slate-900 py-12 shadow-inner shadow-black/30">
+          <div class="container text-white">
+            <div class="mx-auto max-w-3xl text-center">
+              <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 ring-1 ring-white/20">
+                Teamstimmen
+              </span>
+              <h2 class="mt-4 heading-section text-white">Warum wir dabei sind</h2>
+              <p class="mt-2 text-sm text-white/80">
+                Menschen aus dem Team erzählen, warum sie mitmachen – vielleicht motiviert es auch Sie.
+              </p>
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
 
-    <section class="pb-12">
-      <div class="container">
-        <div
-          class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5"
-          data-team-carousel
-        >
-          <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Teamstimmen</p>
-              <h2 class="mt-2 heading-section">Warum wir dabei sind</h2>
-            </div>
-            <div class="flex items-center gap-3">
-              <button
-                type="button"
-                class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                aria-label="Vorherige Stimme"
-                data-carousel-prev
-              >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
-              </button>
-              <button
-                type="button"
-                class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                aria-label="Nächste Stimme"
-                data-carousel-next
-              >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="mt-6 overflow-hidden" data-carousel-viewport>
-            <ul class="flex transition-transform duration-500 ease-out" data-carousel-track>
-              {teamVoices.map((voice, index) => (
-                <li
-                  class="w-full flex-shrink-0"
-                  data-carousel-slide
-                  aria-hidden={index === 0 ? 'false' : 'true'}
-                >
-                  <div class="grid gap-8 md:grid-cols-[minmax(0,230px)_1fr] md:items-center">
-                    <div class="relative mx-auto flex h-52 w-52 items-center justify-center overflow-hidden rounded-[28px] bg-slate-200 text-white shadow-xl shadow-slate-900/10">
-                      {voice.portrait ? (
-                        <>
-                          <img
-                            src={voice.portrait}
-                            alt={voice.portraitAlt ?? `${voice.name} Portrait`}
-                            class="absolute inset-0 h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-slate-900/10 to-transparent"></div>
-                        </>
-                      ) : (
-                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]"></div>
-                      )}
-                      <span class="relative text-center text-sm font-semibold leading-snug uppercase tracking-[0.24em] text-white/85">
-                        {voice.name}
-                      </span>
-                    </div>
-                    <div class="space-y-4">
-                      <h3 class="heading-sub">{voice.name} – {voice.role}</h3>
-                      <div class="relative rounded-2xl bg-slate-50 p-6 text-slate-700 shadow-inner shadow-white/40">
-                        <span class="absolute -left-4 top-1 text-5xl font-black text-brand-500/35">“</span>
-                        <blockquote class="relative z-[1] text-base italic leading-relaxed text-slate-700">{voice.quote}</blockquote>
-                        <span class="absolute -right-4 bottom-0 text-5xl font-black text-brand-500/30">”</span>
-                      </div>
-                    </div>
+            <div class="mt-10 relative" data-team-slider>
+              <div class="flex items-center justify-between gap-4 pb-4">
+                <div class="flex items-center gap-2 text-white/80 text-xs uppercase tracking-[0.2em]">
+                  <span class="h-px w-8 bg-white/40"></span>
+                  Teammitglieder erzählen
+                </div>
+                {teamVoices.length > 1 && (
+                  <div class="flex items-center gap-2">
+                    <button type="button" aria-label="Vorheriger Beitrag" data-team-prev class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white shadow-sm transition hover:-translate-y-0.5 hover:border-white/60 hover:bg-white/15">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
+                    </button>
+                    <button type="button" aria-label="Nächster Beitrag" data-team-next class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white shadow-sm transition hover:-translate-y-0.5 hover:border-white/60 hover:bg-white/15">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+                    </button>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+                )}
+              </div>
 
-          <div class="mt-6 flex items-center justify-center gap-2" role="tablist">
-            {teamVoices.map((_, index) => (
-              <button
-                type="button"
-                class="h-2.5 w-2.5 rounded-full bg-slate-300 transition-all data-[active=true]:w-6 data-[active=true]:bg-brand-600"
-                aria-label={`Stimme ${index + 1}`}
-                data-carousel-dot
-                data-index={index}
-              ></button>
-            ))}
+              <div class="overflow-hidden" data-team-viewport>
+                <div class="flex gap-6 transition-transform duration-500 ease-out" data-team-track>
+                  {teamVoices.map((voice) => (
+                    <article class="min-w-0 shrink-0 grow-0 basis-full rounded-[28px] bg-white/10 p-6 text-left shadow-2xl shadow-black/30 ring-1 ring-white/10 md:p-8">
+                      <div class="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
+                        <div class="relative h-48 w-48 overflow-hidden rounded-[32px] bg-white/15 ring-1 ring-white/20 md:h-56 md:w-56 lg:h-64 lg:w-64">
+                          {voice.portrait ? (
+                            <img src={voice.portrait} alt={voice.portraitAlt ?? `${voice.name} Portrait`} class="h-full w-full object-cover" loading="lazy" />
+                          ) : (
+                            <div class="flex h-full w-full items-center justify-center text-base font-semibold text-white/70">RC</div>
+                          )}
+                        </div>
+                        <div class="flex flex-1 flex-col gap-4 md:pt-1">
+                          <div class="md:pt-1">
+                            <p class="text-xl font-semibold text-white md:text-2xl">{voice.name}</p>
+                            {voice.role && <p class="text-sm text-white/70 md:text-base">{voice.role}</p>}
+                          </div>
+                          <div class="relative flex flex-1 items-center rounded-3xl bg-white/10 p-6 text-white shadow-inner shadow-white/10 ring-1 ring-white/10 md:p-7 lg:p-8">
+                            <span class="absolute -left-3 -top-2 text-5xl font-black text-white/20">“</span>
+                            <p class="relative z-[1] text-base leading-relaxed md:text-lg">{voice.quote}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <script is:inline>
-      (() => {
-        const root = document.querySelector('[data-team-carousel]');
-        if (!root) return;
-
-        const track = root.querySelector('[data-carousel-track]');
-        const slides = Array.from(track?.querySelectorAll('[data-carousel-slide]') ?? []);
-        const prev = root.querySelector('[data-carousel-prev]');
-        const next = root.querySelector('[data-carousel-next]');
-        const dots = Array.from(root.querySelectorAll('[data-carousel-dot]'));
-
-        if (!track || slides.length === 0) return;
-
-        let index = 0;
-
-        const update = () => {
-          track.setAttribute('style', `transform: translateX(-${index * 100}%);`);
-          slides.forEach((slide, slideIndex) => {
-            const isActive = slideIndex === index;
-            slide.setAttribute('aria-hidden', String(!isActive));
-            if (isActive) {
-              slide.removeAttribute('tabindex');
-            } else {
-              slide.setAttribute('tabindex', '-1');
-            }
-          });
-          dots.forEach((dot, dotIndex) => {
-            dot.setAttribute('data-active', String(dotIndex === index));
-          });
-        };
-
-        const setIndex = (value) => {
-          const total = slides.length;
-          index = (value + total) % total;
-          update();
-        };
-
-        prev?.addEventListener('click', () => setIndex(index - 1));
-        next?.addEventListener('click', () => setIndex(index + 1));
-
-        dots.forEach((dot) => {
-          dot.addEventListener('click', () => {
-            const target = Number(dot.getAttribute('data-index'));
-            if (!Number.isNaN(target)) {
-              setIndex(target);
-            }
-          });
-        });
-
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-          window.clearTimeout(resizeTimeout);
-          resizeTimeout = window.setTimeout(() => update(), 150);
-        });
-
-        update();
-      })();
-    </script>
+      </section>
+    )}
 
     {teamImageUrl && (
       <script is:inline>
@@ -344,9 +224,42 @@ const values = [
         })();
       </script>
     )}
-
   </main>
 
   <CTA />
   <Footer />
 </BaseLayout>
+
+{hasTeamVoices && (
+  <script is:inline>
+    (() => {
+      const slider = document.querySelector('[data-team-slider]');
+      if (!slider) return;
+      const track = slider.querySelector('[data-team-track]');
+      const slides = Array.from(track?.children ?? []);
+      const prev = slider.querySelector('[data-team-prev]');
+      const next = slider.querySelector('[data-team-next]');
+      if (!track || slides.length === 0) return;
+
+      let index = 0;
+
+      const update = () => {
+        const slideWidth = slides[0]?.getBoundingClientRect().width || 0;
+        const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || '24') || 24;
+        track.style.transform = `translateX(${-index * (slideWidth + gap)}px)`;
+      };
+
+      prev?.addEventListener('click', () => {
+        index = (index - 1 + slides.length) % slides.length;
+        update();
+      });
+      next?.addEventListener('click', () => {
+        index = (index + 1) % slides.length;
+        update();
+      });
+
+      window.addEventListener('resize', update);
+      update();
+    })();
+  </script>
+)}

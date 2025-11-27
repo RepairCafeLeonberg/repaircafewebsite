@@ -172,10 +172,10 @@ if (event.date) {
 
 <article class="flex h-full flex-col gap-6 rounded-3xl border border-slate-200 bg-white/95 p-6 text-slate-900 shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:shadow-xl dark:border-slate-700/60 dark:bg-slate-900/90 dark:text-white md:p-7">
   <header class="flex items-start gap-4">
-    <div class="flex h-18 w-18 flex-none flex-col items-center justify-center rounded-2xl bg-brand-600 text-white shadow-inner shadow-brand-900/25 md:h-20 md:w-20">
-      <span class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/80">{badgeMonth || '--'}</span>
+    <div class="flex h-16 w-16 flex-none flex-col items-center justify-center rounded-2xl bg-brand-600 text-white shadow-inner shadow-brand-900/25 md:h-20 md:w-20">
+      <span class="text-[9px] font-semibold uppercase tracking-[0.3em] text-white/80 md:text-[10px]">{badgeMonth || '--'}</span>
       <span class="text-3xl font-black leading-none md:text-[36px]">{badgeDay || '--'}</span>
-      <span class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/70">{badgeWeekday || ''}</span>
+      <span class="text-[9px] font-semibold uppercase tracking-[0.3em] text-white/70 md:text-[10px]">{badgeWeekday || ''}</span>
     </div>
     <div class="flex-1 space-y-2">
       <h3 class="font-display text-xl font-semibold leading-tight md:text-[24px]">{event.title}</h3>
