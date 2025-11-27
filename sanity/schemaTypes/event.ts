@@ -107,6 +107,7 @@ export default defineType({
           name: 'url',
           title: 'URL',
           type: 'url',
+          description: 'Bitte mit http(s) oder mailto beginnen – z. B. https://… oder mailto:info@…',
           validation: (rule) => rule.uri({ allowRelative: false, scheme: ['http', 'https', 'mailto'] })
         }
       ],
