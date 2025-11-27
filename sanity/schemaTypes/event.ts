@@ -84,6 +84,41 @@ export default defineType({
       title: 'Ort (Stadt/Gemeinde)',
       type: 'string',
       validation: (rule) => rule.required()
+    }),
+    defineField({
+      name: 'summary',
+      title: 'Kurzbeschreibung (optional)',
+      type: 'text',
+      rows: 3,
+      description: 'Kurzer Hinweis- oder Infotext für die Termin-Karte.'
+    }),
+    defineField({
+      name: 'infoLink',
+      title: 'Optionaler Link (Anmeldung/Details)',
+      type: 'object',
+      fields: [
+        {
+          name: 'label',
+          title: 'Link-Label',
+          type: 'string',
+          initialValue: 'Mehr Infos / Anmeldung'
+        },
+        {
+          name: 'url',
+          title: 'URL',
+          type: 'url',
+          validation: (rule) => rule.uri({ allowRelative: false, scheme: ['http', 'https', 'mailto'] })
+        }
+      ],
+      options: { collapsible: true },
+      description: 'Optionaler Button auf der Karte, z. B. zur Anmeldung oder für weitere Infos.'
+    }),
+    defineField({
+      name: 'showInfoBox',
+      title: 'Standard-Hinweisbox anzeigen',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Blende die Standard-Hinweise (z. B. keine Anmeldung nötig, Spenden willkommen) ein oder aus.'
     })
   ],
   preview: {

@@ -21,6 +21,12 @@ export interface EventItem {
   streetAddress?: string;
   postalCode?: string;
   city?: string;
+  summary?: string;
+  infoLink?: {
+    label?: string;
+    url?: string;
+  };
+  showInfoBox?: boolean;
   slug?: string;
 }
 
@@ -115,7 +121,9 @@ const fallbackEvents: EventItem[] = [
     location: 'VHS-Gebäude Leonberg',
     streetAddress: 'Wilhelmstraße 32',
     postalCode: '71229',
-    city: 'Leonberg'
+    city: 'Leonberg',
+    summary: 'Kommen Sie vorbei, lernen Sie das Team kennen und bringen Sie gerne ein reparaturbedürftiges Gerät mit.',
+    showInfoBox: true
   },
   {
     _id: 'fallback-event-2',
@@ -126,7 +134,9 @@ const fallbackEvents: EventItem[] = [
     location: 'Bürgerzentrum Stadtmitte',
     streetAddress: 'Neuköllner Straße 5',
     postalCode: '71229',
-    city: 'Leonberg'
+    city: 'Leonberg',
+    summary: 'Unter freiem Himmel reparieren wir kleine Elektrogeräte, Textil & Fahrrad.',
+    showInfoBox: true
   },
   {
     _id: 'fallback-event-3',
@@ -137,7 +147,9 @@ const fallbackEvents: EventItem[] = [
     location: 'Gemeindehaus Eltingen',
     streetAddress: 'Kirchplatz 3',
     postalCode: '71229',
-    city: 'Leonberg'
+    city: 'Leonberg',
+    summary: 'Gemütliches Reparieren in der Adventszeit mit Kaffee & Kuchen.',
+    showInfoBox: true
   }
 ];
 

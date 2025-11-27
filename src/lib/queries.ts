@@ -11,6 +11,9 @@ export const eventsQuery = groq`
     streetAddress,
     postalCode,
     city,
+    summary,
+    infoLink,
+    showInfoBox,
     "slug": slug.current
   }
 `;
@@ -26,6 +29,9 @@ export const upcomingEventsQuery = groq`
     streetAddress,
     postalCode,
     city,
+    summary,
+    infoLink,
+    showInfoBox,
     "slug": slug.current
   }
 `;
