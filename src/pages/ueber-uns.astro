@@ -107,7 +107,7 @@ const hasTeamVoices = teamVoices && teamVoices.length > 0;
             <p>
               Das Repair Café wurde 2015 von Dr. Eckart Matthias gegründet. Aus einer kleinen Tüftlergruppe ist eine feste Institution geworden, die bereits Hunderte Gegenstände vor der Tonne bewahrt und Nachhaltigkeit in Leonberg sichtbar macht. Als Arbeitsgruppe der Lokalen Agenda 21 Leonberg arbeiten wir eng mit weiteren Initiativen für ein lebenswertes Leonberg zusammen.
             </p>
-            <figure class="mx-auto w-40 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm shadow-slate-900/10 dark:border-slate-700/60 dark:bg-slate-900/60">
+            <figure class="mx-auto w-48 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm shadow-slate-900/10 dark:border-slate-700/60 dark:bg-slate-900/60">
               <img
                 src="/lokaleagenda21.jpg"
                 alt="Logo der Lokalen Agenda 21 Leonberg"
@@ -125,21 +125,14 @@ const hasTeamVoices = teamVoices && teamVoices.length > 0;
         <div class="bg-gradient-to-br from-brand-900 via-brand-800 to-slate-900 py-12 shadow-inner shadow-black/30">
           <div class="container text-white">
             <div class="mx-auto max-w-3xl text-center">
-              <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 ring-1 ring-white/20">
-                Teamstimmen
-              </span>
-              <h2 class="mt-4 heading-section text-white">Warum wir dabei sind</h2>
+              <h2 class="heading-section text-white">Warum wir dabei sind</h2>
               <p class="mt-2 text-sm text-white/80">
-                Menschen aus dem Team erzählen, warum sie mitmachen – vielleicht motiviert es auch Sie.
+                Unser Team erzählt, warum sie mitmachen.
               </p>
             </div>
 
             <div class="mt-10 relative" data-team-slider>
-              <div class="flex items-center justify-between gap-4 pb-4">
-                <div class="flex items-center gap-2 text-white/80 text-xs uppercase tracking-[0.2em]">
-                  <span class="h-px w-8 bg-white/40"></span>
-                  Teammitglieder erzählen
-                </div>
+              <div class="flex items-center justify-end gap-2 pb-4">
                 {teamVoices.length > 1 && (
                   <div class="flex items-center gap-2">
                     <button type="button" aria-label="Vorheriger Beitrag" data-team-prev class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white shadow-sm transition hover:-translate-y-0.5 hover:border-white/60 hover:bg-white/15">
@@ -151,12 +144,11 @@ const hasTeamVoices = teamVoices && teamVoices.length > 0;
                   </div>
                 )}
               </div>
-
               <div class="overflow-hidden" data-team-viewport>
                 <div class="flex gap-6 transition-transform duration-500 ease-out" data-team-track>
                   {teamVoices.map((voice) => (
                     <article class="min-w-0 shrink-0 grow-0 basis-full rounded-[28px] bg-white/10 p-6 text-left shadow-2xl shadow-black/30 ring-1 ring-white/10 md:p-8">
-                      <div class="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
+                      <div class="flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-8">
                         <div class="relative h-48 w-48 overflow-hidden rounded-[32px] bg-white/15 ring-1 ring-white/20 md:h-56 md:w-56 lg:h-64 lg:w-64">
                           {voice.portrait ? (
                             <img src={voice.portrait} alt={voice.portraitAlt ?? `${voice.name} Portrait`} class="h-full w-full object-cover" loading="lazy" />
@@ -164,7 +156,7 @@ const hasTeamVoices = teamVoices && teamVoices.length > 0;
                             <div class="flex h-full w-full items-center justify-center text-base font-semibold text-white/70">RC</div>
                           )}
                         </div>
-                        <div class="flex flex-1 flex-col gap-4 md:pt-1">
+                        <div class="flex flex-1 flex-col gap-4 text-center md:pt-1 md:text-left">
                           <div class="md:pt-1">
                             <p class="text-xl font-semibold text-white md:text-2xl">{voice.name}</p>
                             {voice.role && <p class="text-sm text-white/70 md:text-base">{voice.role}</p>}

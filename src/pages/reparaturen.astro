@@ -82,16 +82,23 @@ import RepairCategoryIcon from "../components/RepairCategoryIcon.tsx";
             { title: 'Textil', desc: 'Kleinere Näharbeiten, Löcher stopfen, Knöpfe annähen…', icon: 'textile' },
             { title: 'Fahrrad', desc: 'Bremsen einstellen, Licht reparieren, Reifen flicken…', icon: 'bike' },
             { title: 'Holz & Spielzeug', desc: 'Geleimte Stühle, defektes Holzspielzeug…', icon: 'wood' },
-            { title: 'Computer/Handy', desc: 'Einfache Einrichtung, Updates, kleine Fehleranalyse.', icon: 'software' }
+            { title: 'Computer/Handy', desc: 'Einfache Einrichtung, Updates, kleine Fehleranalyse.', icon: 'software' },
+            { title: 'Unsicher?', desc: 'Schreiben Sie uns kurz, dann prüfen wir, ob Ihr Gerät passt.', icon: 'contact', href: '/kontakt' }
           ].map((item) => (
             <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
               <div class="flex items-start gap-3">
-                <span class="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-slate-100 text-brand-600">
-                  <RepairCategoryIcon icon={item.icon} className="h-5 w-5" client:load />
+                <span class="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-white/80 text-brand-600 shadow-sm shadow-brand-600/20 dark:bg-slate-900/70">
+                  <RepairCategoryIcon icon={item.icon} client:load />
                 </span>
                 <div>
                   <h3 class="card-title">{item.title}</h3>
                   <p class="mt-2 text-sm text-slate-600">{item.desc}</p>
+                  {item.href && (
+                    <a href={item.href} class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline">
+                      Kontaktformular öffnen
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                    </a>
+                  )}
                 </div>
               </div>
             </article>
