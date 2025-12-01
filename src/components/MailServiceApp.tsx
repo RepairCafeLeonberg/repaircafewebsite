@@ -24,6 +24,8 @@ const defaultUser = {
   role: ''
 };
 
+const defaultSubject = 'Neuigkeiten aus dem Repair Café Leonberg';
+
 const defaultBody = `{{Anrede}},
 
 kurzes Update aus dem Repair Café:
@@ -43,6 +45,7 @@ const chipColors = [
 ];
 
 const STORAGE_KEY = 'mailservice_members_v1';
+const LAST_MAIL_KEY = 'mailservice_last_mail';
 
 type Props = {
   apiUrl?: string;
@@ -95,7 +98,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
     const first = memberData.find((m) => m.email);
     return first ? first.id : '';
   });
-  const [subject, setSubject] = useState('Neuigkeiten aus dem Repair Café Leonberg');
+  const [subject, setSubject] = useState(defaultSubject);
   const [editorHtml, setEditorHtml] = useState<string>(() => marked.parse(defaultBody));
   const [status, setStatus] = useState<SendStatus>({ state: 'idle' });
   const [newMember, setNewMember] = useState<Partial<Member>>({
@@ -170,10 +173,31 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
   }, [apiUrl, apiToken]);
 
   useEffect(() => {
-    const html = marked.parse(defaultBody);
-    setEditorHtml(html);
+    const defaultHtml = marked.parse(defaultBody);
+
+    if (typeof window === 'undefined') {
+      setEditorHtml(defaultHtml);
+      return;
+    }
+
+    let initialHtml = defaultHtml;
+    let initialSubject = defaultSubject;
+
+    try {
+      const raw = window.localStorage.getItem(LAST_MAIL_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<{ subject: string; html: string }>;
+        if (parsed.html) initialHtml = parsed.html;
+        if (parsed.subject) initialSubject = parsed.subject;
+      }
+    } catch (error) {
+      console.warn('Konnte letzte Mail nicht laden', error);
+    }
+
+    setSubject(initialSubject);
+    setEditorHtml(initialHtml);
     if (editorRef.current) {
-      editorRef.current.innerHTML = html;
+      editorRef.current.innerHTML = initialHtml;
     }
   }, []);
 
@@ -502,6 +526,18 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
       }
 
       const data = await res.json();
+
+      if (typeof window !== 'undefined') {
+        try {
+          window.localStorage.setItem(
+            LAST_MAIL_KEY,
+            JSON.stringify({ subject: trimmedSubject, html: editorHtml })
+          );
+        } catch (error) {
+          console.warn('Letzte Mail konnte nicht gespeichert werden', error);
+        }
+      }
+
       setStatus({
         state: 'success',
         message: data.message || `Versandt an ${recipients.length} Empfänger.`
