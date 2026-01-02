@@ -21,10 +21,10 @@ interface ImportMetaEnv {
   readonly CONTACT_RECIPIENT?: string;
   readonly CONTACT_DEBUG?: string;
   readonly MAILSERVICE_DEBUG?: string;
-  readonly SUPABASE_URL?: string;
-  readonly SUPABASE_SERVICE_ROLE_KEY?: string;
-  readonly SUPABASE_ANON_KEY?: string;
   readonly MEMBER_API_TOKEN?: string;
+  readonly GOOGLE_SHEET_ID?: string;
+  readonly GOOGLE_SERVICE_ACCOUNT_EMAIL?: string;
+  readonly GOOGLE_PRIVATE_KEY?: string;
 }
 
 interface ImportMeta {

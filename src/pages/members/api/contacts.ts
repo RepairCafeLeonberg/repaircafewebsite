@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
-import { getSupabaseServiceClient } from '../../../lib/supabaseServer';
+import { getSheetClient, SPREADSHEET_ID, memberToRow, rowToMember } from '../../../lib/googleSheetClient';
 
 export const prerender = false;
 
@@ -14,17 +14,6 @@ const requireToken = (request: Request) => {
   if (headerToken && headerToken === MEMBER_TOKEN) return true;
   return false;
 };
-
-const rowToMember = (row: Record<string, unknown>) => ({
-  id: String(row.id ?? ''),
-  firstName: String(row.first_name ?? ''),
-  lastName: String(row.last_name ?? ''),
-  email: typeof row.email === 'string' ? row.email : undefined,
-  isMember: row.is_member !== false,
-  tags: Array.isArray(row.tags) ? (row.tags as unknown[]).map((tag) => String(tag)).filter(Boolean) : [],
-  greeting: typeof row.greeting === 'string' ? row.greeting : '',
-  closing: typeof row.closing === 'string' ? row.closing : ''
-});
 
 const payloadSchema = z.object({
   firstName: z.string().min(1),
@@ -40,28 +29,30 @@ export const GET: APIRoute = async ({ request }) => {
   if (!requireToken(request)) {
     return new Response('Unauthorized', { status: 401 });
   }
-  const supabase = getSupabaseServiceClient();
-  if (!supabase) {
-    return new Response('Supabase not configured', { status: 500 });
+
+  const client = await getSheetClient();
+  if (!client || !SPREADSHEET_ID) {
+    return new Response('Google Sheets not configured', { status: 500 });
   }
 
-  const { data, error } = await supabase
-    .from('members')
-    .select('*')
-    .order('last_name', { ascending: true })
-    .order('first_name', { ascending: true });
+  try {
+    const response = await client.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'members!A2:H', // Assuming headers in row 1
+    });
 
-  if (error) {
+    const rows = response.data.values || [];
+    // Filter out empty rows if any
+    const members = rows.map(rowToMember).filter(m => m.id);
+
+    return new Response(JSON.stringify(members), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
     console.error('[members/api] GET failed', error);
     return new Response('Failed to load members', { status: 500 });
   }
-
-  const members = (data ?? []).map((row) => rowToMember(row as Record<string, unknown>));
-
-  return new Response(JSON.stringify(members), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
 };
 
 export const POST: APIRoute = async ({ request }) => {
@@ -69,9 +60,9 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const supabase = getSupabaseServiceClient();
-  if (!supabase) {
-    return new Response('Supabase not configured', { status: 500 });
+  const client = await getSheetClient();
+  if (!client || !SPREADSHEET_ID) {
+    return new Response('Google Sheets not configured', { status: 500 });
   }
 
   let parsed;
@@ -92,34 +83,53 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const { data, error } = await supabase
-    .from('members')
-    .insert({
-      first_name: parsed.firstName.trim(),
-      last_name: parsed.lastName.trim(),
-      email: parsed.email?.trim() || null,
-      is_member: parsed.isMember ?? true,
-      tags: parsed.tags ?? [],
-      greeting: parsed.greeting?.trim() || null,
-      closing: parsed.closing?.trim() || null
-    })
-    .select()
-    .single();
+  const newId = crypto.randomUUID();
+  const memberObj = {
+    id: newId,
+    first_name: parsed.firstName.trim(),
+    last_name: parsed.lastName.trim(),
+    email: parsed.email?.trim() || null,
+    is_member: parsed.isMember ?? true,
+    tags: parsed.tags ?? [],
+    greeting: parsed.greeting?.trim() || null,
+    closing: parsed.closing?.trim() || null
+  };
 
-  if (error || !data) {
+  const row = memberToRow(memberObj);
+
+  try {
+    await client.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'members!A:H',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [row]
+      }
+    });
+
+    // Return the object as if we read it back
+    const returnedMember = {
+      id: newId,
+      firstName: memberObj.first_name,
+      lastName: memberObj.last_name,
+      email: memberObj.email || undefined,
+      isMember: memberObj.is_member,
+      tags: memberObj.tags,
+      greeting: memberObj.greeting || '',
+      closing: memberObj.closing || ''
+    };
+
+    return new Response(JSON.stringify(returnedMember), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
     console.error('[members/api] POST failed', error);
     return new Response(JSON.stringify({ error: 'Failed to save member' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
   }
-
-  const member = rowToMember(data as Record<string, unknown>);
-
-  return new Response(JSON.stringify(member), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' }
-  });
 };
 
 export const DELETE: APIRoute = async ({ request }) => {
@@ -127,9 +137,9 @@ export const DELETE: APIRoute = async ({ request }) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const supabase = getSupabaseServiceClient();
-  if (!supabase) {
-    return new Response('Supabase not configured', { status: 500 });
+  const client = await getSheetClient();
+  if (!client || !SPREADSHEET_ID) {
+    return new Response('Google Sheets not configured', { status: 500 });
   }
 
   const url = new URL(request.url);
@@ -141,17 +151,58 @@ export const DELETE: APIRoute = async ({ request }) => {
     });
   }
 
-  const { error } = await supabase.from('members').delete().eq('id', id);
-  if (error) {
+  try {
+    // Implementing DELETE in Sheets is tricky without row index.
+    // We need to find the row index first.
+    const response = await client.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'members!A:A', // Just get IDs
+    });
+
+    const rows = response.data.values || [];
+    const rowIndex = rows.findIndex(r => r[0] === id); // 0-indexed in array, but A1 is row 1
+
+    if (rowIndex === -1) {
+      return new Response(JSON.stringify({ error: 'Member not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Sheet row number is rowIndex + 1 (1-based)
+    // Actually we can just "clear" the row content to avoid shifting logic complexities or use batchUpdate with deleteDimension
+    // Deleting the dimension is cleaner to keep the sheet tidy.
+
+    // Indices in sheets API for deleteDimension are 0-based
+
+    await client.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      requestBody: {
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId: 0, // Assuming first sheet is ID 0. User instruction said "first tab".
+                dimension: 'ROWS',
+                startIndex: rowIndex,
+                endIndex: rowIndex + 1
+              }
+            }
+          }
+        ]
+      }
+    });
+
+    return new Response(JSON.stringify({ success: true, id }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
     console.error('[members/api] DELETE failed', error);
     return new Response(JSON.stringify({ error: 'Failed to delete member' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
   }
-
-  return new Response(JSON.stringify({ success: true, id }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
 };
