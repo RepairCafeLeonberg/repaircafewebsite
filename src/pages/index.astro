@@ -307,6 +307,9 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
                         {post.title}
                       </a>
                     </h3>
+                    {post.preview && (
+                      <p class="text-sm text-slate-600">{post.preview}</p>
+                    )}
                   </div>
                   {post.tags && post.tags.length > 0 && (
                     <div class="flex flex-wrap gap-2">

@@ -116,6 +116,9 @@ const formatter = new Intl.DateTimeFormat("de-DE", {
                         {post.title}
                       </a>
                     </h2>
+                    {post.preview && (
+                      <p class="text-sm text-slate-600">{post.preview}</p>
+                    )}
                   </div>
                   <div class="mt-auto pt-4">
                     <a
