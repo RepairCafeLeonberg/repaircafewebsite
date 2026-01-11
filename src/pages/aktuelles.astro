@@ -9,40 +9,44 @@ export const prerender = false;
 
 const sortedPosts = await getPosts();
 
-const normaliseWhitespace = (value: string) => value.replace(/\s+/g, ' ').trim();
+const normaliseWhitespace = (value: string) =>
+  value.replace(/\s+/g, " ").trim();
 
 const bodyToPlainText = (body: any[] | undefined) => {
-  if (!Array.isArray(body)) return '';
+  if (!Array.isArray(body)) return "";
   return body
     .map((slice) => {
-      if (slice?._type === 'block' && Array.isArray(slice.children)) {
-        return slice.children.map((child: any) => child?.text ?? '').join('');
+      if (slice?._type === "block" && Array.isArray(slice.children)) {
+        return slice.children.map((child: any) => child?.text ?? "").join("");
       }
-      if (slice?._type === 'image' && typeof slice?.alt === 'string') {
+      if (slice?._type === "image" && typeof slice?.alt === "string") {
         return slice.alt;
       }
-      return '';
+      return "";
     })
-    .join(' ')
-    .replace(/\s+/g, ' ')
+    .join(" ")
+    .replace(/\s+/g, " ")
     .trim();
 };
 
 const createPreview = (text: string, limit = 220) => {
   const base = normaliseWhitespace(text);
-  if (!base) return '';
+  if (!base) return "";
   if (base.length <= limit) return base;
   const clipped = base.slice(0, limit);
-  const lastSpace = clipped.lastIndexOf(' ');
+  const lastSpace = clipped.lastIndexOf(" ");
   const safeClip = lastSpace > 0 ? clipped.slice(0, lastSpace) : clipped;
   return `${safeClip.trim()}…`;
 };
 
 const posts = sortedPosts.map((post) => {
-  const plain = post.bodyPlain && post.bodyPlain.trim().length > 0 ? post.bodyPlain : bodyToPlainText(post.body);
+  const plain =
+    post.bodyPlain && post.bodyPlain.trim().length > 0
+      ? post.bodyPlain
+      : bodyToPlainText(post.body);
   return {
     ...post,
-    preview: createPreview(plain ?? '')
+    preview: createPreview(plain ?? ""),
   };
 });
 
@@ -53,56 +57,89 @@ const formatter = new Intl.DateTimeFormat("de-DE", {
 });
 ---
 
-<BaseLayout title="Aktuelles – Repair Café Leonberg" description="Neuigkeiten, Workshops und Einblicke rund um das Repair Café Leonberg.">
+<BaseLayout
+  title="Aktuelles – Repair Café Leonberg"
+  description="Neuigkeiten, Workshops und Einblicke rund um das Repair Café Leonberg."
+>
   <Header />
 
   <main class="bg-slate-100 py-12 md:py-16">
     <section>
       <div class="container">
         <div class="mx-auto max-w-3xl text-center">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+          >
             Aktuelles
           </span>
-          <h1 class="mt-5 heading-hero">
-            Neuigkeiten aus dem Repair Café
-          </h1>
+          <h1 class="mt-5 heading-hero">Neuigkeiten aus dem Repair Café</h1>
           <p class="mt-3 text-base text-slate-600">
-            Workshop-Ankündigungen, Rückblicke und alles, was in Leonberg rund ums Reparieren passiert.
+            Workshop-Ankündigungen, Rückblicke und alles, was in Leonberg rund
+            ums Reparieren passiert.
           </p>
         </div>
 
         <div class="mt-12 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-          {posts.map((post) => (
-            <article class="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:shadow-xl">
-              {post.coverImage && (
-                <div class="relative aspect-[16/10] overflow-hidden bg-slate-200">
-                  <img src={post.coverImage} alt={post.title} class="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                </div>
-              )}
-              <div class="flex flex-1 flex-col gap-5 px-6 py-6">
-                <div class="space-y-2">
-                  <time datetime={post.publishedAt ?? ''} class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-600">
-                    {post.publishedAt ? formatter.format(new Date(post.publishedAt)) : 'Datum folgt'}
-                  </time>
-                  <h2 class="card-title">
-                    {post.title}
-                  </h2>
-                  {post.preview && (
-                    <p class="text-sm text-slate-600">{post.preview}</p>
-                  )}
-                </div>
-                <div class="mt-auto pt-4">
+          {
+            posts.map((post) => (
+              <article class="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:shadow-xl">
+                {post.coverImage && (
                   <a
-                    href={post.slug ? `/aktuelles/${post.slug}` : '/aktuelles'}
-                    class="inline-flex items-center gap-2 text-sm font-semibold text-brand-600"
+                    href={post.slug ? `/aktuelles/${post.slug}` : "/aktuelles"}
+                    class="relative aspect-[16/10] overflow-hidden bg-slate-200 block group-hover:opacity-90 transition-opacity"
                   >
-                    Mehr erfahren
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                    <img
+                      src={post.coverImage}
+                      alt={post.title}
+                      class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
                   </a>
+                )}
+                <div class="flex flex-1 flex-col gap-5 px-6 py-6">
+                  <div class="space-y-2">
+                    <time
+                      datetime={post.publishedAt ?? ""}
+                      class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-600"
+                    >
+                      {post.publishedAt
+                        ? formatter.format(new Date(post.publishedAt))
+                        : "Datum folgt"}
+                    </time>
+                    <h2 class="card-title">
+                      <a
+                        href={
+                          post.slug ? `/aktuelles/${post.slug}` : "/aktuelles"
+                        }
+                        class="hover:text-brand-600 transition-colors"
+                      >
+                        {post.title}
+                      </a>
+                    </h2>
+                  </div>
+                  <div class="mt-auto pt-4">
+                    <a
+                      href={
+                        post.slug ? `/aktuelles/${post.slug}` : "/aktuelles"
+                      }
+                      class="inline-flex items-center gap-2 text-sm font-semibold text-brand-600"
+                    >
+                      Mehr erfahren
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          }
         </div>
       </div>
     </section>
