@@ -214,7 +214,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
   </section>
 
   <script is:inline>
-    (() => {
+    document.addEventListener("DOMContentLoaded", () => {
       const slider = document.querySelector("[data-guestbook-slider]");
       const track = slider?.querySelector("[data-guestbook-track]");
       const prev = document.querySelector("[data-guestbook-prev]");
@@ -264,7 +264,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
       });
 
       update();
-    })();
+    });
   </script>
 
   <section id="aktuelles" class="reveal mt-16 md:mt-24">
@@ -471,7 +471,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
             </div>
           </div>
         </div>
-        <div class="relative" data-guestbook-slider>
+        <div class="relative overflow-hidden" data-guestbook-slider>
           <div
             class="flex gap-4 transition-transform duration-500 ease-out"
             data-guestbook-track
