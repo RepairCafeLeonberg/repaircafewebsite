@@ -710,6 +710,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
 
       let currentIndex = -1;
 
+      /** @param {number} index */
       const showItem = (index) => {
         const item = frontItems[index];
         if (!item) return;
@@ -731,6 +732,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
         });
       };
 
+      /** @param {number} index */
       const openLightbox = (index) => {
         if (!frontItems[index]) return;
         currentIndex = index;
@@ -753,6 +755,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
         currentIndex = -1;
       };
 
+      /** @param {number} step */
       const goTo = (step) => {
         if (currentIndex === -1) return;
         const total = frontItems.length;
@@ -794,6 +797,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
       lightboxNext?.addEventListener("click", () => goTo(1));
     };
 
+    /** @param {() => void} fn */
     const schedule = (fn) =>
       "requestIdleCallback" in window
         ? window.requestIdleCallback(fn)

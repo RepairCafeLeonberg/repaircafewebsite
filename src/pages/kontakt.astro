@@ -223,14 +223,16 @@ const contactPhoneLink = "tel:071529904977";
   <Footer />
 
   <script>
-    const form = document.getElementById("contact-form");
+    const form = document.getElementById(
+      "contact-form",
+    ) as HTMLFormElement | null;
     const status = document.getElementById("contact-status");
-    const submitButton = document.querySelector(
+    const submitButton = document.querySelector<HTMLButtonElement>(
       '#contact-form button[type="submit"]',
     );
     const formLoadedAt = Date.now();
 
-    const setStatus = (message, tone = "muted") => {
+    const setStatus = (message: string, tone: string = "muted") => {
       if (!status) return;
       status.textContent = message;
       const base = "text-sm";
@@ -243,7 +245,7 @@ const contactPhoneLink = "tel:071529904977";
       status.className = `${base} ${palette}`;
     };
 
-    const setLoading = (loading) => {
+    const setLoading = (loading: boolean) => {
       if (!submitButton) return;
       submitButton.disabled = loading;
       submitButton.dataset.loading = loading ? "true" : "false";
@@ -253,7 +255,7 @@ const contactPhoneLink = "tel:071529904977";
     form?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const getTextValue = (id) => {
+      const getTextValue = (id: string): string => {
         const element = document.getElementById(id);
         if (
           element instanceof HTMLInputElement ||
@@ -264,7 +266,7 @@ const contactPhoneLink = "tel:071529904977";
         return "";
       };
 
-      const getCheckboxValue = (id) => {
+      const getCheckboxValue = (id: string): boolean => {
         const element = document.getElementById(id);
         return element instanceof HTMLInputElement ? element.checked : false;
       };
