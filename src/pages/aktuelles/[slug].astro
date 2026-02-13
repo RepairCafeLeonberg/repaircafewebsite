@@ -2,7 +2,6 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
-import CTA from "../../components/CTA.astro";
 import { getPostBySlug } from "../../data/cms";
 import { toHTML } from "@portabletext/to-html";
 
@@ -138,6 +137,5 @@ const bodyHtml = post.body
     </article>
   </main>
 
-  <CTA />
   <Footer />
 </BaseLayout>

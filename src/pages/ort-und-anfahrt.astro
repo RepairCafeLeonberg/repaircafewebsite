@@ -2,7 +2,6 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import CTA from "../components/CTA.astro";
 import { getGalleryImages, type GalleryItem } from "../data/cms";
 
 type GalleryWithImage = GalleryItem & { image: string };
@@ -16,10 +15,10 @@ const rawGalleryItems = (await getGalleryImages())
   .filter(Boolean) as GalleryWithImage[];
 
 const categoryAliases: Record<string, string> = {
-  location: 'location',
-  standort: 'location',
-  'standort-umgebung': 'location',
-  'ort-anfahrt': 'location'
+  location: "location",
+  standort: "location",
+  "standort-umgebung": "location",
+  "ort-anfahrt": "location",
 };
 
 const normalizeCategory = (value?: string) => {
@@ -32,41 +31,49 @@ type LocationGalleryItem = GalleryWithImage & { categories: string[] };
 
 const normalizedGalleryItems: LocationGalleryItem[] = rawGalleryItems
   .map((item) => {
-    const rawCategories = Array.isArray((item as any).categories) && (item as any).categories.length
-      ? (item as any).categories
-      : (item as any).category
-        ? [(item as any).category]
-        : [];
+    const rawCategories =
+      Array.isArray((item as any).categories) && (item as any).categories.length
+        ? (item as any).categories
+        : (item as any).category
+          ? [(item as any).category]
+          : [];
 
     const categories = rawCategories
       .map((category) => normalizeCategory(String(category)))
-      .filter((category, index, array) => category && array.indexOf(category) === index) as string[];
+      .filter(
+        (category, index, array) =>
+          category && array.indexOf(category) === index,
+      ) as string[];
 
     return {
       ...item,
-      categories
+      categories,
     };
   })
-  .filter((item) => item.categories.includes('location'));
+  .filter((item) => item.categories.includes("location"));
 
 const locationGalleryItems = normalizedGalleryItems;
 ---
 
-<BaseLayout title="Ort & Anfahrt – Repair Café Leonberg" description="Anfahrt und Treffpunkt des Repair Café Leonberg im Bürgerzentrum Stadtmitte.">
+<BaseLayout
+  title="Ort & Anfahrt – Repair Café Leonberg"
+  description="Anfahrt und Treffpunkt des Repair Café Leonberg im Bürgerzentrum Stadtmitte."
+>
   <Header />
 
   <main class="bg-slate-100 py-12 md:py-16">
     <section class="pb-12">
       <div class="container">
         <div class="mx-auto max-w-4xl text-center">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+          >
             Ort &amp; Anfahrt
           </span>
-          <h1 class="mt-5 heading-hero">
-            Hier finden Sie uns
-          </h1>
+          <h1 class="mt-5 heading-hero">Hier finden Sie uns</h1>
           <p class="mt-3 text-base text-slate-600">
-            Adresse, ÖPNV, Parken &amp; barrierearme Zugänge – der beste Weg zum Repair Café Leonberg.
+            Adresse, ÖPNV, Parken &amp; barrierearme Zugänge – der beste Weg zum
+            Repair Café Leonberg.
           </p>
         </div>
       </div>
@@ -75,157 +82,220 @@ const locationGalleryItems = normalizedGalleryItems;
     <section class="pb-8">
       <div class="container">
         <div class="grid gap-12 lg:grid-cols-2 lg:items-start">
-          <div class="space-y-6 text-sm leading-relaxed text-slate-600 lg:text-base">
+          <div
+            class="space-y-6 text-sm leading-relaxed text-slate-600 lg:text-base"
+          >
             <p>
-              Der Eingang liegt zwischen Leo-Center und Stadthalle direkt neben dem Zugang zur Volkshochschule –
-              die Karte zeigt Ihnen unseren Standort.
+              Der Eingang liegt zwischen Leo-Center und Stadthalle direkt neben
+              dem Zugang zur Volkshochschule – die Karte zeigt Ihnen unseren
+              Standort.
             </p>
-            <div class="rounded-2xl bg-white/70 p-5 text-left shadow-lg shadow-slate-900/5 backdrop-blur">
-              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Repair Café Leonberg</p>
-              <p class="mt-2 text-base font-semibold text-slate-900">Bürgerzentrum Stadtmitte</p>
-              <p class="text-sm text-slate-600">Neuköllner Straße&nbsp;5 · 71229 Leonberg</p>
-              <p class="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">Jeden 2. Samstag · 10:00 – 13:00 Uhr</p>
+            <div
+              class="rounded-2xl bg-white/70 p-5 text-left shadow-lg shadow-slate-900/5 backdrop-blur"
+            >
+              <p
+                class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400"
+              >
+                Repair Café Leonberg
+              </p>
+              <p class="mt-2 text-base font-semibold text-slate-900">
+                Bürgerzentrum Stadtmitte
+              </p>
+              <p class="text-sm text-slate-600">
+                Neuköllner Straße&nbsp;5 · 71229 Leonberg
+              </p>
+              <p
+                class="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400"
+              >
+                Jeden 2. Samstag · 10:00 – 13:00 Uhr
+              </p>
             </div>
             <p>
-              Unsere Türen sind jeweils am zweiten Samstag im Monat von <strong>10:00 bis 13:00 Uhr</strong> geöffnet.
+              Unsere Türen sind jeweils am zweiten Samstag im Monat von <strong
+                >10:00 bis 13:00 Uhr</strong
+              > geöffnet.
             </p>
           </div>
 
-          <div class="h-full overflow-hidden rounded-3xl bg-white shadow-2xl shadow-slate-900/10">
+          <div
+            class="h-full overflow-hidden rounded-3xl bg-white shadow-2xl shadow-slate-900/10"
+          >
             <div class="relative aspect-[4/3]">
               <iframe
                 title="Karte: Repair Café Leonberg"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=9.0070%2C48.7925%2C9.0180%2C48.7980&amp;layer=mapnik&amp;marker=48.7952078%2C9.0126756"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=9.0070%2C48.7925%2C9.0180%2C48.7980&layer=mapnik&marker=48.7952078%2C9.0126756"
                 class="absolute inset-0 h-full w-full"
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
-                style="border: 0"
-              ></iframe>
+                style="border: 0"></iframe>
             </div>
-            <div class="border-t border-slate-200 bg-white p-4 text-center text-xs text-slate-500">
+            <div
+              class="border-t border-slate-200 bg-white p-4 text-center text-xs text-slate-500"
+            >
               <a
-                href="https://www.openstreetmap.org/?mlat=48.7952078&amp;mlon=9.0126756#map=18/48.7952078/9.0126756"
+                href="https://www.openstreetmap.org/?mlat=48.7952078&mlon=9.0126756#map=18/48.7952078/9.0126756"
                 class="inline-flex items-center gap-2 font-semibold text-brand-700 underline-offset-2 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Größere Karte in OpenStreetMap öffnen
-                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                  <path d="M15 3h6v6" />
-                  <path d="M10 14 21 3" />
+                <svg
+                  class="h-3.5 w-3.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                  ></path>
+                  <path d="M15 3h6v6"></path>
+                  <path d="M10 14 21 3"></path>
                 </svg>
               </a>
             </div>
           </div>
         </div>
 
-
-
         <div class="mt-12 grid gap-6 md:grid-cols-3">
-                {[
-                  {
-                    title: 'Zu Fuß',
-                    desc: 'Von der Haltestelle Eltingen Leo-Center sind es nur 100–150 Meter zur Neuköllner Straße 5. Folgen Sie den Wegweisern zwischen Stadthalle, Volkshochschule und Leo-Center.',
-                  },
-                  {
-                    title: 'Mit Bus & Bahn',
-                    desc: 'S-Bahn S6 bis Leonberg, dann Bus 631, 632, 640, 641, 652 oder 92 zum Leo-Center (Fahrzeit 3–6 Min.). Die Linien starten direkt am Busbahnhof – 631/632 meist Steig 1, Linie 92 je nach Richtung an Steig 3 oder 5.',
-                  },
-                  {
-                    title: 'Mit dem Auto',
-                    desc: 'Parkmöglichkeiten finden Sie im Parkhaus des Leo-Centers oder an der Stadthalle (teilweise kostenpflichtig). Von dort sind es nur wenige Schritte zum Eingang.',
-                  }
-                ].map((item) => (
-                  <article class="rounded-3xl bg-white p-6 text-left shadow-lg shadow-slate-900/5">
-                    <h2 class="card-title-sm">{item.title}</h2>
-                    <p class="mt-3 body-text">{item.desc}</p>
-            </article>
-          ))}
+          {
+            [
+              {
+                title: "Zu Fuß",
+                desc: "Von der Haltestelle Eltingen Leo-Center sind es nur 100–150 Meter zur Neuköllner Straße 5. Folgen Sie den Wegweisern zwischen Stadthalle, Volkshochschule und Leo-Center.",
+              },
+              {
+                title: "Mit Bus & Bahn",
+                desc: "S-Bahn S6 bis Leonberg, dann Bus 631, 632, 640, 641, 652 oder 92 zum Leo-Center (Fahrzeit 3–6 Min.). Die Linien starten direkt am Busbahnhof – 631/632 meist Steig 1, Linie 92 je nach Richtung an Steig 3 oder 5.",
+              },
+              {
+                title: "Mit dem Auto",
+                desc: "Parkmöglichkeiten finden Sie im Parkhaus des Leo-Centers oder an der Stadthalle (teilweise kostenpflichtig). Von dort sind es nur wenige Schritte zum Eingang.",
+              },
+            ].map((item) => (
+              <article class="rounded-3xl bg-white p-6 text-left shadow-lg shadow-slate-900/5">
+                <h2 class="card-title-sm">{item.title}</h2>
+                <p class="mt-3 body-text">{item.desc}</p>
+              </article>
+            ))
+          }
         </div>
 
-        {locationGalleryItems.length > 0 && (
-          <div class="mt-12">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 class="heading-sub">Impressionen vom Standort</h2>
-                <p class="mt-1 text-sm text-slate-600">Ein Blick rund um das Bürgerzentrum Stadtmitte und unsere Anlaufstelle.</p>
-              </div>
-              <div class="flex gap-2">
-                <button
-                  type="button"
-                  class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600"
-                  data-scroll="location-prev"
-                  aria-label="Vorheriges Bild"
-                >
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
-                </button>
-                <button
-                  type="button"
-                  class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600"
-                  data-scroll="location-next"
-                  aria-label="Nächstes Bild"
-                >
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
-                </button>
-              </div>
-            </div>
-
-            <div class="relative mt-6">
-              <div
-                id="location-gallery"
-                class="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 scroll-px-4 md:scroll-px-6"
-                role="list"
-                aria-label="Galerie mit Standortbildern"
-              >
-                {locationGalleryItems.map((item, index) => (
-                  <figure
-                    class="front-gallery-item snap-center shrink-0 grow-0 basis-3/4 cursor-pointer outline-none transition focus:-translate-y-1 focus:shadow-lg sm:basis-1/2 lg:basis-1/4"
-                    data-image={item.image}
-                    data-title={item.title ?? ''}
-                    data-description={item.description ?? ''}
-                    data-alt={item.alt ?? item.title ?? ''}
-                    role="listitem"
-                    aria-label={`Bild vergrößern: ${item.title ?? 'Impression vom Standort'}`}
+        {
+          locationGalleryItems.length > 0 && (
+            <div class="mt-12">
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h2 class="heading-sub">Impressionen vom Standort</h2>
+                  <p class="mt-1 text-sm text-slate-600">
+                    Ein Blick rund um das Bürgerzentrum Stadtmitte und unsere
+                    Anlaufstelle.
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600"
+                    data-scroll="location-prev"
+                    aria-label="Vorheriges Bild"
                   >
-                    <div class="group relative aspect-[3/4] overflow-hidden rounded-[2.25rem] bg-slate-200 shadow-lg shadow-slate-900/10 transition duration-500">
-                      <img
-                        src={item.image}
-                        alt={item.alt ?? item.title ?? 'Foto vom Repair Café Standort'}
-                        loading="lazy"
-                        class="h-full w-full scale-105 object-cover transition duration-500 group-hover:scale-110"
-                      />
-                      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/95 via-slate-950/35 to-transparent opacity-95 transition duration-300 group-hover:opacity-100"></div>
-                      <figcaption
-                        id={`location-gallery-caption-${index}`}
-                        class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-1 rounded-b-[2.25rem] px-5 pb-4 pt-8 text-white drop-shadow-[0_12px_30px_rgba(5,5,5,0.45)] transition duration-300"
-                      >
-                        {item.title && <span class="card-title-sm text-white drop-shadow-[0_4px_12px_rgba(8,8,8,0.8)]">{item.title}</span>}
-                        {item.description && (
-                          <span class="text-[0.78rem] font-medium leading-snug text-white/85 drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
-                            {item.description}
-                          </span>
-                        )}
-                      </figcaption>
-                      <button
-                        type="button"
-                        class="absolute inset-0 z-10 cursor-zoom-in rounded-[2.25rem] bg-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
-                        data-lightbox-trigger
-                        data-image={item.image}
-                        data-title={item.title ?? ''}
-                        data-description={item.description ?? ''}
-                        data-alt={item.alt ?? item.title ?? 'Foto vom Repair Café Standort'}
-                        aria-label={`Bild vergrößern: ${item.title ?? 'Impression vom Standort'}`}
-                        aria-haspopup="dialog"
-                        aria-describedby={`location-gallery-caption-${index}`}
-                      ></button>
-                    </div>
-                  </figure>
-                ))}
+                    <svg
+                      class="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-500 hover:text-brand-600"
+                    data-scroll="location-next"
+                    aria-label="Nächstes Bild"
+                  >
+                    <svg
+                      class="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M9 6l6 6-6 6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="relative mt-6">
+                <div
+                  id="location-gallery"
+                  class="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 scroll-px-4 md:scroll-px-6"
+                  role="list"
+                  aria-label="Galerie mit Standortbildern"
+                >
+                  {locationGalleryItems.map((item, index) => (
+                    <figure
+                      class="front-gallery-item snap-center shrink-0 grow-0 basis-3/4 cursor-pointer outline-none transition focus:-translate-y-1 focus:shadow-lg sm:basis-1/2 lg:basis-1/4"
+                      data-image={item.image}
+                      data-title={item.title ?? ""}
+                      data-description={item.description ?? ""}
+                      data-alt={item.alt ?? item.title ?? ""}
+                      role="listitem"
+                      aria-label={`Bild vergrößern: ${item.title ?? "Impression vom Standort"}`}
+                    >
+                      <div class="group relative aspect-[3/4] overflow-hidden rounded-[2.25rem] bg-slate-200 shadow-lg shadow-slate-900/10 transition duration-500">
+                        <img
+                          src={item.image}
+                          alt={
+                            item.alt ??
+                            item.title ??
+                            "Foto vom Repair Café Standort"
+                          }
+                          loading="lazy"
+                          class="h-full w-full scale-105 object-cover transition duration-500 group-hover:scale-110"
+                        />
+                        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/95 via-slate-950/35 to-transparent opacity-95 transition duration-300 group-hover:opacity-100" />
+                        <figcaption
+                          id={`location-gallery-caption-${index}`}
+                          class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-1 rounded-b-[2.25rem] px-5 pb-4 pt-8 text-white drop-shadow-[0_12px_30px_rgba(5,5,5,0.45)] transition duration-300"
+                        >
+                          {item.title && (
+                            <span class="card-title-sm text-white drop-shadow-[0_4px_12px_rgba(8,8,8,0.8)]">
+                              {item.title}
+                            </span>
+                          )}
+                          {item.description && (
+                            <span class="text-[0.78rem] font-medium leading-snug text-white/85 drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
+                              {item.description}
+                            </span>
+                          )}
+                        </figcaption>
+                        <button
+                          type="button"
+                          class="absolute inset-0 z-10 cursor-zoom-in rounded-[2.25rem] bg-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
+                          data-lightbox-trigger
+                          data-image={item.image}
+                          data-title={item.title ?? ""}
+                          data-description={item.description ?? ""}
+                          data-alt={
+                            item.alt ??
+                            item.title ??
+                            "Foto vom Repair Café Standort"
+                          }
+                          aria-label={`Bild vergrößern: ${item.title ?? "Impression vom Standort"}`}
+                          aria-haspopup="dialog"
+                          aria-describedby={`location-gallery-caption-${index}`}
+                        />
+                      </div>
+                    </figure>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         <div
           id="location-lightbox"
@@ -241,9 +311,17 @@ const locationGalleryItems = normalizedGalleryItems;
             class="absolute right-6 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white"
             aria-label="Bild schließen"
           >
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6" /></svg>
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"><path d="M6 6l12 12M6 18L18 6"></path></svg
+            >
           </button>
-          <div class="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[2.25rem] border border-white/10 bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-950/95 shadow-2xl shadow-slate-950/60">
+          <div
+            class="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[2.25rem] border border-white/10 bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-950/95 shadow-2xl shadow-slate-950/60"
+          >
             <div class="relative flex items-center justify-center bg-slate-900">
               <img
                 id="location-lightbox-image"
@@ -257,7 +335,13 @@ const locationGalleryItems = normalizedGalleryItems;
                 class="absolute left-4 top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-[calc(50%+4px)] hover:bg-white"
                 aria-label="Vorheriges Bild"
               >
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" /></svg>
+                <svg
+                  class="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"><path d="M15 6l-6 6 6 6"></path></svg
+                >
               </button>
               <button
                 id="location-lightbox-next"
@@ -265,27 +349,52 @@ const locationGalleryItems = normalizedGalleryItems;
                 class="absolute right-4 top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-slate-800 shadow-lg shadow-slate-900/30 backdrop-blur-sm transition hover:-translate-y-[calc(50%+4px)] hover:bg-white"
                 aria-label="Nächstes Bild"
               >
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+                <svg
+                  class="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"><path d="M9 6l6 6-6 6"></path></svg
+                >
               </button>
             </div>
-            <div class="border-t border-white/10 bg-slate-900/80 px-6 py-6 text-center text-white">
-              <h3 id="location-lightbox-title" class="text-lg font-semibold tracking-tight"></h3>
-              <p id="location-lightbox-description" class="mt-2 text-sm text-slate-200/80"></p>
+            <div
+              class="border-t border-white/10 bg-slate-900/80 px-6 py-6 text-center text-white"
+            >
+              <h3
+                id="location-lightbox-title"
+                class="text-lg font-semibold tracking-tight"
+              >
+              </h3>
+              <p
+                id="location-lightbox-description"
+                class="mt-2 text-sm text-slate-200/80"
+              >
+              </p>
             </div>
           </div>
         </div>
 
-        <div class="mt-12 rounded-3xl bg-white p-8 text-center shadow-lg shadow-slate-900/5">
+        <div
+          class="mt-12 rounded-3xl bg-white p-8 text-center shadow-lg shadow-slate-900/5"
+        >
           <h2 class="heading-sub">Termine im Überblick</h2>
           <p class="mt-3 text-sm text-slate-600">
-            Alle Daten zu kommenden Repair Cafés finden Sie auf unserer Terminseite.
+            Alle Daten zu kommenden Repair Cafés finden Sie auf unserer
+            Terminseite.
           </p>
           <a
             href="/termine"
             class="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-brand-700"
           >
             Zu den Terminen
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+            <svg
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"></path></svg
+            >
           </a>
         </div>
       </div>
@@ -293,34 +402,52 @@ const locationGalleryItems = normalizedGalleryItems;
   </main>
 
   <script is:inline>
-    document.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById('location-gallery');
+    document.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("location-gallery");
       if (!container) return;
 
-      const prevButton = document.querySelector('[data-scroll="location-prev"]');
-      const nextButton = document.querySelector('[data-scroll="location-next"]');
+      const prevButton = document.querySelector(
+        '[data-scroll="location-prev"]',
+      );
+      const nextButton = document.querySelector(
+        '[data-scroll="location-next"]',
+      );
 
       const scrollByAmount = (direction) => {
-        const firstItem = container.querySelector('figure');
-        const itemWidth = firstItem ? firstItem.getBoundingClientRect().width : container.clientWidth;
-        const gapValue = getComputedStyle(container).columnGap || getComputedStyle(container).gap || '0';
+        const firstItem = container.querySelector("figure");
+        const itemWidth = firstItem
+          ? firstItem.getBoundingClientRect().width
+          : container.clientWidth;
+        const gapValue =
+          getComputedStyle(container).columnGap ||
+          getComputedStyle(container).gap ||
+          "0";
         const gap = Number.parseFloat(gapValue) || 0;
 
-        container.scrollBy({ left: (itemWidth + gap) * direction, behavior: 'smooth' });
+        container.scrollBy({
+          left: (itemWidth + gap) * direction,
+          behavior: "smooth",
+        });
       };
 
-      prevButton?.addEventListener('click', () => scrollByAmount(-1));
-      nextButton?.addEventListener('click', () => scrollByAmount(1));
+      prevButton?.addEventListener("click", () => scrollByAmount(-1));
+      nextButton?.addEventListener("click", () => scrollByAmount(1));
 
-      const lightbox = document.getElementById('location-lightbox');
-      const lightboxImage = document.getElementById('location-lightbox-image');
-      const lightboxTitle = document.getElementById('location-lightbox-title');
-      const lightboxDescription = document.getElementById('location-lightbox-description');
-      const closeButton = document.getElementById('location-lightbox-close');
-      const prevControl = document.getElementById('location-lightbox-prev');
-      const nextControl = document.getElementById('location-lightbox-next');
-      const triggerNodes = Array.from(document.querySelectorAll('[data-lightbox-trigger]'));
-      const triggers = triggerNodes.filter((element) => element instanceof HTMLElement);
+      const lightbox = document.getElementById("location-lightbox");
+      const lightboxImage = document.getElementById("location-lightbox-image");
+      const lightboxTitle = document.getElementById("location-lightbox-title");
+      const lightboxDescription = document.getElementById(
+        "location-lightbox-description",
+      );
+      const closeButton = document.getElementById("location-lightbox-close");
+      const prevControl = document.getElementById("location-lightbox-prev");
+      const nextControl = document.getElementById("location-lightbox-next");
+      const triggerNodes = Array.from(
+        document.querySelectorAll("[data-lightbox-trigger]"),
+      );
+      const triggers = triggerNodes.filter(
+        (element) => element instanceof HTMLElement,
+      );
 
       if (
         lightbox instanceof HTMLElement &&
@@ -334,21 +461,25 @@ const locationGalleryItems = normalizedGalleryItems;
 
         const setContentFromTrigger = (trigger) => {
           if (!(trigger instanceof HTMLElement)) return;
-          const image = trigger.dataset.image ?? '';
+          const image = trigger.dataset.image ?? "";
           if (!image) return;
 
           lightboxImage.src = image;
-          lightboxImage.alt = trigger.dataset.alt ?? '';
+          lightboxImage.alt = trigger.dataset.alt ?? "";
 
           const title = trigger.dataset.title?.trim();
           const description = trigger.dataset.description?.trim();
 
-          lightboxTitle.textContent = title && title.length ? title : 'Impression vom Standort';
-          lightboxDescription.textContent = description && description.length ? description : 'Ein Blick auf das Repair Café Leonberg.';
+          lightboxTitle.textContent =
+            title && title.length ? title : "Impression vom Standort";
+          lightboxDescription.textContent =
+            description && description.length
+              ? description
+              : "Ein Blick auf das Repair Café Leonberg.";
 
           requestAnimationFrame(() => {
-            lightboxImage.style.transform = 'scale(1)';
-            lightboxImage.style.opacity = '1';
+            lightboxImage.style.transform = "scale(1)";
+            lightboxImage.style.opacity = "1";
           });
         };
 
@@ -359,17 +490,17 @@ const locationGalleryItems = normalizedGalleryItems;
           activeTrigger = trigger;
           currentIndex = index;
 
-          lightbox.classList.remove('pointer-events-none', 'opacity-0');
-          lightbox.classList.add('opacity-100');
-          lightbox.setAttribute('aria-hidden', 'false');
-          lightbox.dataset.open = 'true';
+          lightbox.classList.remove("pointer-events-none", "opacity-0");
+          lightbox.classList.add("opacity-100");
+          lightbox.setAttribute("aria-hidden", "false");
+          lightbox.dataset.open = "true";
 
-          lightboxImage.style.transform = 'scale(0.95)';
-          lightboxImage.style.opacity = '0';
+          lightboxImage.style.transform = "scale(0.95)";
+          lightboxImage.style.opacity = "0";
 
           setContentFromTrigger(trigger);
 
-          document.body.classList.add('overflow-hidden');
+          document.body.classList.add("overflow-hidden");
           if (closeButton instanceof HTMLElement) {
             closeButton.focus();
           }
@@ -390,26 +521,26 @@ const locationGalleryItems = normalizedGalleryItems;
           if (!trigger) return;
 
           activeTrigger = trigger;
-          lightboxImage.style.transform = 'scale(0.95)';
-          lightboxImage.style.opacity = '0';
+          lightboxImage.style.transform = "scale(0.95)";
+          lightboxImage.style.opacity = "0";
 
           setContentFromTrigger(trigger);
         };
 
         const closeLightbox = () => {
-          if (lightbox.dataset.open !== 'true') return;
+          if (lightbox.dataset.open !== "true") return;
 
-          lightbox.dataset.open = 'false';
-          lightbox.classList.add('pointer-events-none');
-          lightbox.classList.remove('opacity-100');
-          lightbox.classList.add('opacity-0');
-          lightbox.setAttribute('aria-hidden', 'true');
+          lightbox.dataset.open = "false";
+          lightbox.classList.add("pointer-events-none");
+          lightbox.classList.remove("opacity-100");
+          lightbox.classList.add("opacity-0");
+          lightbox.setAttribute("aria-hidden", "true");
 
-          lightboxImage.style.transform = 'scale(0.95)';
-          lightboxImage.style.opacity = '0';
-          lightboxImage.src = '';
+          lightboxImage.style.transform = "scale(0.95)";
+          lightboxImage.style.opacity = "0";
+          lightboxImage.src = "";
 
-          document.body.classList.remove('overflow-hidden');
+          document.body.classList.remove("overflow-hidden");
 
           const returnTarget = activeTrigger;
           activeTrigger = null;
@@ -420,38 +551,39 @@ const locationGalleryItems = normalizedGalleryItems;
         };
 
         triggers.forEach((trigger, index) => {
-          trigger.addEventListener('click', () => openAtIndex(index));
-          trigger.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
+          trigger.addEventListener("click", () => openAtIndex(index));
+          trigger.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
               openAtIndex(index);
             }
           });
         });
 
         if (prevControl instanceof HTMLElement) {
-          prevControl.addEventListener('click', () => goTo(-1));
+          prevControl.addEventListener("click", () => goTo(-1));
         }
         if (nextControl instanceof HTMLElement) {
-          nextControl.addEventListener('click', () => goTo(1));
+          nextControl.addEventListener("click", () => goTo(1));
         }
 
-        closeButton instanceof HTMLElement && closeButton.addEventListener('click', closeLightbox);
+        closeButton instanceof HTMLElement &&
+          closeButton.addEventListener("click", closeLightbox);
 
-        lightbox.addEventListener('click', (event) => {
+        lightbox.addEventListener("click", (event) => {
           if (event.target === lightbox) {
             closeLightbox();
           }
         });
 
-        window.addEventListener('keydown', (event) => {
-          if (event.key === 'Escape') {
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
             closeLightbox();
           }
-          if (event.key === 'ArrowLeft' && currentIndex !== -1) {
+          if (event.key === "ArrowLeft" && currentIndex !== -1) {
             event.preventDefault();
             goTo(-1);
           }
-          if (event.key === 'ArrowRight' && currentIndex !== -1) {
+          if (event.key === "ArrowRight" && currentIndex !== -1) {
             event.preventDefault();
             goTo(1);
           }
@@ -460,6 +592,5 @@ const locationGalleryItems = normalizedGalleryItems;
     });
   </script>
 
-  <CTA />
   <Footer />
 </BaseLayout>

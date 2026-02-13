@@ -2,62 +2,73 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import CTA from "../components/CTA.astro";
 
 const nearbyCafes = [
   {
-    name: 'Repair Café Böblingen-Sindelfingen',
-    city: 'Böblingen & Sindelfingen',
-    url: 'https://www.repaircafe-bb-sifi.de/',
-    description: 'Regelmäßige Termine in Böblingen und Sindelfingen – ideal erreichbar mit der S-Bahn S1.'
+    name: "Repair Café Böblingen-Sindelfingen",
+    city: "Böblingen & Sindelfingen",
+    url: "https://www.repaircafe-bb-sifi.de/",
+    description:
+      "Regelmäßige Termine in Böblingen und Sindelfingen – ideal erreichbar mit der S-Bahn S1.",
   },
   {
-    name: 'Repair Café Hemmingen',
-    city: 'Hemmingen',
-    url: 'http://www.reparaturcafehemmingen.orgfree.com',
-    description: 'Engagiertes Team rund um die Gemeinde Hemmingen mit Fokus auf Haushaltsgeräte und Textilien.'
+    name: "Repair Café Hemmingen",
+    city: "Hemmingen",
+    url: "http://www.reparaturcafehemmingen.orgfree.com",
+    description:
+      "Engagiertes Team rund um die Gemeinde Hemmingen mit Fokus auf Haushaltsgeräte und Textilien.",
   },
   {
-    name: 'Repair Café Gerlingen',
-    city: 'Gerlingen',
-    url: 'http://www.repaircafe-gerlingen.de/',
-    description: 'Workshops und Reparaturtermine im Herzen von Gerlingen – inklusive Fahrrad-Station.'
+    name: "Repair Café Gerlingen",
+    city: "Gerlingen",
+    url: "http://www.repaircafe-gerlingen.de/",
+    description:
+      "Workshops und Reparaturtermine im Herzen von Gerlingen – inklusive Fahrrad-Station.",
   },
   {
-    name: 'Repair Café Renningen',
-    city: 'Renningen',
-    url: 'http://www.reparatur-initiativen.de/renninger-agenda-ak-repair-cafe',
-    description: 'Eine Initiative der Renninger Agenda: Reparieren, vernetzen und Nachhaltigkeit leben.'
+    name: "Repair Café Renningen",
+    city: "Renningen",
+    url: "http://www.reparatur-initiativen.de/renninger-agenda-ak-repair-cafe",
+    description:
+      "Eine Initiative der Renninger Agenda: Reparieren, vernetzen und Nachhaltigkeit leben.",
   },
   {
-    name: 'Repair Café Ditzingen',
-    city: 'Ditzingen',
-    url: 'https://www.buergerstiftung-ditzingen.de/index.php/projekte/aktive-projekte/das-repair-cafe',
-    description: 'Organisiert von der Bürgerstiftung Ditzingen mit wechselnden Themenschwerpunkten.'
+    name: "Repair Café Ditzingen",
+    city: "Ditzingen",
+    url: "https://www.buergerstiftung-ditzingen.de/index.php/projekte/aktive-projekte/das-repair-cafe",
+    description:
+      "Organisiert von der Bürgerstiftung Ditzingen mit wechselnden Themenschwerpunkten.",
   },
   {
-    name: 'Repair Café Weil der Stadt',
-    city: 'Weil der Stadt',
-    url: 'http://www.weil-der-stadt.de/termin/Repair-Cafe-Weil-der-Stadt-event-appointment6364',
-    description: 'Treffen im Klosterhof – ideal für Besucher:innen aus dem Würmtal und der Altstadt.'
+    name: "Repair Café Weil der Stadt",
+    city: "Weil der Stadt",
+    url: "http://www.weil-der-stadt.de/termin/Repair-Cafe-Weil-der-Stadt-event-appointment6364",
+    description:
+      "Treffen im Klosterhof – ideal für Besucher:innen aus dem Würmtal und der Altstadt.",
   },
   {
-    name: 'Reparatur-Initiativen Finder',
-    city: 'Deutschlandweit',
-    url: 'https://www.reparatur-initiativen.de/',
-    description: 'Bundesweite Übersicht aller eingetragenen Repair Cafés und Reparaturinitiativen.'
-  }
+    name: "Reparatur-Initiativen Finder",
+    city: "Deutschlandweit",
+    url: "https://www.reparatur-initiativen.de/",
+    description:
+      "Bundesweite Übersicht aller eingetragenen Repair Cafés und Reparaturinitiativen.",
+  },
 ];
 ---
 
-<BaseLayout title="Repair Cafés in der Umgebung – Repair Café Leonberg" description="Repair Cafés in Böblingen, Sindelfingen, Gerlingen, Ditzingen und der Region." >
+<BaseLayout
+  title="Repair Cafés in der Umgebung – Repair Café Leonberg"
+  description="Repair Cafés in Böblingen, Sindelfingen, Gerlingen, Ditzingen und der Region."
+>
   <Header />
 
   <main class="bg-slate-100 py-12 md:py-16">
     <section class="pb-12">
       <div class="container">
         <div class="mx-auto max-w-4xl text-center">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+          >
             Netzwerk
           </span>
           <h1 class="mt-5 heading-hero">Gut vernetzt</h1>
@@ -65,7 +76,9 @@ const nearbyCafes = [
             Gemeinsam reparieren in der Region
           </p>
           <p class="mt-2 text-base text-slate-600">
-            Reparatur-Initiativen gibt es überall. Wir arbeiten eng mit anderen Cafés im Umkreis zusammen. Hier finden Sie Alternativen, falls unser Termin nicht passt.
+            Reparatur-Initiativen gibt es überall. Wir arbeiten eng mit anderen
+            Cafés im Umkreis zusammen. Hier finden Sie Alternativen, falls unser
+            Termin nicht passt.
           </p>
         </div>
       </div>
@@ -74,30 +87,38 @@ const nearbyCafes = [
     <section class="pb-8">
       <div class="container">
         <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {nearbyCafes.map((cafe) => (
-            <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
-              <div class="inline-flex items-center gap-2 rounded-full bg-brand-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                {cafe.city}
-              </div>
-              <h2 class="mt-4 card-title">{cafe.name}</h2>
-              <p class="mt-3 text-sm text-slate-600">{cafe.description}</p>
-              <a
-                href={cafe.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
-              >
-                Zur Website
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10" /></svg>
-              </a>
-            </article>
-          ))}
+          {
+            nearbyCafes.map((cafe) => (
+              <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
+                <div class="inline-flex items-center gap-2 rounded-full bg-brand-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  {cafe.city}
+                </div>
+                <h2 class="mt-4 card-title">{cafe.name}</h2>
+                <p class="mt-3 text-sm text-slate-600">{cafe.description}</p>
+                <a
+                  href={cafe.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
+                >
+                  Zur Website
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M7 17L17 7M7 7h10v10" />
+                  </svg>
+                </a>
+              </article>
+            ))
+          }
         </div>
-
       </div>
     </section>
   </main>
 
-  <CTA />
   <Footer />
 </BaseLayout>

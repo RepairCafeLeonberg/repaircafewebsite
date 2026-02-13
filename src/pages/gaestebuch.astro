@@ -1,24 +1,26 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import CTA from '../components/CTA.astro';
-import { getGuestbookEntries } from '../data/cms';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { getGuestbookEntries } from "../data/cms";
 
-const pageTitle = 'Gästebuch – Repair Café Leonberg';
-const pageDescription = 'Unser Gästebuch: Teilen Sie Ihre Eindrücke vom Repair Café Leonberg mit der Community.';
+const pageTitle = "Gästebuch – Repair Café Leonberg";
+const pageDescription =
+  "Unser Gästebuch: Teilen Sie Ihre Eindrücke vom Repair Café Leonberg mit der Community.";
 
 const entries = (await getGuestbookEntries()).map((entry) => {
   let formattedDate: string | undefined;
   if (entry._createdAt) {
     const date = new Date(entry._createdAt);
     if (!Number.isNaN(date.getTime())) {
-      formattedDate = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(date);
+      formattedDate = new Intl.DateTimeFormat("de-DE", {
+        dateStyle: "medium",
+      }).format(date);
     }
   }
   return {
     ...entry,
-    formattedDate
+    formattedDate,
   };
 });
 ---
@@ -30,14 +32,15 @@ const entries = (await getGuestbookEntries()).map((entry) => {
     <section>
       <div class="container">
         <div class="mx-auto max-w-3xl text-center">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm"
+          >
             Wir sagen Danke
           </span>
-          <h1 class="mt-5 heading-hero">
-            Das sagen unsere Besucher
-          </h1>
+          <h1 class="mt-5 heading-hero">Das sagen unsere Besucher</h1>
           <p class="mt-3 text-base text-slate-600">
-            Hat es geklappt? Wie hat es Ihnen gefallen? Schreiben Sie uns gerne einen Eintrag ins Gästebuch.
+            Hat es geklappt? Wie hat es Ihnen gefallen? Schreiben Sie uns gerne
+            einen Eintrag ins Gästebuch.
           </p>
         </div>
       </div>
@@ -49,11 +52,18 @@ const entries = (await getGuestbookEntries()).map((entry) => {
           <div class="glass rounded-3xl p-8 md:p-10">
             <h2 class="heading-sub">Eigene Nachricht verfassen</h2>
             <p class="mt-3 text-sm text-slate-600">
-              Nach dem Absenden prüfen wir Ihren Eintrag kurz, bevor er online sichtbar wird. Pflichtfelder sind mit <span class="text-red-500">*</span> markiert.
+              Nach dem Absenden prüfen wir Ihren Eintrag kurz, bevor er online
+              sichtbar wird. Pflichtfelder sind mit <span class="text-red-500"
+                >*</span
+              > markiert.
             </p>
             <form id="guestbook-form" class="mt-8 space-y-6" autocomplete="off">
               <div>
-                <label for="guestbook-name" class="block text-sm font-medium text-slate-700">Name oder Pseudonym<span class="text-red-500">*</span></label>
+                <label
+                  for="guestbook-name"
+                  class="block text-sm font-medium text-slate-700"
+                  >Name oder Pseudonym<span class="text-red-500">*</span></label
+                >
                 <input
                   id="guestbook-name"
                   name="name"
@@ -65,7 +75,11 @@ const entries = (await getGuestbookEntries()).map((entry) => {
                 />
               </div>
               <div>
-                <label for="guestbook-city" class="block text-sm font-medium text-slate-700">Ort (optional)</label>
+                <label
+                  for="guestbook-city"
+                  class="block text-sm font-medium text-slate-700"
+                  >Ort (optional)</label
+                >
                 <input
                   id="guestbook-city"
                   name="city"
@@ -75,7 +89,11 @@ const entries = (await getGuestbookEntries()).map((entry) => {
                 />
               </div>
               <div>
-                <label for="guestbook-message" class="block text-sm font-medium text-slate-700">Ihre Nachricht<span class="text-red-500">*</span></label>
+                <label
+                  for="guestbook-message"
+                  class="block text-sm font-medium text-slate-700"
+                  >Ihre Nachricht<span class="text-red-500">*</span></label
+                >
                 <textarea
                   id="guestbook-message"
                   name="message"
@@ -87,7 +105,9 @@ const entries = (await getGuestbookEntries()).map((entry) => {
                 ></textarea>
               </div>
               <div class="hidden" aria-hidden="true">
-                <label for="guestbook-website">Website (bitte leer lassen)</label>
+                <label for="guestbook-website"
+                  >Website (bitte leer lassen)</label
+                >
                 <input
                   id="guestbook-website"
                   name="website"
@@ -113,21 +133,36 @@ const entries = (await getGuestbookEntries()).map((entry) => {
             <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
               <h3 class="card-title">So veröffentlichen wir Einträge</h3>
               <p class="mt-3 text-sm text-slate-600">
-                Wir möchten allen Besucher:innen eine wertschätzende Bühne bieten. Deshalb schauen wir jeden Eintrag kurz durch, bevor er frei geschaltet wird.
+                Wir möchten allen Besucher:innen eine wertschätzende Bühne
+                bieten. Deshalb schauen wir jeden Eintrag kurz durch, bevor er
+                frei geschaltet wird.
               </p>
               <ul class="mt-6 space-y-3 text-sm text-slate-600">
                 <li>✔️ Bitte bleiben Sie freundlich und respektvoll.</li>
-                <li>✔️ Keine personenbezogenen Daten dritter Personen nennen.</li>
-                <li>✔️ Bei Fragen zur Organisation schreiben Sie uns lieber über das Kontaktformular.</li>
+                <li>
+                  ✔️ Keine personenbezogenen Daten dritter Personen nennen.
+                </li>
+                <li>
+                  ✔️ Bei Fragen zur Organisation schreiben Sie uns lieber über
+                  das Kontaktformular.
+                </li>
               </ul>
               <p class="mt-6 text-sm text-slate-500">
-                Hinweis: Sie erhalten keine automatische E-Mail. Sobald Ihr Beitrag geprüft wurde, erscheint er im Gästebuch.
+                Hinweis: Sie erhalten keine automatische E-Mail. Sobald Ihr
+                Beitrag geprüft wurde, erscheint er im Gästebuch.
               </p>
             </div>
             <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
               <h3 class="card-title">Kontakt für Rückfragen</h3>
               <p class="mt-3 text-sm text-slate-600">
-                Sie möchten lieber direkt mit uns sprechen? Nutzen Sie gern das <a class="text-brand-700 hover:underline" href="/kontakt">Kontaktformular</a> oder schreiben Sie eine E-Mail an <a class="text-brand-700 hover:underline" href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a>.
+                Sie möchten lieber direkt mit uns sprechen? Nutzen Sie gern das <a
+                  class="text-brand-700 hover:underline"
+                  href="/kontakt">Kontaktformular</a
+                > oder schreiben Sie eine E-Mail an <a
+                  class="text-brand-700 hover:underline"
+                  href="mailto:info@repair-leonberg.de"
+                  >info@repair-leonberg.de</a
+                >.
               </p>
             </div>
           </div>
@@ -140,63 +175,77 @@ const entries = (await getGuestbookEntries()).map((entry) => {
         <div class="mx-auto max-w-4xl text-center">
           <h2 class="heading-sub">Rückmeldungen aus der Community</h2>
           <p class="mt-3 text-base text-slate-600">
-            Diese Stimmen zeigen, warum Reparieren verbindet. Vielen Dank für jedes Lob und jede Motivation!
+            Diese Stimmen zeigen, warum Reparieren verbindet. Vielen Dank für
+            jedes Lob und jede Motivation!
           </p>
         </div>
         <div id="guestbook-entries" class="mt-10 grid gap-6 md:grid-cols-2">
-          {entries.length > 0 ? (
-            entries.map((entry) => (
-              <article class="h-full rounded-3xl bg-white p-6 text-left shadow-xl shadow-slate-900/5">
-                <p class="text-base leading-relaxed text-slate-700 whitespace-pre-line">{entry.message}</p>
-                <div class="mt-5 text-sm font-semibold text-slate-900">
-                  {entry.name}
-                  {entry.city ? ` · ${entry.city}` : ''}
-                </div>
-                {entry.formattedDate && (
-                  <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
-                    {entry.formattedDate}
+          {
+            entries.length > 0 ? (
+              entries.map((entry) => (
+                <article class="h-full rounded-3xl bg-white p-6 text-left shadow-xl shadow-slate-900/5">
+                  <p class="text-base leading-relaxed text-slate-700 whitespace-pre-line">
+                    {entry.message}
+                  </p>
+                  <div class="mt-5 text-sm font-semibold text-slate-900">
+                    {entry.name}
+                    {entry.city ? ` · ${entry.city}` : ""}
                   </div>
-                )}
-              </article>
-            ))
-          ) : (
-            <div id="guestbook-empty" class="col-span-full rounded-3xl bg-white p-10 text-center shadow-xl shadow-slate-900/5">
-              <p class="text-base text-slate-600">
-                Noch keine Einträge vorhanden – seien Sie die erste Person, die ihre Erfahrungen teilt.
-              </p>
-            </div>
-          )}
+                  {entry.formattedDate && (
+                    <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
+                      {entry.formattedDate}
+                    </div>
+                  )}
+                </article>
+              ))
+            ) : (
+              <div
+                id="guestbook-empty"
+                class="col-span-full rounded-3xl bg-white p-10 text-center shadow-xl shadow-slate-900/5"
+              >
+                <p class="text-base text-slate-600">
+                  Noch keine Einträge vorhanden – seien Sie die erste Person,
+                  die ihre Erfahrungen teilt.
+                </p>
+              </div>
+            )
+          }
         </div>
       </div>
     </section>
   </main>
 
-  <CTA />
   <Footer />
 
   <script type="module">
-    const form = document.getElementById('guestbook-form');
-    const status = document.getElementById('guestbook-status');
-    const submitButton = form?.querySelector('[data-submit-button]');
-    const entriesContainer = document.getElementById('guestbook-entries');
-    const emptyState = document.getElementById('guestbook-empty');
+    const form = document.getElementById("guestbook-form");
+    const status = document.getElementById("guestbook-status");
+    const submitButton = form?.querySelector("[data-submit-button]");
+    const entriesContainer = document.getElementById("guestbook-entries");
+    const emptyState = document.getElementById("guestbook-empty");
     const formLoadedAt = Date.now();
     let nonceBundle = null;
 
     const setStatus = (message, variant) => {
       if (!status) return;
-      status.textContent = message ?? '';
-      status.className = 'text-sm ' + (variant === 'error' ? 'text-red-600' : variant === 'success' ? 'text-emerald-600' : 'text-slate-500');
+      status.textContent = message ?? "";
+      status.className =
+        "text-sm " +
+        (variant === "error"
+          ? "text-red-600"
+          : variant === "success"
+            ? "text-emerald-600"
+            : "text-slate-500");
     };
 
     const toggleSubmitting = (loading) => {
       if (!submitButton) return;
       if (loading) {
-        submitButton.setAttribute('data-loading', 'true');
-        submitButton.setAttribute('disabled', 'disabled');
+        submitButton.setAttribute("data-loading", "true");
+        submitButton.setAttribute("disabled", "disabled");
       } else {
-        submitButton.removeAttribute('data-loading');
-        submitButton.removeAttribute('disabled');
+        submitButton.removeAttribute("data-loading");
+        submitButton.removeAttribute("disabled");
       }
     };
 
@@ -207,12 +256,13 @@ const entries = (await getGuestbookEntries()).map((entry) => {
 
     const appendOptimisticEntry = ({ name, city, message }) => {
       if (!entriesContainer) return;
-      const article = document.createElement('article');
-      article.className = 'h-full rounded-3xl bg-white p-6 text-left shadow-xl shadow-slate-900/5 border border-dashed border-emerald-200';
+      const article = document.createElement("article");
+      article.className =
+        "h-full rounded-3xl bg-white p-6 text-left shadow-xl shadow-slate-900/5 border border-dashed border-emerald-200";
       article.innerHTML = `
         <p class="text-base leading-relaxed text-slate-700 whitespace-pre-line">${message}</p>
         <div class="mt-5 text-sm font-semibold text-slate-900">
-          ${name}${city ? ` · ${city}` : ''}
+          ${name}${city ? ` · ${city}` : ""}
         </div>
         <div class="mt-1 text-xs uppercase tracking-[0.2em] text-emerald-600">
           Wird nach Prüfung veröffentlicht
@@ -222,64 +272,94 @@ const entries = (await getGuestbookEntries()).map((entry) => {
       removeEmptyState();
     };
 
-    const debugFlag = new URLSearchParams(window.location.search).get('debug') === '1';
+    const debugFlag =
+      new URLSearchParams(window.location.search).get("debug") === "1";
 
     const fetchNonce = async () => {
       try {
-        const response = await fetch(`/api/guestbook${debugFlag ? '?debug=1' : ''}`, { method: 'GET', headers: { Accept: 'application/json' } });
+        const response = await fetch(
+          `/api/guestbook${debugFlag ? "?debug=1" : ""}`,
+          { method: "GET", headers: { Accept: "application/json" } },
+        );
         const payload = await response.json().catch(() => ({}));
-        if (response.ok && payload?.success && payload.nonce && payload.signature) {
+        if (
+          response.ok &&
+          payload?.success &&
+          payload.nonce &&
+          payload.signature
+        ) {
           nonceBundle = {
             nonce: payload.nonce,
             issuedAt: payload.issuedAt,
             signature: payload.signature,
-            ttlMs: payload.ttlMs ?? 0
+            ttlMs: payload.ttlMs ?? 0,
           };
           return true;
         }
-        throw new Error(payload?.message || 'Kein Token erhalten');
+        throw new Error(payload?.message || "Kein Token erhalten");
       } catch (error) {
-        console.error('Guestbook nonce fetch failed:', error);
-        setStatus('Sicherheits-Token konnte nicht geladen werden. Bitte laden Sie die Seite neu.', 'error');
+        console.error("Guestbook nonce fetch failed:", error);
+        setStatus(
+          "Sicherheits-Token konnte nicht geladen werden. Bitte laden Sie die Seite neu.",
+          "error",
+        );
         return false;
       }
     };
 
     const ensureNonce = async () => {
       if (!nonceBundle) return fetchNonce();
-      const maxAge = typeof nonceBundle.ttlMs === 'number' && nonceBundle.ttlMs > 0 ? nonceBundle.ttlMs : 8 * 60_000;
+      const maxAge =
+        typeof nonceBundle.ttlMs === "number" && nonceBundle.ttlMs > 0
+          ? nonceBundle.ttlMs
+          : 8 * 60_000;
       if (Date.now() - nonceBundle.issuedAt > maxAge * 0.9) {
         return fetchNonce();
       }
       return true;
     };
 
-    const safeText = (value) => value.replace(/[<>&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[char] || char));
+    const safeText = (value) =>
+      value.replace(
+        /[<>&]/g,
+        (char) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[char] || char,
+      );
 
-    form?.addEventListener('submit', async (event) => {
+    form?.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (!form) return;
 
       const formData = new FormData(form);
-      const name = safeText((formData.get('name') ?? '').toString().trim());
-      const city = safeText((formData.get('city') ?? '').toString().trim());
-      const message = safeText((formData.get('message') ?? '').toString().trim());
-      const website = (formData.get('website') ?? '').toString().trim();
+      const name = safeText((formData.get("name") ?? "").toString().trim());
+      const city = safeText((formData.get("city") ?? "").toString().trim());
+      const message = safeText(
+        (formData.get("message") ?? "").toString().trim(),
+      );
+      const website = (formData.get("website") ?? "").toString().trim();
 
       if (name.length < 2) {
-        setStatus('Bitte geben Sie einen Namen mit mindestens 2 Zeichen ein.', 'error');
+        setStatus(
+          "Bitte geben Sie einen Namen mit mindestens 2 Zeichen ein.",
+          "error",
+        );
         return;
       }
       if (message.length < 10) {
-        setStatus('Bitte schreiben Sie eine Nachricht mit mindestens 10 Zeichen.', 'error');
+        setStatus(
+          "Bitte schreiben Sie eine Nachricht mit mindestens 10 Zeichen.",
+          "error",
+        );
         return;
       }
       if (website) {
-        setStatus('Der Eintrag konnte nicht gesendet werden. Bitte versuchen Sie es erneut.', 'error');
+        setStatus(
+          "Der Eintrag konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+          "error",
+        );
         return;
       }
       if (Date.now() - formLoadedAt < 1200) {
-        setStatus('Bitte senden Sie das Formular noch einmal.', 'error');
+        setStatus("Bitte senden Sie das Formular noch einmal.", "error");
         return;
       }
       if (!(await ensureNonce())) {
@@ -288,52 +368,63 @@ const entries = (await getGuestbookEntries()).map((entry) => {
 
       try {
         toggleSubmitting(true);
-        setStatus('Ihr Eintrag wird gesendet …', 'info');
+        setStatus("Ihr Eintrag wird gesendet …", "info");
 
-        const response = await fetch(`/api/guestbook${debugFlag ? '?debug=1' : ''}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name,
-            city,
-            message,
-            honeypot: website,
-            submittedAt: formLoadedAt,
-            nonce: nonceBundle?.nonce,
-            issuedAt: nonceBundle?.issuedAt,
-            signature: nonceBundle?.signature
-          })
-        });
+        const response = await fetch(
+          `/api/guestbook${debugFlag ? "?debug=1" : ""}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name,
+              city,
+              message,
+              honeypot: website,
+              submittedAt: formLoadedAt,
+              nonce: nonceBundle?.nonce,
+              issuedAt: nonceBundle?.issuedAt,
+              signature: nonceBundle?.signature,
+            }),
+          },
+        );
 
         const payload = await response.json().catch(() => ({ success: false }));
 
         if (response.ok && payload?.success) {
-          setStatus('Vielen Dank! Ihr Beitrag ist eingegangen und wird nach Prüfung veröffentlicht.', 'success');
+          setStatus(
+            "Vielen Dank! Ihr Beitrag ist eingegangen und wird nach Prüfung veröffentlicht.",
+            "success",
+          );
           form.reset();
           appendOptimisticEntry({ name, city, message });
           await fetchNonce();
         } else {
           if (payload?.debug) {
-            console.info('Guestbook debug info:', payload.debug);
+            console.info("Guestbook debug info:", payload.debug);
           }
           setStatus(
             payload?.message
-              ? `${payload.message}${payload.debug ? ` (Debug: ${payload.debug})` : ''}`
-              : 'Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.',
-            'error'
+              ? `${payload.message}${payload.debug ? ` (Debug: ${payload.debug})` : ""}`
+              : "Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.",
+            "error",
           );
         }
       } catch (error) {
-        console.error('Guestbook submission error:', error);
-        setStatus('Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.', 'error');
+        console.error("Guestbook submission error:", error);
+        setStatus(
+          "Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.",
+          "error",
+        );
       } finally {
         toggleSubmitting(false);
       }
     });
 
     // Preload nonce shortly after page load to keep render path clean
-    window.addEventListener('load', () => {
-      window.requestIdleCallback ? window.requestIdleCallback(fetchNonce) : setTimeout(fetchNonce, 150);
+    window.addEventListener("load", () => {
+      window.requestIdleCallback
+        ? window.requestIdleCallback(fetchNonce)
+        : setTimeout(fetchNonce, 150);
     });
   </script>
 </BaseLayout>

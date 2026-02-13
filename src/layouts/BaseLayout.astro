@@ -1,12 +1,12 @@
 ---
 import "../styles/global.css";
 const {
-  title = 'Repair Café Leonberg',
-  description = 'Reparieren statt Wegwerfen – gemeinsam nachhaltiger in Leonberg.',
+  title = "Repair Café Leonberg",
+  description = "Reparieren statt Wegwerfen – gemeinsam nachhaltiger in Leonberg.",
 } = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
@@ -36,5 +36,26 @@ const {
   </head>
   <body class="min-h-screen bg-white">
     <slot />
+    <script is:inline>
+      (() => {
+        const els = document.querySelectorAll(".reveal");
+        if (!els.length) return;
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                e.target.classList.add("revealed");
+                io.unobserve(e.target);
+              }
+            });
+          },
+          { threshold: 0.15 },
+        );
+        els.forEach((el, i) => {
+          el.style.transitionDelay = `${(i % 4) * 80}ms`;
+          io.observe(el);
+        });
+      })();
+    </script>
   </body>
 </html>

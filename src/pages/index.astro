@@ -7,6 +7,14 @@ import Hero from "../components/Hero.astro";
 import FAQ from "../components/FAQ.astro";
 import CTA from "../components/CTA.astro";
 import RepairCategoryIcon from "../components/RepairCategoryIcon";
+type IconName =
+  | "electronics"
+  | "textile"
+  | "bike"
+  | "wood"
+  | "toy"
+  | "software"
+  | "contact";
 import {
   getUpcomingEvents,
   getAllEvents,
@@ -104,7 +112,12 @@ const posts = latestPosts.map((post) => {
   return { ...post, preview: createPreview(plain ?? "") };
 });
 
-const repairCategories = [
+const repairCategories: {
+  title: string;
+  desc: string;
+  icon: IconName;
+  href?: string;
+}[] = [
   {
     title: "Elektro",
     desc: "Mixer, Lampen, Staubsauger, Radios, Toaster…",
@@ -154,7 +167,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
   <NextEventBanner event={nextEvent} ctaHref="/termine" />
   <Hero ctaHref="/termine" heroImages={randomizedHeroSlides} />
 
-  <section id="angebote" class="mt-16 md:mt-24">
+  <section id="angebote" class="reveal mt-16 md:mt-24">
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="heading-section">Was wir reparieren</h2>
@@ -254,7 +267,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
     })();
   </script>
 
-  <section id="aktuelles" class="mt-16 md:mt-24">
+  <section id="aktuelles" class="reveal mt-16 md:mt-24">
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="heading-section">Neuigkeiten aus dem RepairCafé</h2>
@@ -266,7 +279,9 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
       <div class="mt-10 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
         {
           [...posts]
-            .sort((a, b) => (a.date < b.date ? 1 : -1))
+            .sort((a, b) =>
+              (a.date ?? a.publishedAt) < (b.date ?? b.publishedAt) ? 1 : -1,
+            )
             .slice(0, 3)
             .map((post) => (
               <article class="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:shadow-xl">
@@ -355,7 +370,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
     </div>
   </section>
 
-  <section id="so-gehts" class="mt-16 md:mt-24">
+  <section id="so-gehts" class="reveal mt-16 md:mt-24">
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="heading-section">So funktioniert’s</h2>
@@ -388,7 +403,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
               desc: "Bei Erfolg anstoßen, Kaffee genießen, Spende fürs Werkzeug-Schwein da lassen.",
             },
           ].map((s) => (
-            <li class="glass rounded-2xl p-6">
+            <li class="glass rounded-2xl p-6 transition hover:-translate-y-1 hover:shadow-xl">
               <div class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-600/10 font-semibold text-brand-700 dark:text-brand-300">
                 {s.step}
               </div>
@@ -405,7 +420,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
     </div>
   </section>
 
-  <section id="stimmen" class="mt-16 md:mt-24">
+  <section id="stimmen" class="reveal mt-16 md:mt-24">
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="heading-section">Das sagen unsere Gäste</h2>
@@ -490,7 +505,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
     </div>
   </section>
 
-  <section id="faq" class="mt-16 md:mt-24">
+  <section id="faq" class="reveal mt-16 md:mt-24">
     <div class="container">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="heading-section">Häufig gestellte Fragen</h2>
@@ -505,7 +520,7 @@ const guestbookHighlights = guestbookEntries.slice(0, 8);
     </div>
   </section>
 
-  <section class="mt-16 md:mt-24">
+  <section class="reveal mt-16 md:mt-24">
     <div class="container">
       <div
         class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"

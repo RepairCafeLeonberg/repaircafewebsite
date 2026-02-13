@@ -2,13 +2,13 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import CTA from "../components/CTA.astro";
 
-const pageTitle = 'Kontakt – Repair Café Leonberg';
-const pageDescription = 'Kontaktiere das Repair Café Leonberg bei Fragen, Anmerkungen oder für Kooperationen.';
-const contactEmail = 'info@repair-leonberg.de';
-const contactPhone = '07152 990 4977';
-const contactPhoneLink = 'tel:071529904977';
+const pageTitle = "Kontakt – Repair Café Leonberg";
+const pageDescription =
+  "Kontaktiere das Repair Café Leonberg bei Fragen, Anmerkungen oder für Kooperationen.";
+const contactEmail = "info@repair-leonberg.de";
+const contactPhone = "07152 990 4977";
+const contactPhoneLink = "tel:071529904977";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
@@ -18,14 +18,15 @@ const contactPhoneLink = 'tel:071529904977';
     <section>
       <div class="container">
         <div class="mx-auto max-w-3xl text-center">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm"
+          >
             Kontaktformular
           </span>
-          <h1 class="mt-5 heading-hero">
-            Wir freuen uns auf Ihre Nachricht
-          </h1>
+          <h1 class="mt-5 heading-hero">Wir freuen uns auf Ihre Nachricht</h1>
           <p class="mt-3 text-base text-slate-600">
-            Hier können Sie Anmerkungen hinterlassen, Fragen stellen oder Ihr Engagement anbieten. Wir melden uns so schnell wie möglich zurück.
+            Hier können Sie Anmerkungen hinterlassen, Fragen stellen oder Ihr
+            Engagement anbieten. Wir melden uns so schnell wie möglich zurück.
           </p>
         </div>
       </div>
@@ -37,7 +38,9 @@ const contactPhoneLink = 'tel:071529904977';
           <div class="glass rounded-3xl p-8 md:p-10">
             <h2 class="heading-sub">Kontaktformular</h2>
             <p class="mt-3 text-sm text-slate-600">
-              Füllen Sie alle Pflichtfelder aus (<span class="text-red-500">*</span>) und wir setzen uns mit Ihnen in Verbindung.
+              Füllen Sie alle Pflichtfelder aus (<span class="text-red-500"
+                >*</span
+              >) und wir setzen uns mit Ihnen in Verbindung.
             </p>
             <form
               id="contact-form"
@@ -47,7 +50,11 @@ const contactPhoneLink = 'tel:071529904977';
             >
               <div class="grid gap-6 md:grid-cols-2">
                 <div>
-                  <label for="contact-name" class="block text-sm font-medium text-slate-700">Name<span class="text-red-500">*</span></label>
+                  <label
+                    for="contact-name"
+                    class="block text-sm font-medium text-slate-700"
+                    >Name<span class="text-red-500">*</span></label
+                  >
                   <input
                     id="contact-name"
                     name="name"
@@ -57,7 +64,11 @@ const contactPhoneLink = 'tel:071529904977';
                   />
                 </div>
                 <div>
-                  <label for="contact-email" class="block text-sm font-medium text-slate-700">Mail<span class="text-red-500">*</span></label>
+                  <label
+                    for="contact-email"
+                    class="block text-sm font-medium text-slate-700"
+                    >Mail<span class="text-red-500">*</span></label
+                  >
                   <input
                     id="contact-email"
                     name="email"
@@ -69,10 +80,20 @@ const contactPhoneLink = 'tel:071529904977';
               </div>
               <div class="hidden" aria-hidden="true">
                 <label for="contact-company">Firma (bitte frei lassen)</label>
-                <input id="contact-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+                <input
+                  id="contact-company"
+                  name="company"
+                  type="text"
+                  tabindex="-1"
+                  autocomplete="off"
+                />
               </div>
               <div>
-                <label for="contact-message" class="block text-sm font-medium text-slate-700">Nachricht / Anfrage<span class="text-red-500">*</span></label>
+                <label
+                  for="contact-message"
+                  class="block text-sm font-medium text-slate-700"
+                  >Nachricht / Anfrage<span class="text-red-500">*</span></label
+                >
                 <textarea
                   id="contact-message"
                   name="message"
@@ -88,7 +109,9 @@ const contactPhoneLink = 'tel:071529904977';
                   type="checkbox"
                   class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
                 />
-                <label for="contact-copy" class="text-sm text-slate-700">Bitte eine Kopie an mich</label>
+                <label for="contact-copy" class="text-sm text-slate-700"
+                  >Bitte eine Kopie an mich</label
+                >
               </div>
               <div class="flex items-center gap-4">
                 <button
@@ -106,38 +129,71 @@ const contactPhoneLink = 'tel:071529904977';
             <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
               <h3 class="card-title">Direkter Kontakt</h3>
               <p class="mt-3 text-sm text-slate-600">
-                Sie erreichen das Orga-Team direkt per Info-Telefon oder E-Mail. Auf Social Media halten wir Sie zudem über Termine auf dem Laufenden.
+                Sie erreichen das Orga-Team direkt per Info-Telefon oder E-Mail.
+                Auf Social Media halten wir Sie zudem über Termine auf dem
+                Laufenden.
               </p>
               <div class="mt-6 space-y-5 text-sm">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Info-Telefon</p>
+                  <p
+                    class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+                  >
+                    Info-Telefon
+                  </p>
                   <a
                     class="group mt-1 inline-flex items-center text-base font-semibold text-slate-900 transition hover:text-brand-700 dark:text-white dark:hover:text-brand-300"
                     href={contactPhoneLink}
                   >
                     {contactPhone}
-                    <svg class="ml-2 h-4 w-4 text-brand-600 group-hover:translate-x-0.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                    <svg
+                      class="ml-2 h-4 w-4 text-brand-600 group-hover:translate-x-0.5 transition"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      ><path d="M5 12h14M13 5l7 7-7 7"></path></svg
+                    >
                   </a>
                 </div>
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">E-Mail</p>
+                  <p
+                    class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+                  >
+                    E-Mail
+                  </p>
                   <a
                     class="group mt-1 inline-flex items-center text-base font-semibold text-slate-900 transition hover:text-brand-700 dark:text-white dark:hover:text-brand-300"
                     href={`mailto:${contactEmail}`}
                   >
                     {contactEmail}
-                    <svg class="ml-2 h-4 w-4 text-brand-600 group-hover:translate-x-0.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                    <svg
+                      class="ml-2 h-4 w-4 text-brand-600 group-hover:translate-x-0.5 transition"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      ><path d="M5 12h14M13 5l7 7-7 7"></path></svg
+                    >
                   </a>
                 </div>
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Instagram</p>
+                  <p
+                    class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+                  >
+                    Instagram
+                  </p>
                   <a
                     class="group mt-2 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-base font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
                     href="https://www.instagram.com/repairleonberg/#"
                     target="_blank"
                     rel="noopener"
                   >
-                    <img src="/repair-cafe-leonberg-logo.png" alt="Repair Café Leonberg Logo" class="h-7 w-7 rounded-full object-contain" loading="lazy" />
+                    <img
+                      src="/repair-cafe-leonberg-logo.png"
+                      alt="Repair Café Leonberg Logo"
+                      class="h-7 w-7 rounded-full object-contain"
+                      loading="lazy"
+                    />
                     @repairleonberg
                   </a>
                 </div>
@@ -146,7 +202,10 @@ const contactPhoneLink = 'tel:071529904977';
             <div class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-900/5">
               <h3 class="card-title">Besuch uns vor Ort</h3>
               <p class="mt-3 text-sm text-slate-600">
-                Unsere Veranstaltungen finden im Bürgerzentrum Stadtmitte, Neuköllner Straße 5, statt. Immer am zweiten Samstag des Monats von 10–13 Uhr. Alle Termine sehen Sie im Kalender oder auf Nachfrage direkt beim Team.
+                Unsere Veranstaltungen finden im Bürgerzentrum Stadtmitte,
+                Neuköllner Straße 5, statt. Immer am zweiten Samstag des Monats
+                von 10–13 Uhr. Alle Termine sehen Sie im Kalender oder auf
+                Nachfrage direkt beim Team.
               </p>
               <a
                 class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:underline"
@@ -161,44 +220,48 @@ const contactPhoneLink = 'tel:071529904977';
     </section>
   </main>
 
-  <CTA />
   <Footer />
 
   <script>
-    const form = document.getElementById('contact-form');
-    const status = document.getElementById('contact-status');
-    const submitButton = document.querySelector('#contact-form button[type="submit"]');
+    const form = document.getElementById("contact-form");
+    const status = document.getElementById("contact-status");
+    const submitButton = document.querySelector(
+      '#contact-form button[type="submit"]',
+    );
     const formLoadedAt = Date.now();
 
-    const setStatus = (message, tone = 'muted') => {
+    const setStatus = (message, tone = "muted") => {
       if (!status) return;
       status.textContent = message;
-      const base = 'text-sm';
+      const base = "text-sm";
       const palette =
-        tone === 'error'
-          ? 'text-red-600'
-          : tone === 'success'
-            ? 'text-emerald-600'
-            : 'text-slate-500';
+        tone === "error"
+          ? "text-red-600"
+          : tone === "success"
+            ? "text-emerald-600"
+            : "text-slate-500";
       status.className = `${base} ${palette}`;
     };
 
     const setLoading = (loading) => {
       if (!submitButton) return;
       submitButton.disabled = loading;
-      submitButton.dataset.loading = loading ? 'true' : 'false';
-      submitButton.style.opacity = loading ? '0.7' : '';
+      submitButton.dataset.loading = loading ? "true" : "false";
+      submitButton.style.opacity = loading ? "0.7" : "";
     };
 
-    form?.addEventListener('submit', async (event) => {
+    form?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const getTextValue = (id) => {
         const element = document.getElementById(id);
-        if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+        if (
+          element instanceof HTMLInputElement ||
+          element instanceof HTMLTextAreaElement
+        ) {
           return element.value.trim();
         }
-        return '';
+        return "";
       };
 
       const getCheckboxValue = (id) => {
@@ -206,58 +269,70 @@ const contactPhoneLink = 'tel:071529904977';
         return element instanceof HTMLInputElement ? element.checked : false;
       };
 
-      const name = getTextValue('contact-name');
-      const email = getTextValue('contact-email');
-      const message = getTextValue('contact-message');
-      const company = getTextValue('contact-company');
-      const copy = getCheckboxValue('contact-copy');
+      const name = getTextValue("contact-name");
+      const email = getTextValue("contact-email");
+      const message = getTextValue("contact-message");
+      const company = getTextValue("contact-company");
+      const copy = getCheckboxValue("contact-copy");
       const submittedAt = formLoadedAt;
 
       if (!name || !email || !message) {
-        setStatus('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
+        setStatus("Bitte füllen Sie alle Pflichtfelder aus.", "error");
         return;
       }
 
       if (company) {
         setStatus(
-          'Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder nutzen Sie alternativ die E-Mail-Adresse.',
-          'error'
+          "Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder nutzen Sie alternativ die E-Mail-Adresse.",
+          "error",
         );
         return;
       }
 
       const timeSinceLoad = Date.now() - formLoadedAt;
       if (timeSinceLoad < 2000) {
-        setStatus('Bitte senden Sie das Formular noch einmal – ein kurzer Moment verhindert Spam.', 'error');
+        setStatus(
+          "Bitte senden Sie das Formular noch einmal – ein kurzer Moment verhindert Spam.",
+          "error",
+        );
         return;
       }
 
-      setStatus('Nachricht wird gesendet …', 'muted');
+      setStatus("Nachricht wird gesendet …", "muted");
       setLoading(true);
 
       try {
-        const response = await fetch('/api/contact', {
-          method: 'POST',
+        const response = await fetch("/api/contact", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name, email, message, copy, company, submittedAt })
+          body: JSON.stringify({
+            name,
+            email,
+            message,
+            copy,
+            company,
+            submittedAt,
+          }),
         });
 
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          throw new Error(data?.error || 'Die Nachricht konnte nicht gesendet werden.');
+          throw new Error(
+            data?.error || "Die Nachricht konnte nicht gesendet werden.",
+          );
         }
 
-        setStatus('Danke! Ihre Nachricht wurde versendet.', 'success');
+        setStatus("Danke! Ihre Nachricht wurde versendet.", "success");
         form.reset();
       } catch (error) {
         const message =
           error instanceof Error
             ? error.message
-            : 'Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.';
-        setStatus(message, 'error');
+            : "Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.";
+        setStatus(message, "error");
       } finally {
         setLoading(false);
       }

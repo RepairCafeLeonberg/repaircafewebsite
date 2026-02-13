@@ -2,24 +2,28 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import CTA from "../components/CTA.astro";
 ---
 
-<BaseLayout title="Mitmachen – Repair Café Leonberg" description="Engagieren Sie sich im Repair Café Leonberg als Gastgeber:in, Reparaturprofi oder Organisationshilfe.">
+<BaseLayout
+  title="Mitmachen – Repair Café Leonberg"
+  description="Engagieren Sie sich im Repair Café Leonberg als Gastgeber:in, Reparaturprofi oder Organisationshilfe."
+>
   <Header />
 
   <main class="bg-slate-100 py-12 md:py-16">
     <section class="pb-12">
       <div class="container">
         <div class="mx-auto max-w-4xl text-center">
-          <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+          >
             Engagement
           </span>
-          <h1 class="mt-5 heading-hero">
-            Werden Sie Teil unseres Teams
-          </h1>
+          <h1 class="mt-5 heading-hero">Werden Sie Teil unseres Teams</h1>
           <p class="mt-3 text-base text-slate-600">
-            Bringen Sie Ihr Talent ein – ob als Reparatur-Experte oder Organisationstalent. Wir suchen Menschen, die Lust haben, ihr Wissen zu teilen oder einfach mit anzupacken.
+            Bringen Sie Ihr Talent ein – ob als Reparatur-Experte oder
+            Organisationstalent. Wir suchen Menschen, die Lust haben, ihr Wissen
+            zu teilen oder einfach mit anzupacken.
           </p>
         </div>
       </div>
@@ -28,25 +32,31 @@ import CTA from "../components/CTA.astro";
     <section class="pb-12">
       <div class="container">
         <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {[
-            {
-              title: 'Reparatur-Profis',
-              desc: 'Elektrik, Mechanik, Textil, Holz, Fahrrad oder Computer/IT – Sie finden Fehler und zeigen Gästen, wie Reparaturen gelingen.',
-            },
-            {
-              title: 'Organisationstalente',
-              desc: 'Empfang, Laufzettel, Wartezeiten, Social Media oder Materialbeschaffung – Sie halten den Ablauf am Laufen.',
-            },
-            {
-              title: 'Gute Seele (Catering)',
-              desc: 'Kaffee kochen, Kuchen backen oder für das Buffet sorgen – Sie schaffen die gemütliche Atmosphäre fürs Reparieren.',
-            },
-          ].map((item) => (
-            <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
-              <h2 class="card-title">{item.title}</h2>
-              <p class="mt-3 text-sm text-slate-600">{item.desc}</p>
-            </article>
-          ))}
+          {
+            [
+              {
+                title: "Reparatur-Profis",
+                emoji: "🔧",
+                desc: "Elektrik, Mechanik, Textil, Holz, Fahrrad oder Computer/IT – Sie finden Fehler und zeigen Gästen, wie Reparaturen gelingen.",
+              },
+              {
+                title: "Organisationstalente",
+                emoji: "📋",
+                desc: "Empfang, Laufzettel, Wartezeiten, Social Media oder Materialbeschaffung – Sie halten den Ablauf am Laufen.",
+              },
+              {
+                title: "Gute Seele (Catering)",
+                emoji: "☕",
+                desc: "Kaffee kochen, Kuchen backen oder für das Buffet sorgen – Sie schaffen die gemütliche Atmosphäre fürs Reparieren.",
+              },
+            ].map((item) => (
+              <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:shadow-xl">
+                <div class="mb-3 text-3xl">{item.emoji}</div>
+                <h2 class="card-title">{item.title}</h2>
+                <p class="mt-3 text-sm text-slate-600">{item.desc}</p>
+              </article>
+            ))
+          }
         </div>
       </div>
     </section>
@@ -57,28 +67,55 @@ import CTA from "../components/CTA.astro";
           <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5">
             <h2 class="heading-sub">Interesse geweckt?</h2>
             <div class="mt-4 space-y-3 text-sm text-slate-600">
-              <p>Kommen Sie beim nächsten Termin unverbindlich vorbei und schnuppern Sie rein, oder schreiben Sie uns direkt an. Wir freuen uns darauf, Sie kennenzulernen!</p>
+              <p>
+                Kommen Sie beim nächsten Termin unverbindlich vorbei und
+                schnuppern Sie rein, oder schreiben Sie uns direkt an. Wir
+                freuen uns darauf, Sie kennenzulernen!
+              </p>
               <ol class="space-y-2 list-decimal pl-4">
-                <li><strong>Kontakt aufnehmen:</strong> Schreiben Sie uns kurz, in welchem Bereich Sie mitmachen möchten.</li>
-                <li><strong>Kennenlernen:</strong> Wir klären Aufgaben und Termine – vor Ort oder online.</li>
-                <li><strong>Probeschicht:</strong> Begleiten Sie ein RepairCafé und entscheiden Sie dann, wie es weitergeht.</li>
+                <li>
+                  <strong>Kontakt aufnehmen:</strong> Schreiben Sie uns kurz, in
+                  welchem Bereich Sie mitmachen möchten.
+                </li>
+                <li>
+                  <strong>Kennenlernen:</strong> Wir klären Aufgaben und Termine
+                  – vor Ort oder online.
+                </li>
+                <li>
+                  <strong>Probeschicht:</strong> Begleiten Sie ein RepairCafé und
+                  entscheiden Sie dann, wie es weitergeht.
+                </li>
               </ol>
             </div>
           </div>
           <div class="rounded-3xl bg-white p-8 shadow-lg shadow-slate-900/5">
             <h2 class="heading-sub">Kontakt zum Team</h2>
             <p class="mt-4 text-sm text-slate-600">
-              Nutzen Sie unser <a class="text-brand-700 hover:underline" href="/kontakt">Kontaktformular</a> oder schreiben Sie direkt an <a class="text-brand-700 hover:underline" href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a>. Nennen Sie kurz Ihre Motivation sowie mögliche Einsatzbereiche – wir melden uns schnellstmöglich bei Ihnen.
+              Nutzen Sie unser <a
+                class="text-brand-700 hover:underline"
+                href="/kontakt">Kontaktformular</a
+              > oder schreiben Sie direkt an <a
+                class="text-brand-700 hover:underline"
+                href="mailto:info@repair-leonberg.de">info@repair-leonberg.de</a
+              >. Nennen Sie kurz Ihre Motivation sowie mögliche Einsatzbereiche
+              – wir melden uns schnellstmöglich bei Ihnen.
             </p>
             <p class="mt-3 text-sm text-slate-600">
-              Alternativ können Sie vor Ort im Repair Café auf uns zukommen – wir nehmen Ihre Kontaktdaten gern persönlich auf.
+              Alternativ können Sie vor Ort im Repair Café auf uns zukommen –
+              wir nehmen Ihre Kontaktdaten gern persönlich auf.
             </p>
             <a
               href="/kontakt"
               class="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-brand-700"
             >
               Kontaktformular öffnen
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"></path></svg
+              >
             </a>
           </div>
         </div>
@@ -86,6 +123,5 @@ import CTA from "../components/CTA.astro";
     </section>
   </main>
 
-  <CTA />
   <Footer />
 </BaseLayout>
