@@ -48,7 +48,7 @@ const chipColors = [
 ];
 
 const STORAGE_KEY = 'mailservice_members_v1';
-const LAST_MAIL_KEY = 'mailservice_last_mail';
+const LAST_MAIL_KEY = 'mailservice_last_mail_v2';
 
 type Props = {
   apiUrl?: string;
