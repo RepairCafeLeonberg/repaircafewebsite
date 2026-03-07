@@ -28,9 +28,12 @@ const defaultSubject = 'Neuigkeiten aus dem Repair Café Leonberg';
 
 const defaultBody = `{{Anrede}},
 
-kurzes Update aus dem Repair Café:
+wir treffen uns am Samstag, 14. März, zum nächsten Repair Café.
 
-wir treffen uns am Samstag um 10:00 Uhr. Wer Zeit hat, bitte kurz antworten oder im Kalender eintragen. Danke!
+Um 9:00 Uhr beginnt unser Frühstück und um 10:00 Uhr startet das Repair Café.
+
+Hier ist direkt der Link für den Dienstplan:
+[Dienstplan öffnen](https://docs.google.com/spreadsheets/d/1CUYP-AT9NLqx8E8tE7M7DDfJfvGjCUW-/edit?usp=sharing&ouid=112698322874253366185&rtpof=true&sd=true)
 
 {{Gruss}}
 {{Signatur}}`;
@@ -99,7 +102,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
     return first ? first.id : '';
   });
   const [subject, setSubject] = useState(defaultSubject);
-  const [editorHtml, setEditorHtml] = useState<string>(() => marked.parse(defaultBody));
+  const [editorHtml, setEditorHtml] = useState<string>(() => marked.parse(defaultBody) as string);
   const [status, setStatus] = useState<SendStatus>({ state: 'idle' });
   const [newMember, setNewMember] = useState<Partial<Member>>({
     firstName: '',
@@ -173,7 +176,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
   }, [apiUrl, apiToken]);
 
   useEffect(() => {
-    const defaultHtml = marked.parse(defaultBody);
+    const defaultHtml = marked.parse(defaultBody) as string;
 
     if (typeof window === 'undefined') {
       setEditorHtml(defaultHtml);
@@ -299,8 +302,8 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
       tag.length === 0
         ? 0
         : tag
-            .split('')
-            .reduce((acc, char) => acc + char.charCodeAt(0), 0) % chipColors.length;
+          .split('')
+          .reduce((acc, char) => acc + char.charCodeAt(0), 0) % chipColors.length;
     return chipColors[index];
   };
 
@@ -456,7 +459,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
   };
 
   const handleSend = async () => {
-  const senderEmail = members.find((m) => m.id === senderChoice)?.email || '';
+    const senderEmail = members.find((m) => m.id === senderChoice)?.email || '';
 
     if (!senderEmail) {
       setStatus({
@@ -667,9 +670,8 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
-                className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${
-                  selected ? 'ring-2 ring-brand-200 ring-offset-2 ring-offset-white' : ''
-                } ${chipColorFor(tag)}`}
+                className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${selected ? 'ring-2 ring-brand-200 ring-offset-2 ring-offset-white' : ''
+                  } ${chipColorFor(tag)}`}
               >
                 <span>{tag}</span>
                 <span className="text-xs text-slate-500">
