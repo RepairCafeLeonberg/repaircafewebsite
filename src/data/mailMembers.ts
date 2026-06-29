@@ -7,6 +7,11 @@ export type Member = {
   tags: string[];
   greeting: string;
   closing: string;
+  street?: string;
+  city?: string;
+  phone?: string;
+  receivesMail?: boolean;
+  notes?: string;
   personalNote?: string;
 };
 

@@ -33,7 +33,12 @@ const payloadSchema = z.object({
   tags: z.array(z.string().min(1)).optional(),
   greeting: z.string().optional(),
   closing: z.string().optional(),
-  isMember: z.boolean().optional()
+  isMember: z.boolean().optional(),
+  receivesMail: z.boolean().optional(),
+  street: z.string().optional(),
+  city: z.string().optional(),
+  phone: z.string().optional(),
+  notes: z.string().optional()
 });
 
 export const GET: APIRoute = async ({ request }) => {
@@ -121,7 +126,12 @@ export const POST: APIRoute = async ({ request }) => {
     is_member: parsed.isMember ?? true,
     tags: parsed.tags ?? [],
     greeting: parsed.greeting?.trim() || null,
-    closing: parsed.closing?.trim() || null
+    closing: parsed.closing?.trim() || null,
+    receives_mail: parsed.email ? parsed.receivesMail ?? true : false,
+    street: parsed.street?.trim() || '',
+    city: parsed.city?.trim() || '',
+    phone: parsed.phone?.trim() || '',
+    notes: parsed.notes?.trim() || ''
   };
 
   const row = memberToMasterRow(memberObj);
@@ -145,7 +155,12 @@ export const POST: APIRoute = async ({ request }) => {
       isMember: memberObj.is_member,
       tags: memberObj.tags,
       greeting: memberObj.greeting || '',
-      closing: memberObj.closing || ''
+      closing: memberObj.closing || '',
+      receivesMail: memberObj.receives_mail,
+      street: memberObj.street,
+      city: memberObj.city,
+      phone: memberObj.phone,
+      notes: memberObj.notes
     };
 
     return new Response(JSON.stringify(returnedMember), {

@@ -89,7 +89,13 @@ export const masterRowToMember = (row: any[]) => ({
     is_member: toSheetBoolean(row[4]),
     tags: tagsToArray(row[5]),
     greeting: row[6] || '',
-    closing: row[7] || ''
+    closing: row[7] || '',
+    receives_mail: toSheetBoolean(row[8]),
+    status: row[9] || '',
+    street: row[10] || '',
+    city: row[11] || '',
+    phone: row[12] || '',
+    notes: row[22] || ''
 });
 
 export const shouldShowInMailservice = (row: any[]) => {
@@ -109,11 +115,11 @@ export const memberToMasterRow = (member: any) => [
     tagsToCell(member.tags),
     member.greeting || '',
     member.closing || '',
-    Boolean(member.email),
+    member.receives_mail ?? Boolean(member.email),
     'Aktiv',
-    '',
-    '',
-    '',
+    member.street || '',
+    member.city || '',
+    member.phone || '',
     true,
     false,
     tagsToCell(member.tags),
@@ -123,5 +129,5 @@ export const memberToMasterRow = (member: any) => [
     'Über Mailservice hinzugefügt.',
     '',
     new Date().toISOString().slice(0, 10),
-    ''
+    member.notes || ''
 ];

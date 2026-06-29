@@ -104,6 +104,12 @@ type ApiMemberRow = {
   tags?: string[] | null;
   greeting?: string | null;
   closing?: string | null;
+  receives_mail?: boolean | null;
+  receivesMail?: boolean | null;
+  street?: string | null;
+  city?: string | null;
+  phone?: string | null;
+  notes?: string | null;
 };
 
 const normalizeMember = (row: ApiMemberRow): Member => ({
@@ -115,7 +121,29 @@ const normalizeMember = (row: ApiMemberRow): Member => ({
   tags: Array.isArray(row.tags) ? row.tags.filter(Boolean) : [],
   greeting: row.greeting ?? '',
   closing: row.closing ?? '',
+  receivesMail: row.receives_mail ?? row.receivesMail ?? true,
+  street: row.street ?? '',
+  city: row.city ?? '',
+  phone: row.phone ?? '',
+  notes: row.notes ?? '',
   personalNote: ''
+});
+
+type NewMemberDraft = Partial<Member>;
+
+const createEmptyNewMember = (): NewMemberDraft => ({
+  firstName: '',
+  lastName: '',
+  email: '',
+  tags: [],
+  greeting: '',
+  closing: '',
+  street: '',
+  city: '',
+  phone: '',
+  notes: '',
+  isMember: true,
+  receivesMail: true
 });
 
 const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) => {
@@ -148,15 +176,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
     text: ''
   });
   const [linkStatus, setLinkStatus] = useState('');
-  const [newMember, setNewMember] = useState<Partial<Member>>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    tags: [],
-    greeting: '',
-    closing: '',
-    isMember: true
-  });
+  const [newMember, setNewMember] = useState<NewMemberDraft>(() => createEmptyNewMember());
   const [showAddForm, setShowAddForm] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const hasHydratedEditor = useRef(false);
@@ -544,14 +564,20 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
       return;
     }
 
+    const email = newMember.email?.trim() || undefined;
     const payload = {
       firstName: newMember.firstName.trim(),
       lastName: newMember.lastName.trim(),
-      email: newMember.email?.trim() || undefined,
-      tags: (newMember.tags || []).filter(Boolean),
+      email,
+      tags: (newMember.tags || []).map((tag) => tag.trim()).filter(Boolean),
       greeting: newMember.greeting || `Hallo ${newMember.firstName}`,
       closing: newMember.closing || 'Viele Grüße',
-      isMember: true
+      isMember: newMember.isMember ?? true,
+      receivesMail: Boolean(email) && newMember.receivesMail !== false,
+      street: newMember.street?.trim() || undefined,
+      city: newMember.city?.trim() || undefined,
+      phone: newMember.phone?.trim() || undefined,
+      notes: newMember.notes?.trim() || undefined
     };
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -570,22 +596,16 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
       }
       const data: ApiMemberRow = await res.json();
       const added = normalizeMember(data);
-      setMembers((prev) => [...prev, added]);
-      setSelectedIds((prev) => {
-        const next = new Set(prev);
-        next.add(added.id);
-        return next;
-      });
-      setStatus({ state: 'success', message: 'Mitglied gespeichert.' });
-      setNewMember({
-        firstName: '',
-        lastName: '',
-        email: '',
-        tags: [],
-        greeting: '',
-        closing: '',
-        isMember: true
-      });
+      if (payload.receivesMail && added.email) {
+        setMembers((prev) => [...prev, added]);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.add(added.id);
+          return next;
+        });
+      }
+      setStatus({ state: 'success', message: 'Person in der Masterliste gespeichert.' });
+      setNewMember(createEmptyNewMember());
       setShowAddForm(false);
     } catch (error) {
       console.error('Mitglied konnte nicht gespeichert werden', error);
@@ -993,6 +1013,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
                 <label className="block">
                   <span className="text-sm font-medium text-slate-700">E-Mail</span>
                   <input
+                    type="email"
                     value={newMember.email || ''}
                     onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
                     className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
@@ -1002,7 +1023,41 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
               </div>
               <div className="md:col-span-2">
                 <label className="block">
-                  <span className="text-sm font-medium text-slate-700">Tags (comma-getrennt)</span>
+                  <span className="text-sm font-medium text-slate-700">Telefon</span>
+                  <input
+                    type="tel"
+                    value={newMember.phone || ''}
+                    onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
+                    className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                    placeholder="Telefonnummer"
+                  />
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">Straße</span>
+                  <input
+                    value={newMember.street || ''}
+                    onChange={(e) => setNewMember({ ...newMember, street: e.target.value })}
+                    className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                    placeholder="Straße und Hausnummer"
+                  />
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">Ort</span>
+                  <input
+                    value={newMember.city || ''}
+                    onChange={(e) => setNewMember({ ...newMember, city: e.target.value })}
+                    className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                    placeholder="Ort"
+                  />
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">Tags (kommagetrennt)</span>
                   <input
                     value={(newMember.tags || []).join(', ')}
                     onChange={(e) =>
@@ -1016,7 +1071,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
                   />
                 </label>
               </div>
-              <div>
+              <div className="md:col-span-2">
                 <label className="block">
                   <span className="text-sm font-medium text-slate-700">Anrede</span>
                   <input
@@ -1027,7 +1082,7 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
                   />
                 </label>
               </div>
-              <div>
+              <div className="md:col-span-2">
                 <label className="block">
                   <span className="text-sm font-medium text-slate-700">Grußformel</span>
                   <input
@@ -1036,6 +1091,39 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
                     className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
                     placeholder="Viele Grüße"
                   />
+                </label>
+              </div>
+              <div className="md:col-span-4">
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">Notiz</span>
+                  <textarea
+                    value={newMember.notes || ''}
+                    onChange={(e) => setNewMember({ ...newMember, notes: e.target.value })}
+                    rows={3}
+                    className="mt-2 w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                    placeholder="Interne Notiz"
+                  />
+                </label>
+              </div>
+              <div className="md:col-span-2 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
+                <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={newMember.isMember !== false}
+                    onChange={(e) => setNewMember({ ...newMember, isMember: e.target.checked })}
+                    className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
+                  />
+                  Mitglied
+                </label>
+                <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                  <input
+                    type="checkbox"
+                    disabled={!newMember.email?.trim()}
+                    checked={Boolean(newMember.email?.trim()) && newMember.receivesMail !== false}
+                    onChange={(e) => setNewMember({ ...newMember, receivesMail: e.target.checked })}
+                    className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300 disabled:opacity-50"
+                  />
+                  Im Mailservice aktiv
                 </label>
               </div>
               <div className="md:col-span-2 flex items-end">
