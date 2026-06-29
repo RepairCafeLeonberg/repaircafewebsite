@@ -1,6 +1,17 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
-import { getSheetClient, SPREADSHEET_ID, memberToRow, rowToMember } from '../../../lib/googleSheetClient';
+import {
+  getSheetClient,
+  MASTER_DATA_RANGE,
+  MASTER_ID_RANGE,
+  MASTER_RANGE,
+  MASTER_SHEET_NAME,
+  SPREADSHEET_ID,
+  masterRowToMember,
+  memberToMasterRow,
+  rowToMember,
+  shouldShowInMailservice
+} from '../../../lib/googleSheetClient';
 
 export const prerender = false;
 
@@ -38,19 +49,37 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     const response = await client.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'members!A2:H', // Assuming headers in row 1
+      range: MASTER_DATA_RANGE,
     });
 
     const rows = response.data.values || [];
-    // Filter out empty rows if any
-    const members = rows.map(rowToMember).filter(m => m.id);
+    const members = rows
+      .filter(shouldShowInMailservice)
+      .map(masterRowToMember)
+      .filter(m => m.id);
 
     return new Response(JSON.stringify(members), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('[members/api] GET failed', error);
+    console.warn('[members/api] Masterliste GET failed, trying legacy members tab', error);
+    try {
+      const response = await client.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'members!A2:H',
+      });
+
+      const rows = response.data.values || [];
+      const members = rows.map(rowToMember).filter(m => m.id);
+
+      return new Response(JSON.stringify(members), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch (legacyError) {
+      console.error('[members/api] GET failed', legacyError);
+    }
     return new Response('Failed to load members', { status: 500 });
   }
 };
@@ -95,12 +124,12 @@ export const POST: APIRoute = async ({ request }) => {
     closing: parsed.closing?.trim() || null
   };
 
-  const row = memberToRow(memberObj);
+  const row = memberToMasterRow(memberObj);
 
   try {
     await client.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'members!A:H',
+      range: MASTER_RANGE,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [row]
@@ -152,15 +181,13 @@ export const DELETE: APIRoute = async ({ request }) => {
   }
 
   try {
-    // Implementing DELETE in Sheets is tricky without row index.
-    // We need to find the row index first.
     const response = await client.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'members!A:A', // Just get IDs
+      range: MASTER_ID_RANGE,
     });
 
     const rows = response.data.values || [];
-    const rowIndex = rows.findIndex(r => r[0] === id); // 0-indexed in array, but A1 is row 1
+    const rowIndex = rows.findIndex(r => r[0] === id);
 
     if (rowIndex === -1) {
       return new Response(JSON.stringify({ error: 'Member not found' }), {
@@ -169,38 +196,38 @@ export const DELETE: APIRoute = async ({ request }) => {
       });
     }
 
-    // Sheet row number is rowIndex + 1 (1-based)
-    // Actually we can just "clear" the row content to avoid shifting logic complexities or use batchUpdate with deleteDimension
-    // Deleting the dimension is cleaner to keep the sheet tidy.
+    const sheetRow = rowIndex + 1;
+    const today = new Date().toISOString().slice(0, 10);
 
-    // Indices in sheets API for deleteDimension are 0-based
-
-    await client.spreadsheets.batchUpdate({
+    await client.spreadsheets.values.batchUpdate({
       spreadsheetId: SPREADSHEET_ID,
       requestBody: {
-        requests: [
+        valueInputOption: 'USER_ENTERED',
+        data: [
           {
-            deleteDimension: {
-              range: {
-                sheetId: 0, // Assuming first sheet is ID 0. User instruction said "first tab".
-                dimension: 'ROWS',
-                startIndex: rowIndex,
-                endIndex: rowIndex + 1
-              }
-            }
+            range: `${MASTER_SHEET_NAME}!I${sheetRow}:J${sheetRow}`,
+            values: [[false, 'Archiv']]
+          },
+          {
+            range: `${MASTER_SHEET_NAME}!S${sheetRow}:T${sheetRow}`,
+            values: [[false, 'Über Mailservice archiviert.']]
+          },
+          {
+            range: `${MASTER_SHEET_NAME}!V${sheetRow}:V${sheetRow}`,
+            values: [[today]]
           }
         ]
       }
     });
 
-    return new Response(JSON.stringify({ success: true, id }), {
+    return new Response(JSON.stringify({ success: true, id, archived: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
     console.error('[members/api] DELETE failed', error);
-    return new Response(JSON.stringify({ error: 'Failed to delete member' }), {
+    return new Response(JSON.stringify({ error: 'Failed to archive member' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

@@ -35,6 +35,27 @@ export const getSheetClient = async () => {
 
 export const SPREADSHEET_ID = import.meta.env.GOOGLE_SHEET_ID;
 
+export const MASTER_SHEET_NAME = 'Masterliste';
+export const MASTER_RANGE = `${MASTER_SHEET_NAME}!A:W`;
+export const MASTER_DATA_RANGE = `${MASTER_SHEET_NAME}!A2:W`;
+export const MASTER_ID_RANGE = `${MASTER_SHEET_NAME}!A:A`;
+
+const toSheetBoolean = (value: unknown) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value.trim().toUpperCase() === 'TRUE';
+    return Boolean(value);
+};
+
+const tagsToArray = (tags: unknown): string[] => {
+    if (Array.isArray(tags)) return tags.map((tag) => String(tag).trim()).filter(Boolean);
+    if (typeof tags === 'string') {
+        return tags.split(',').map((tag) => tag.trim()).filter(Boolean);
+    }
+    return [];
+};
+
+const tagsToCell = (tags: unknown) => tagsToArray(tags).join(',');
+
 // Helper to map our Member object to a row array (order matters!)
 // Order: id, first_name, last_name, email, is_member, tags, greeting, closing
 export const memberToRow = (member: any) => [
@@ -54,8 +75,53 @@ export const rowToMember = (row: any[]) => ({
     first_name: row[1] || '',
     last_name: row[2] || '',
     email: row[3] || undefined,
-    is_member: row[4] === 'TRUE' || row[4] === true || row[4] === 'true', // Sheets might return string "TRUE"
-    tags: row[5] ? row[5].split(',').map((t: string) => t.trim()).filter(Boolean) : [],
+    is_member: toSheetBoolean(row[4]),
+    tags: tagsToArray(row[5]),
     greeting: row[6] || '',
     closing: row[7] || ''
 });
+
+export const masterRowToMember = (row: any[]) => ({
+    id: row[0] || '',
+    first_name: row[1] || '',
+    last_name: row[2] || '',
+    email: row[3] || undefined,
+    is_member: toSheetBoolean(row[4]),
+    tags: tagsToArray(row[5]),
+    greeting: row[6] || '',
+    closing: row[7] || ''
+});
+
+export const shouldShowInMailservice = (row: any[]) => {
+    const id = row[0];
+    const email = row[3];
+    const receivesMail = toSheetBoolean(row[8]);
+    const status = String(row[9] || '').trim().toLowerCase();
+    return Boolean(id && email && receivesMail && status === 'aktiv');
+};
+
+export const memberToMasterRow = (member: any) => [
+    member.id,
+    member.first_name,
+    member.last_name,
+    member.email || '',
+    member.is_member ?? true,
+    tagsToCell(member.tags),
+    member.greeting || '',
+    member.closing || '',
+    Boolean(member.email),
+    'Aktiv',
+    '',
+    '',
+    '',
+    true,
+    false,
+    tagsToCell(member.tags),
+    '',
+    '',
+    false,
+    'Über Mailservice hinzugefügt.',
+    '',
+    new Date().toISOString().slice(0, 10),
+    ''
+];

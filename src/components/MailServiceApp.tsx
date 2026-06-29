@@ -1,4 +1,22 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import TiptapLink from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import Underline from '@tiptap/extension-underline';
+import {
+  Bold,
+  CalendarDays,
+  ExternalLink,
+  FileText,
+  Italic,
+  Link as LinkIcon,
+  List,
+  ListOrdered,
+  Underline as UnderlineIcon,
+  Unlink,
+  X
+} from 'lucide-react';
 import type { Member } from '../data/mailMembers';
 import { members as memberData } from '../data/mailMembers';
 import { marked } from 'marked';
@@ -24,7 +42,9 @@ const defaultUser = {
   role: ''
 };
 
-const defaultSubject = 'Neuigkeiten aus dem Repair Café Leonberg';
+const defaultSubject = 'Einladung zum nächsten Repair Café';
+const dutyRosterUrl =
+  'https://docs.google.com/spreadsheets/d/1CUYP-AT9NLqx8E8tE7M7DDfJfvGjCUW-/edit?usp=sharing&ouid=112698322874253366185&rtpof=true&sd=true';
 
 const defaultBody = `{{Anrede}},
 
@@ -32,11 +52,29 @@ wir treffen uns am Samstag, 14. März, zum nächsten Repair Café.
 
 Um 9:00 Uhr beginnt unser Frühstück und um 10:00 Uhr startet das Repair Café.
 
-Hier ist direkt der Link für den Dienstplan:
-[Dienstplan öffnen](https://docs.google.com/spreadsheets/d/1CUYP-AT9NLqx8E8tE7M7DDfJfvGjCUW-/edit?usp=sharing&ouid=112698322874253366185&rtpof=true&sd=true)
+Hier ist direkt der Link für den Dienstplan: [Dienstplan öffnen](${dutyRosterUrl})
 
-{{Gruss}}
-{{Signatur}}`;
+{{Gruss}} {{Signatur}}`;
+
+const renderMarkdown = (markdown: string) => marked.parse(markdown) as string;
+
+const invitationTemplateHtml = () => renderMarkdown(defaultBody);
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+const normalizeUrl = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(trimmed)) return trimmed;
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return `mailto:${trimmed}`;
+  return `https://${trimmed}`;
+};
 
 const chipColors = [
   'bg-amber-50 text-amber-800 border-amber-200',
@@ -102,8 +140,14 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
     return first ? first.id : '';
   });
   const [subject, setSubject] = useState(defaultSubject);
-  const [editorHtml, setEditorHtml] = useState<string>(() => marked.parse(defaultBody) as string);
+  const [editorHtml, setEditorHtml] = useState<string>(() => invitationTemplateHtml());
   const [status, setStatus] = useState<SendStatus>({ state: 'idle' });
+  const [linkDialog, setLinkDialog] = useState({
+    open: false,
+    href: '',
+    text: ''
+  });
+  const [linkStatus, setLinkStatus] = useState('');
   const [newMember, setNewMember] = useState<Partial<Member>>({
     firstName: '',
     lastName: '',
@@ -115,9 +159,44 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
   });
   const [showAddForm, setShowAddForm] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const editorRef = useRef<HTMLDivElement>(null);
+  const hasHydratedEditor = useRef(false);
   const isEditorEmpty = (html: string) =>
     html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim().length === 0;
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TiptapLink.configure({
+        openOnClick: false,
+        enableClickSelection: true,
+        autolink: true,
+        linkOnPaste: true,
+        defaultProtocol: 'https',
+        protocols: ['mailto', 'tel'],
+        HTMLAttributes: {
+          class: 'text-brand-700 underline underline-offset-2',
+          rel: 'noopener noreferrer',
+          target: '_blank'
+        }
+      }),
+      Placeholder.configure({
+        placeholder:
+          'Schreibe deine Nachricht. Links und Platzhalter kannst du oben einfügen.'
+      })
+    ],
+    content: editorHtml,
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        class:
+          'min-h-[260px] max-w-none rounded-2xl bg-slate-50 px-4 py-3 text-base leading-relaxed text-slate-900 outline-none [&>*]:my-2 [&>p]:my-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6'
+      }
+    },
+    onUpdate: ({ editor }) => {
+      setEditorHtml(editor.getHTML());
+    }
+  });
 
   // Persist members after changes
   useEffect(() => {
@@ -176,33 +255,30 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
   }, [apiUrl, apiToken]);
 
   useEffect(() => {
-    const defaultHtml = marked.parse(defaultBody) as string;
+    if (!editor || hasHydratedEditor.current) return;
 
-    if (typeof window === 'undefined') {
-      setEditorHtml(defaultHtml);
-      return;
-    }
-
+    const defaultHtml = invitationTemplateHtml();
     let initialHtml = defaultHtml;
     let initialSubject = defaultSubject;
 
-    try {
-      const raw = window.localStorage.getItem(LAST_MAIL_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<{ subject: string; html: string }>;
-        if (parsed.html) initialHtml = parsed.html;
-        if (parsed.subject) initialSubject = parsed.subject;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = window.localStorage.getItem(LAST_MAIL_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as Partial<{ subject: string; html: string }>;
+          if (parsed.html) initialHtml = parsed.html;
+          if (parsed.subject) initialSubject = parsed.subject;
+        }
+      } catch (error) {
+        console.warn('Konnte letzte Mail nicht laden', error);
       }
-    } catch (error) {
-      console.warn('Konnte letzte Mail nicht laden', error);
     }
 
+    hasHydratedEditor.current = true;
     setSubject(initialSubject);
     setEditorHtml(initialHtml);
-    if (editorRef.current) {
-      editorRef.current.innerHTML = initialHtml;
-    }
-  }, []);
+    editor.commands.setContent(initialHtml, { emitUpdate: false });
+  }, [editor]);
 
   useEffect(() => {
     if (!senderChoice) return;
@@ -216,12 +292,71 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
     }
   }, [senderChoice, members]);
 
-  const execFormat = (command: string, value?: string) => {
-    if (typeof document === 'undefined') return;
-    document.execCommand(command, false, value);
-    if (editorRef.current) {
-      setEditorHtml(editorRef.current.innerHTML);
+  const getSelectedText = () => {
+    if (!editor) return '';
+    const { from, to } = editor.state.selection;
+    return editor.state.doc.textBetween(from, to, ' ').trim();
+  };
+
+  const openLinkDialog = () => {
+    if (!editor) return;
+    const selectedText = getSelectedText();
+    const currentHref = editor.getAttributes('link').href as string | undefined;
+    setLinkDialog({
+      open: true,
+      href: currentHref ?? '',
+      text: selectedText
+    });
+    setLinkStatus('');
+  };
+
+  const closeLinkDialog = () => {
+    setLinkDialog({ open: false, href: '', text: '' });
+    setLinkStatus('');
+  };
+
+  const applyLink = () => {
+    if (!editor) return;
+
+    const href = normalizeUrl(linkDialog.href);
+    if (!href) {
+      setLinkStatus('Bitte eine Adresse eingeben.');
+      return;
     }
+
+    const selectedText = getSelectedText();
+    const text = linkDialog.text.trim() || selectedText || href;
+    const linkHtml = `<a href="${escapeHtml(href)}">${escapeHtml(text)}</a>`;
+    const command = editor.chain().focus();
+    if (editor.isActive('link')) {
+      command.extendMarkRange('link');
+    }
+    command.insertContent(linkHtml).run();
+    closeLinkDialog();
+  };
+
+  const openEnteredLink = () => {
+    const href = normalizeUrl(linkDialog.href);
+    if (!href) {
+      setLinkStatus('Bitte zuerst eine Adresse eingeben.');
+      return;
+    }
+    window.open(href, '_blank', 'noopener,noreferrer');
+  };
+
+  const insertDutyRosterLink = () => {
+    if (!editor) return;
+    const linkHtml = `<a href="${escapeHtml(dutyRosterUrl)}">Dienstplan öffnen</a>`;
+    editor.chain().focus().insertContent(linkHtml).run();
+    setStatus({ state: 'idle', message: 'Dienstplan-Link eingefügt.' });
+  };
+
+  const loadInvitationTemplate = () => {
+    const html = invitationTemplateHtml();
+    setSubject(defaultSubject);
+    setEditorHtml(html);
+    editor?.commands.setContent(html, { emitUpdate: false });
+    setStatus({ state: 'idle', message: 'Einladungsvorlage geladen.' });
   };
 
   const tags = useMemo(() => {
@@ -554,6 +689,15 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
   };
 
   const senderEmail = members.find((m) => m.id === senderChoice)?.email || '';
+  const hasDutyRosterLink = editorHtml.includes(dutyRosterUrl);
+  const toolbarButtonClass = (active = false) =>
+    `inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-semibold transition ${
+      active
+        ? 'bg-brand-600 text-white shadow-sm'
+        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+    } disabled:cursor-not-allowed disabled:opacity-50`;
+  const commandButtonClass =
+    'inline-flex h-9 items-center gap-2 rounded-lg bg-slate-100 px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50';
 
   return (
     <div className="space-y-8">
@@ -754,14 +898,14 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
                           </span>
                         </div>
                       </td>
-                      <td className="px-3 py-3">
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            const confirmed = window.confirm(
-                              `Soll ${member.firstName} ${member.lastName} wirklich entfernt werden?`
-                            );
-                            if (!confirmed) return;
+	                      <td className="px-3 py-3">
+	                        <button
+	                          onClick={async (e) => {
+	                            e.stopPropagation();
+	                            const confirmed = window.confirm(
+	                              `Soll ${member.firstName} ${member.lastName} aus dem Mailservice archiviert werden?`
+	                            );
+	                            if (!confirmed) return;
 
                             const headers: Record<string, string> = {};
                             if (apiToken) headers.Authorization = `Bearer ${apiToken}`;
@@ -783,19 +927,19 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
                                 next.delete(member.id);
                                 return next;
                               });
-                              setStatus({ state: 'success', message: 'Mitglied entfernt.' });
-                            } catch (error) {
-                              console.error('Mitglied konnte nicht gelöscht werden', error);
-                              setStatus({
-                                state: 'error',
-                                message: 'Löschen fehlgeschlagen. Bitte erneut versuchen.'
-                              });
-                            }
-                          }}
-                          className="text-xs font-semibold text-rose-600 hover:text-rose-500"
-                        >
-                          Entfernen
-                        </button>
+	                              setStatus({ state: 'success', message: 'Mitglied archiviert.' });
+	                            } catch (error) {
+	                              console.error('Mitglied konnte nicht archiviert werden', error);
+	                              setStatus({
+	                                state: 'error',
+	                                message: 'Archivieren fehlgeschlagen. Bitte erneut versuchen.'
+	                              });
+	                            }
+	                          }}
+	                          className="text-xs font-semibold text-rose-600 hover:text-rose-500"
+	                        >
+	                          Archivieren
+	                        </button>
                       </td>
                     </tr>
                   );
@@ -929,84 +1073,200 @@ const MailServiceApp = ({ apiUrl = '/members/api/contacts', apiToken }: Props) =
               />
             </label>
 
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-2 text-xs text-slate-700">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2 text-slate-700">
                 <button
-                  onClick={() => execFormat('bold')}
-                  className="rounded-lg bg-slate-100 px-2 py-1 font-semibold transition hover:bg-slate-200"
+                  type="button"
+                  title="Fett"
+                  disabled={!editor}
+                  onClick={() => editor?.chain().focus().toggleBold().run()}
+                  className={toolbarButtonClass(Boolean(editor?.isActive('bold')))}
                 >
-                  B
+                  <Bold className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
-                  onClick={() => execFormat('italic')}
-                  className="rounded-lg bg-slate-100 px-2 py-1 italic transition hover:bg-slate-200"
+                  type="button"
+                  title="Kursiv"
+                  disabled={!editor}
+                  onClick={() => editor?.chain().focus().toggleItalic().run()}
+                  className={toolbarButtonClass(Boolean(editor?.isActive('italic')))}
                 >
-                  I
+                  <Italic className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
-                  onClick={() => execFormat('underline')}
-                  className="rounded-lg bg-slate-100 px-2 py-1 underline transition hover:bg-slate-200"
+                  type="button"
+                  title="Unterstrichen"
+                  disabled={!editor}
+                  onClick={() => editor?.chain().focus().toggleUnderline().run()}
+                  className={toolbarButtonClass(Boolean(editor?.isActive('underline')))}
                 >
-                  U
+                  <UnderlineIcon className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
-                  onClick={() => execFormat('insertUnorderedList')}
-                  className="rounded-lg bg-slate-100 px-2 py-1 transition hover:bg-slate-200"
+                  type="button"
+                  title="Aufzählung"
+                  disabled={!editor}
+                  onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                  className={toolbarButtonClass(Boolean(editor?.isActive('bulletList')))}
                 >
-                  • Liste
+                  <List className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
-                  onClick={() => execFormat('insertOrderedList')}
-                  className="rounded-lg bg-slate-100 px-2 py-1 transition hover:bg-slate-200"
+                  type="button"
+                  title="Nummerierte Liste"
+                  disabled={!editor}
+                  onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                  className={toolbarButtonClass(Boolean(editor?.isActive('orderedList')))}
                 >
-                  1. Liste
+                  <ListOrdered className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
-                  onClick={() => {
-                    const url = prompt('Link-URL eingeben:');
-                    if (url) execFormat('createLink', url);
-                  }}
-                  className="rounded-lg bg-slate-100 px-2 py-1 transition hover:bg-slate-200"
+                  type="button"
+                  title="Link einfügen oder bearbeiten"
+                  disabled={!editor}
+                  onClick={openLinkDialog}
+                  className={toolbarButtonClass(Boolean(editor?.isActive('link')))}
                 >
-                  Link
+                  <LinkIcon className="h-4 w-4" aria-hidden="true" />
                 </button>
                 <button
-                  onClick={() => execFormat('insertText', '{{Anrede}}')}
-                  className="rounded-lg bg-slate-100 px-2 py-1 transition hover:bg-slate-200"
+                  type="button"
+                  title="Link entfernen"
+                  disabled={!editor || !editor.isActive('link')}
+                  onClick={() => editor?.chain().focus().unsetLink().run()}
+                  className={toolbarButtonClass(false)}
+                >
+                  <Unlink className="h-4 w-4" aria-hidden="true" />
+                </button>
+                <span className="mx-1 hidden h-6 w-px bg-slate-200 sm:inline-flex" />
+                <button
+                  type="button"
+                  disabled={!editor}
+                  onClick={loadInvitationTemplate}
+                  className={commandButtonClass}
+                >
+                  <FileText className="h-4 w-4" aria-hidden="true" />
+                  Vorlage laden
+                </button>
+                <button
+                  type="button"
+                  disabled={!editor}
+                  onClick={insertDutyRosterLink}
+                  className={commandButtonClass}
+                >
+                  <CalendarDays className="h-4 w-4" aria-hidden="true" />
+                  Dienstplan-Link
+                </button>
+                <button
+                  type="button"
+                  disabled={!editor}
+                  onClick={() => editor?.chain().focus().insertContent('{{Anrede}}').run()}
+                  className={commandButtonClass}
                 >
                   {'{{Anrede}}'}
                 </button>
                 <button
-                  onClick={() => execFormat('insertText', '{{Gruss}}')}
-                  className="rounded-lg bg-slate-100 px-2 py-1 transition hover:bg-slate-200"
+                  type="button"
+                  disabled={!editor}
+                  onClick={() => editor?.chain().focus().insertContent('{{Gruss}}').run()}
+                  className={commandButtonClass}
                 >
                   {'{{Gruss}}'}
                 </button>
                 <button
-                  onClick={() => execFormat('insertText', '{{Signatur}}')}
-                  className="rounded-lg bg-slate-100 px-2 py-1 transition hover:bg-slate-200"
+                  type="button"
+                  disabled={!editor}
+                  onClick={() => editor?.chain().focus().insertContent('{{Signatur}}').run()}
+                  className={commandButtonClass}
                 >
                   {'{{Signatur}}'}
                 </button>
               </div>
-              <div className="relative mt-2">
+
+              {linkDialog.open && (
+                <div className="rounded-2xl border border-brand-100 bg-brand-50 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900">Link einfügen</h3>
+                      <p className="mt-1 text-xs text-slate-600">
+                        Text eingeben, Adresse einfügen und übernehmen. Adressen ohne https werden automatisch ergänzt.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={closeLinkDialog}
+                      className="rounded-lg p-1 text-slate-500 transition hover:bg-white hover:text-slate-900"
+                      title="Schließen"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div className="mt-3 grid gap-3 md:grid-cols-[0.9fr_1.2fr_auto]">
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Anzeigetext
+                      </span>
+                      <input
+                        value={linkDialog.text}
+                        onChange={(e) => setLinkDialog((prev) => ({ ...prev, text: e.target.value }))}
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                        placeholder="z.B. Dienstplan öffnen"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Adresse
+                      </span>
+                      <input
+                        value={linkDialog.href}
+                        onChange={(e) => {
+                          setLinkDialog((prev) => ({ ...prev, href: e.target.value }));
+                          setLinkStatus('');
+                        }}
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                        placeholder="https://..."
+                      />
+                    </label>
+                    <div className="flex items-end gap-2">
+                      <button
+                        type="button"
+                        onClick={openEnteredLink}
+                        className="inline-flex h-10 items-center justify-center rounded-xl bg-white px-3 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"
+                        title="Link prüfen"
+                      >
+                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={applyLink}
+                        className="h-10 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+                      >
+                        Übernehmen
+                      </button>
+                    </div>
+                  </div>
+                  {linkStatus && <p className="mt-2 text-xs font-medium text-rose-600">{linkStatus}</p>}
+                </div>
+              )}
+
+              <div className="relative rounded-2xl border border-slate-200 bg-slate-50 shadow-inner focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
                 {isEditorEmpty(editorHtml) && (
-                  <div className="pointer-events-none absolute inset-3 text-sm text-slate-400">
-                    Schreibe deine Nachricht … Platzhalter wie {'{{Anrede}}'}, {'{{Gruss}}'}, {'{{Signatur}}'}
+                  <div className="pointer-events-none absolute inset-x-4 top-3 text-sm text-slate-400">
+                    Schreibe deine Nachricht. Links, Vorlage und Dienstplan kannst du oben einfügen.
                   </div>
                 )}
-                <div
-                  ref={editorRef}
-                  contentEditable
-                  suppressContentEditableWarning
-                  onInput={() => setEditorHtml(editorRef.current?.innerHTML || '')}
-                  onBlur={() => setEditorHtml(editorRef.current?.innerHTML || '')}
-                  className="min-h-[220px] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-base leading-relaxed text-slate-900 shadow-inner outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 [&>*]:my-2 [&>p]:my-3 [&>div]:my-2 [&>br]:my-1"
-                />
+                <EditorContent editor={editor} />
               </div>
-              <p className="text-xs text-slate-500">
-                Drag & Drop für Bilder/PDF erlaubt; Platzhalter fügen Anrede, Gruß und Signatur automatisch ein.
-              </p>
+              <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+                <span>
+                  URLs werden beim Einfügen automatisch verlinkt. Platzhalter setzen Anrede, Gruß und Signatur automatisch.
+                </span>
+                {!hasDutyRosterLink && (
+                  <span className="font-medium text-amber-700">
+                    Kein Dienstplan-Link in der Nachricht.
+                  </span>
+                )}
+              </div>
             </div>
 
             <div
